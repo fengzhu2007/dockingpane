@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/docking.png</file>
+        <file>images/docking_b_bottom.png</file>
+        <file>images/docking_b_bottom_act.png</file>
+        <file>images/docking_b_left.png</file>
+        <file>images/docking_b_left_act.png</file>
+        <file>images/docking_b_right.png</file>
+        <file>images/docking_b_right_act.png</file>
+        <file>images/docking_b_top.png</file>
+        <file>images/docking_b_top_act.png</file>
+        <file>images/docking_bottom.png</file>
+        <file>images/docking_bottom_act.png</file>
+        <file>images/docking_center.png</file>
+        <file>images/docking_center_act.png</file>
+        <file>images/docking_left.png</file>
+        <file>images/docking_left_act.png</file>
+        <file>images/docking_right.png</file>
+        <file>images/docking_right_act.png</file>
+        <file>images/docking_top.png</file>
+        <file>images/docking_top_act.png</file>
+    </qresource>
+</RCC>

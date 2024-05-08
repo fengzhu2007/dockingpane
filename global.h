@@ -1,0 +1,12 @@
+#ifndef DOCKINGPANE_GLOBAL_H
+#define DOCKINGPANE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(DOCKINGPANE_LIBRARY)
+#  define DOCKINGPANE_EXPORT Q_DECL_EXPORT
+#else
+#  define DOCKINGPANE_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // DOCKINGPANE_GLOBAL_H
