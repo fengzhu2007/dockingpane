@@ -80,6 +80,7 @@ namespace ady {
         child->setObjectName(item->widget()->objectName()+"_itemInfo");
         child->initHandle(workbench);
         m_children.insert(index,child);
+        //qDebug()<<"children:"<<m_children;
         /*if(position==DockingPaneManager::Top || position==DockingPaneManager::Left){
             m_children.insert(0,child);
         }else{

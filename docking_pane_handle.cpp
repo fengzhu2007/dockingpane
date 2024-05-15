@@ -9,7 +9,7 @@ namespace ady {
         :QFrame(parent)
     {
         //this->setStyleSheet("background:orange");
-        setStyleSheet("background:rgb(41,57,85)");//theme
+        setStyleSheet("background:#eeeef2");//theme
         m_itemInfo = itemInfo;
     }
 

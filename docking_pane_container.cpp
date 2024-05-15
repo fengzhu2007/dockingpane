@@ -17,19 +17,23 @@ namespace ady {
         DockingPaneContainer::State state = DockingPaneContainer::Inner;
         DockingPaneLayoutItemInfo* info = nullptr;
         bool client = false;
+        DockingPaneManager::Position ori_position = DockingPaneManager::S_Left;
+        QRect ori_rc;
     };
 
-    DockingPaneContainer::DockingPaneContainer(QWidget* parent)
+    DockingPaneContainer::DockingPaneContainer(QWidget* parent,DockingPaneManager::Position position)
         :QWidget(parent)
     {
         setFocusPolicy(Qt::ClickFocus);
-        setStyleSheet("ady--DockingPaneContainer{background:white}");//theme
+        setStyleSheet("ady--DockingPaneContainer{background:white;border:1px solid #ccc;}");//theme
         //ady--DockingPaneContainerNClient
 
         d = new DockingPaneContainerPrivate;
+        d->ori_position = position;
+
 
         QVBoxLayout* layout = new QVBoxLayout(this);
-        layout->setMargin(0);
+        layout->setMargin(1);
         layout->setSpacing(0);
 
 
@@ -107,9 +111,10 @@ namespace ady {
     {
         d->stacked->setCurrentIndex(index);
         DockingPane* pane = static_cast<DockingPane*>(d->stacked->widget(index));
-        if(d->nclient!=nullptr){
+        if(d->nclient!=nullptr && pane!=nullptr){
             d->nclient->updateTitle(pane->windowTitle());
         }
+        d->tabbar->setCurrentIndex(index);
     }
 
     void DockingPaneContainer::setState(State state)
@@ -119,18 +124,18 @@ namespace ady {
             if(d->state==Fixed){
                 //hide pin update pin ori
                 //hide max
-                d->nclient->setButtonState(DockingPaneContainerNClient::Pin,DockingPaneContainerNClient::Other);
-                d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Gone);
+                d->nclient->setButtonState(DockingPaneContainerNClient::Pin,DockingPaneContainerNClient::Fixed);
+                //d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Gone);
             }else if(d->state==Float){
                 //hide pin
                 //show max
-                d->nclient->setButtonState(DockingPaneContainerNClient::Pin,DockingPaneContainerNClient::Gone);
-                d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Visible);
+                d->nclient->setButtonState(DockingPaneContainerNClient::Pin,DockingPaneContainerNClient::Float);
+                //d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Visible);
             }else if(d->state==Inner){
                 //show pin
                 //hide max
-                d->nclient->setButtonState(DockingPaneContainerNClient::Pin,DockingPaneContainerNClient::Visible);
-                d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Gone);
+                d->nclient->setButtonState(DockingPaneContainerNClient::Pin,DockingPaneContainerNClient::Inner);
+                //d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Gone);
             }
         }
     }
@@ -138,6 +143,13 @@ namespace ady {
     DockingPaneContainer::State DockingPaneContainer::state()
     {
         return d->state;
+    }
+
+
+    void DockingPaneContainer::activeWidget(bool active){
+        if(d->nclient!=nullptr){
+            d->nclient->setActive(active);
+        }
     }
 
     void DockingPaneContainer::setItemInfo(DockingPaneLayoutItemInfo* info)
@@ -161,6 +173,10 @@ namespace ady {
         return d->stacked->count();
     }
 
+    int DockingPaneContainer::current(){
+        return d->stacked->currentIndex();
+    }
+
     DockingPane* DockingPaneContainer::pane(int i)
     {
         return (DockingPane*)d->stacked->widget(i);
@@ -174,6 +190,10 @@ namespace ady {
         return (DockingPane*)widget;
     }
 
+    DockingPane* DockingPaneContainer::takeCurrent(){
+        return this->takeAt(d->stacked->currentIndex());
+    }
+
     DockingPaneContainerTabBar* DockingPaneContainer::tabBar()
     {
         return d->tabbar;
@@ -182,6 +202,52 @@ namespace ady {
     QStackedWidget* DockingPaneContainer::stacked()
     {
         return d->stacked;
+    }
+
+    void DockingPaneContainer::closeCurrent(){
+        if(d!=nullptr&&d->stacked!=nullptr){
+            int index = d->stacked->currentIndex();
+            DockingPane* pane = this->takeAt(index);
+            pane->close();
+            index -= 1;
+            if(index<0){
+                index = 0;
+            }
+            this->onCurrentChanged(index);
+        }
+    }
+
+    void DockingPaneContainer::visibleTabBar(bool visible){
+        if(d->tabbar!=nullptr){
+            if(visible && d->stacked->count()>1){
+                d->tabbar->show();
+            }else{
+                d->tabbar->hide();
+            }
+        }
+    }
+
+    void DockingPaneContainer::setOriPosition(DockingPaneManager::Position position){
+        d->ori_position = position;
+    }
+
+    DockingPaneManager::Position DockingPaneContainer::oriPosition(){
+        return d->ori_position;
+    }
+
+    void DockingPaneContainer::setOriRect(QRect rc){
+        d->ori_rc = rc;
+    }
+
+    void DockingPaneContainer::setOriRect(int w,int h){
+        d->ori_rc.setWidth(w);
+        d->ori_rc.setHeight(h);
+    }
+
+    void DockingPaneContainer::setMoving(bool state){
+        if(d->nclient!=nullptr){
+            d->nclient->setMoving(state);
+        }
     }
 
     void DockingPaneContainer::onCurrentChanged(int i)

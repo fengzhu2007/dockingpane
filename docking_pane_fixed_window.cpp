@@ -4,6 +4,7 @@
 #include "docking_pane_container.h"
 
 #include <QGraphicsDropShadowEffect>
+#include <QDebug>
 namespace ady {
     class DockingPaneFixedWindowPrivate {
     public:
@@ -28,8 +29,16 @@ namespace ady {
 
     void DockingPaneFixedWindow::setCenterWidget(DockingPaneContainer* container)
     {
+        if(d->container!=nullptr && d->container!=container){
+            d->container->setParent(nullptr);
+            d->container->hide();
+        }else if(container==nullptr){
+            d->container = nullptr;
+            return ;
+        }
         d->container = container;
         d->container->setParent(this);
+        d->container->show();
         d->container->setState(DockingPaneContainer::Fixed);
         updateResizer();
 
@@ -109,5 +118,10 @@ namespace ady {
     {
         QWidget::resizeEvent(event);
         updateResizer();
+    }
+
+    void DockingPaneFixedWindow::changeEvent(QEvent *event){
+        QWidget::changeEvent(event);
+        //qDebug()<<"event:"<<event;
     }
 }

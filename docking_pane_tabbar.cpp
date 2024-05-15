@@ -23,6 +23,7 @@ namespace ady{
         d->layout = new QBoxLayout(QBoxLayout::LeftToRight,this);
         d->spacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
         d->layout->setMargin(0);
+        //d->layout->setContentsMargins(5,5,5,5);
         d->layout->setSpacing(10);
         d->layout->addItem(d->spacer);
         setVisible(false);
@@ -45,12 +46,16 @@ namespace ady{
         d->position = position;
         if(d->position==DockingPaneManager::S_Left){
             setShape(DockingPaneTabBar::RoundedWest);
+            d->layout->setContentsMargins(0,3,0,0);
         }else if(d->position==DockingPaneManager::S_Top){
             setShape(DockingPaneTabBar::RoundedNorth);
+            d->layout->setContentsMargins(3,0,0,0);
         }else if(d->position==DockingPaneManager::S_Right){
             setShape(DockingPaneTabBar::RoundedEast);
+            d->layout->setContentsMargins(0,3,0,0);
         }else if(d->position==DockingPaneManager::S_Bottom){
             setShape(DockingPaneTabBar::RoundedSouth);
+            d->layout->setContentsMargins(3,0,0,0);
         }
     }
 
@@ -80,6 +85,29 @@ namespace ady{
                 }
                 d->list.erase(iter);
                 return ;
+            }
+            i += (*iter)->paneCount();
+            iter++;
+        }
+        if(d->children.size()==0){
+            setVisible(false);
+        }
+    }
+
+    void DockingPaneTabBar::removeContainerChild(DockingPaneContainer* container,int index){
+        QList<DockingPaneContainer*>::iterator iter = d->list.begin();
+        int i = 0;
+        while(iter!=d->list.end()){
+            if((*iter)==container){
+                //remove tabs
+                int children = container->paneCount();
+                for(int j=0;j<children;j++){
+                    if(j==index){
+                        removeTab(i);
+                        break;
+                    }
+                }
+                break;
             }
             i += (*iter)->paneCount();
             iter++;
@@ -157,14 +185,17 @@ namespace ady{
 
     void DockingPaneTabBar::onCurrentChanged(int i)
     {
+        //qDebug()<<"onCurrentChanged:"<<i<<";list:"<<d->list;
         foreach(DockingPaneContainer* one , d->list){
             int children = one->paneCount();
             if(i<children){
                 //show fixed window and active tab i
                 one->onCurrentChanged(i);
+                //hide tabbar items
+                one->visibleTabBar(false);
                 DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
                 workbench->showFixedWindow(one,d->position);
-
+                break ;
             }else{
                 i -= children;
             }
@@ -174,10 +205,11 @@ namespace ady{
     void DockingPaneTabBar::onItemClicked()
     {
         QObject* sender = this->sender();
-        qDebug()<<"sender:"<<sender;
+        //qDebug()<<"sender:"<<sender;
         int i = 0;
         foreach(DockingPaneTabBarItem* one,d->children){
             if(one==sender){
+                //qDebug()<<"sender:"<<sender<<"index:"<<i;
                 emit currentChanged(i);
                 return;
             }

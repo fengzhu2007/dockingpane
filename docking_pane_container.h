@@ -16,7 +16,7 @@ namespace ady{
             Fixed,
             Float
         };
-        DockingPaneContainer(QWidget* parent);
+        DockingPaneContainer(QWidget* parent,DockingPaneManager::Position position=DockingPaneManager::S_Left);
         ~DockingPaneContainer();
 
 
@@ -27,16 +27,28 @@ namespace ady{
 
         void setState(State state);
         State state();
+        void activeWidget(bool active);
 
         void setItemInfo(DockingPaneLayoutItemInfo* info);
         DockingPaneLayoutItemInfo* itemInfo();
 
         int paneCount();
+        int current();
         DockingPane* pane(int i);
         DockingPane* takeAt(int i);
+        DockingPane* takeCurrent();
 
         DockingPaneContainerTabBar* tabBar();
         QStackedWidget* stacked();
+        void closeCurrent();
+
+        void visibleTabBar(bool visible);
+        void setOriPosition(DockingPaneManager::Position position);
+        DockingPaneManager::Position oriPosition();
+        void setOriRect(QRect rc);
+        void setOriRect(int w,int h);
+        void setMoving(bool state);
+
 
     public slots:
         void onCurrentChanged(int i);

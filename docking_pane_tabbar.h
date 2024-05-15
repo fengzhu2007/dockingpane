@@ -16,6 +16,7 @@ namespace ady{
         void setPosition(DockingPaneManager::Position position);
         void addContainer(DockingPaneContainer* container);
         void removeContainer(DockingPaneContainer* container);
+        void removeContainerChild(DockingPaneContainer* container,int index);
         void setShape(Shape shape);
         void addTab(const QString& title);
         void removeTab(int i);

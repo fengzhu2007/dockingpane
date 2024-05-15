@@ -30,7 +30,7 @@ namespace ady {
     void DockingPaneContainerTabBar::mousePressEvent(QMouseEvent *e)
     {
         QTabBar::mousePressEvent(e);
-        d->moving = true;
+        //d->moving = true;
         d->offsetX = e->x();
         d->offsetY = e->y();
         //d->index = tabAt(e->pos());
@@ -131,6 +131,10 @@ namespace ady {
 
             }
             //qDebug()<<"DockingPaneContainerTabBar::mouseMoveEvent";
+        }else{
+            if(abs(d->offsetX - e->x())>5 || abs(d->offsetY-e->y())>5){
+                d->moving = true;
+            }
         }
     }
 

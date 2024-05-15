@@ -19,9 +19,9 @@ namespace ady {
             Close,
         };
         enum State {
-            Gone,
-            Visible,
-            Other
+            Inner,
+            Fixed,
+            Float
         };
 
         DockingPaneContainerNClient(DockingPaneContainer* parent);
@@ -29,11 +29,15 @@ namespace ady {
         void updateTitle(QString title);
         void setButtonState(Button b,State s);
         void setActive(bool active);
+        void setMoving(bool state);
 
     public slots:
-        void onMenuRequested(const QPoint &pos);
+        void onMenuRequested();
         void onClose();
         void onAutoHide();
+        void onFloat(bool moving=false);
+        void onDock();
+        void onTabDock();
 
 
     protected:

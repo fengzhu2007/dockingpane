@@ -26,7 +26,7 @@ namespace ady {
 
 
         d->workbench = new DockingWorkbench(d->widget);
-        d->layout = new DockingPaneLayout(d->workbench,0,10);
+        d->layout = new DockingPaneLayout(d->workbench,0,8);
 
         d->workbench->initClient();
 
@@ -54,7 +54,7 @@ namespace ady {
     void DockingPaneManager::createPane(DockingPane* pane,Position position)
     {
         //parent containter workbench
-        DockingPaneContainer* containter = new DockingPaneContainer(d->workbench);
+        DockingPaneContainer* containter = new DockingPaneContainer(d->workbench,position);
 
         if(position==S_Left){
             //d->workbench->insertContainer(0,containter);

@@ -19,5 +19,63 @@
         <file>images/docking_right_act.png</file>
         <file>images/docking_top.png</file>
         <file>images/docking_top_act.png</file>
+        <file>images/close_active.png</file>
+        <file>images/close_inactive.png</file>
+        <file>images/pin_active.png</file>
+        <file>images/pin_inactive.png</file>
+        <file>images/arrow.png</file>
+        <file>images/arrow_active.png</file>
+        <file>images/pin_float_inactive.png</file>
+        <file>images/vs2019/dock_big_pin_black.png</file>
+        <file>images/vs2019/dock_big_pin_gray.png</file>
+        <file>images/vs2019/dock_big_pin_white.png</file>
+        <file>images/vs2019/dock_bottom.png</file>
+        <file>images/vs2019/dock_bottom_active.png</file>
+        <file>images/vs2019/dock_center.png</file>
+        <file>images/vs2019/dock_center_active.png</file>
+        <file>images/vs2019/dock_close_gray.png</file>
+        <file>images/vs2019/dock_close_white.png</file>
+        <file>images/vs2019/dock_drow_gray.png</file>
+        <file>images/vs2019/dock_drow_white.png</file>
+        <file>images/vs2019/dock_head_blue.png</file>
+        <file>images/vs2019/dock_head_gray.png</file>
+        <file>images/vs2019/dock_head_white.png</file>
+        <file>images/vs2019/dock_left.png</file>
+        <file>images/vs2019/dock_left_active.png</file>
+        <file>images/vs2019/dock_max_black.png</file>
+        <file>images/vs2019/dock_max_gray.png</file>
+        <file>images/vs2019/dock_max_white.png</file>
+        <file>images/vs2019/dock_pin_black.png</file>
+        <file>images/vs2019/dock_pin_fixed_black.png</file>
+        <file>images/vs2019/dock_pin_fixed_gray.png</file>
+        <file>images/vs2019/dock_pin_fixed_white.png</file>
+        <file>images/vs2019/dock_pin_gray.png</file>
+        <file>images/vs2019/dock_pin_white.png</file>
+        <file>images/vs2019/dock_restore_black.png</file>
+        <file>images/vs2019/dock_restore_gray.png</file>
+        <file>images/vs2019/dock_restore_white.png</file>
+        <file>images/vs2019/dock_right.png</file>
+        <file>images/vs2019/dock_right_active.png</file>
+        <file>images/vs2019/dock_sider_background.png</file>
+        <file>images/vs2019/dock_sider_bottom.png</file>
+        <file>images/vs2019/dock_sider_bottom_active.png</file>
+        <file>images/vs2019/dock_sider_left.png</file>
+        <file>images/vs2019/dock_sider_left_active.png</file>
+        <file>images/vs2019/dock_sider_right.png</file>
+        <file>images/vs2019/dock_sider_right_active.png</file>
+        <file>images/vs2019/dock_sider_top.png</file>
+        <file>images/vs2019/dock_sider_top_active.png</file>
+        <file>images/vs2019/dock_top.png</file>
+        <file>images/vs2019/dock_top_active.png</file>
+        <file>images/vs2019/docking.png</file>
+        <file>images/vs2019/docking_all.png</file>
+        <file>images/vs2019/dock_border_sider_bottom.png</file>
+        <file>images/vs2019/dock_border_sider_bottom_active.png</file>
+        <file>images/vs2019/dock_border_sider_left.png</file>
+        <file>images/vs2019/dock_border_sider_left_active.png</file>
+        <file>images/vs2019/dock_border_sider_right.png</file>
+        <file>images/vs2019/dock_border_sider_right_active.png</file>
+        <file>images/vs2019/dock_border_sider_top.png</file>
+        <file>images/vs2019/dock_border_sider_top_active.png</file>
     </qresource>
 </RCC>

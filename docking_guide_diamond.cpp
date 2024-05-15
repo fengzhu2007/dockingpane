@@ -22,6 +22,7 @@ namespace ady {
             d = new DockingGuideDiamondPrivate;
             setPosition(position);
             setAttribute(Qt::WA_TranslucentBackground, true);
+
     }
 
     DockingGuideDiamond::~DockingGuideDiamond(){
@@ -37,23 +38,23 @@ namespace ady {
     {
         d->position = position;
         if(d->position == DockingPaneManager::S_Left){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_left.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_left.png")));
         }else if(d->position == DockingPaneManager::S_Top){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_top.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_top.png")));
         }else if(d->position == DockingPaneManager::S_Right){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_right.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_right.png")));
         }else if(d->position == DockingPaneManager::S_Bottom){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_bottom.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_bottom.png")));
         }else if(d->position == DockingPaneManager::Left){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_left.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_left.png")));
         }else if(d->position == DockingPaneManager::Top){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_top.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_top.png")));
         }else if(d->position == DockingPaneManager::Right){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_right.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_right.png")));
         }else if(d->position == DockingPaneManager::Bottom){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_bottom.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_bottom.png")));
         }else if(d->position == DockingPaneManager::Center){
-            this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_center.png")));
+            this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_center.png")));
         }
     }
 
@@ -62,43 +63,43 @@ namespace ady {
         d->active = state;
         if(d->active){
             if(d->position == DockingPaneManager::S_Left){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_left_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_left_active.png")));
             }else if(d->position == DockingPaneManager::S_Top){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_top_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_top_active.png")));
             }else if(d->position == DockingPaneManager::S_Right){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_right_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_right_active.png")));
             }else if(d->position == DockingPaneManager::S_Bottom){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_bottom_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_bottom_active.png")));
             }else if(d->position == DockingPaneManager::Left){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_left_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_left_active.png")));
             }else if(d->position == DockingPaneManager::Top){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_top_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_top_active.png")));
             }else if(d->position == DockingPaneManager::Right){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_right_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_right_active.png")));
             }else if(d->position == DockingPaneManager::Bottom){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_bottom_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_bottom_active.png")));
             }else if(d->position == DockingPaneManager::Center){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_center_act.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_center_active.png")));
             }
         }else{
             if(d->position == DockingPaneManager::S_Left){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_left.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_left.png")));
             }else if(d->position == DockingPaneManager::S_Top){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_top.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_top.png")));
             }else if(d->position == DockingPaneManager::S_Right){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_right.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_right.png")));
             }else if(d->position == DockingPaneManager::S_Bottom){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_bottom.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_bottom.png")));
             }else if(d->position == DockingPaneManager::Left){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_left.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_left.png")));
             }else if(d->position == DockingPaneManager::Top){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_top.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_top.png")));
             }else if(d->position == DockingPaneManager::Right){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_right.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_right.png")));
             }else if(d->position == DockingPaneManager::Bottom){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_b_bottom.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_sider_bottom.png")));
             }else if(d->position == DockingPaneManager::Center){
-                this->setPixmap(QPixmap(QString::fromUtf8(":/images/docking_center.png")));
+                this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_center.png")));
             }
         }
     }

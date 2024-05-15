@@ -63,7 +63,9 @@ namespace ady {
         if (d->hover) {
             color = textColor = QColor(0, 122, 204);
         } else {
-            textColor = Qt::black;
+            //#444444
+            //textColor = Qt::white;
+            textColor = QColor("#444444");
             color = QColor(0xcc, 0xce, 0xdb);
         }
 

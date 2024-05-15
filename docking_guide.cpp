@@ -9,13 +9,15 @@
 
 #include <QDebug>
 
+
 namespace ady {
     DockingGuide::DockingGuide(DockingWorkbench* parent)
         :QFrame(parent),
         ui(new Ui::DockingPaneGuide){
         ui->setupUi(this);
         setWindowFlags( Qt::FramelessWindowHint| Qt::ToolTip);
-        setAttribute(Qt::WA_NoBackground, true);
+        //setAttribute(Qt::WA_NoBackground, true);
+        //setStyleSheet("background: transparent;");
         //this->setStyleSheet(QString::fromUtf8("background-image: url(:/images/docking.png);"));
 
         ui->left->setPosition(DockingPaneManager::Left);
@@ -24,7 +26,7 @@ namespace ady {
         ui->bottom->setPosition(DockingPaneManager::Bottom);
         ui->center->setPosition(DockingPaneManager::Center);
 
-        QPixmap pixmap(":/images/docking.png");
+        QPixmap pixmap(":/images/vs2019/docking.png");
         QPalette palette;
         palette.setBrush(this->backgroundRole(),QBrush(pixmap));
         setPalette(palette);
@@ -39,10 +41,6 @@ namespace ady {
     DockingGuideDiamond* DockingGuide::updateActive(const QPoint& pos)
     {
         QRect rc = geometry();
-        //QPoint p = mapToParent()
-        /*qDebug()<<"rect:"<<geometry();
-        QPoint p = mapTo(this,pos);
-        qDebug()<<"p:"<<p;*/
         QPoint p (pos.x() - rc.x(),pos.y() - rc.y());
         bool ret = ui->left->updateActive(p);
         if(ret){

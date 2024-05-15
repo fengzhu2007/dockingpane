@@ -179,17 +179,20 @@ namespace ady {
         DockingPaneLayoutItemInfo::Orientation parentItemOrientation = parentItemInfo->childrenOrientation();
         QWidgetItem* itemInfo = new QWidgetItem((QWidget*)widget);
         if((position==DockingPaneManager::Left || position==DockingPaneManager::Right)){
+
             if((parentItemOrientation==DockingPaneLayoutItemInfo::Unkown || parentItemOrientation==DockingPaneLayoutItemInfo::Horizontal)){
 
                 int row = relation->row();
+
                 if(position==DockingPaneManager::Left){
-                    row -= 1;
+                    //row -= 1;
                     if(row<0){
                         row = 0;
                     }
-                }else if(position==DockingPaneManager::Left){
+                }else if(position==DockingPaneManager::Right){
                     row += 1;
                 }
+                //qDebug()<<"row:"<<row;
                 parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
             }else{
                 relation->insertItem(parentWidget(),itemInfo,position);
@@ -200,7 +203,7 @@ namespace ady {
 
                 int row = relation->row();
                 if(position==DockingPaneManager::Top){
-                    row -= 1;
+                    //row -= 1;
                     if(row<0){
                         row = 0;
                     }

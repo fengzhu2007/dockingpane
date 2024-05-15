@@ -10,6 +10,8 @@ namespace ady {
     class DockingPaneManager;
     class DockingPaneContainer;
     class DockingPaneFloatWindow;
+    class DockingPaneFixedWindow;
+    class DockingPane;
     class DOCKINGPANE_EXPORT DockingWorkbench : public QFrame {
         Q_OBJECT
     public:
@@ -32,6 +34,8 @@ namespace ady {
         void hideGuideCover();
 
         void lockContainer(DockingPaneFloatWindow* window,DockingPaneContainer* container,int position);
+        void restoreWidget(DockingPaneContainer* widget,int position);
+        void restorePane(DockingPane* pane,int position);
 
         DockingPaneTabBar* tabBar(int position);
         QSize tabBarSize(int position);
@@ -49,6 +53,7 @@ namespace ady {
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;
         virtual void paintEvent(QPaintEvent *e) override;
+        virtual void mousePressEvent(QMouseEvent *event)override;
 
     private:
         DockingWorkbenchPrivate* d;

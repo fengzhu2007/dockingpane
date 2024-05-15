@@ -35,20 +35,38 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Minimum</enum>
+      <enum>QSizePolicy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>5</width>
-       <height>0</height>
+       <width>3</width>
+       <height>20</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
     <widget class="QLabel" name="title">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>24</height>
+      </size>
+     </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <property name="indent">
+      <number>2</number>
      </property>
     </widget>
    </item>
@@ -58,24 +76,76 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Minimum</enum>
+      <enum>QSizePolicy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>5</width>
+       <width>3</width>
        <height>20</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
-    <spacer name="horizontalSpacer">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>5</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>5</height>
+      </size>
+     </property>
+     <property name="sizeIncrement">
+      <size>
+       <width>0</width>
+       <height>5</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>0</width>
+       <height>5</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/images/vs2019/dock_head_gray.png);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+     <property name="margin">
+      <number>2</number>
+     </property>
+     <property name="indent">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_4">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>40</width>
+       <width>3</width>
        <height>20</height>
       </size>
      </property>
@@ -91,18 +161,23 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>24</width>
-       <height>24</height>
+       <width>17</width>
+       <height>17</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>24</width>
-       <height>24</height>
+       <width>17</width>
+       <height>17</height>
       </size>
      </property>
      <property name="text">
-      <string>M</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="res.qrc">
+       <normaloff>:/images/vs2019/dock_drow_gray.png</normaloff>
+       <normalon>:/images/arrow_active.png</normalon>:/images/vs2019/dock_drow_gray.png</iconset>
      </property>
     </widget>
    </item>
@@ -116,18 +191,23 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>24</width>
-       <height>24</height>
+       <width>17</width>
+       <height>17</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>24</width>
-       <height>24</height>
+       <width>17</width>
+       <height>17</height>
       </size>
      </property>
      <property name="text">
-      <string>P</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="res.qrc">
+       <normaloff>:/images/vs2019/dock_pin_gray.png</normaloff>
+       <normalon>:/images/pin_active.png</normalon>:/images/vs2019/dock_pin_gray.png</iconset>
      </property>
     </widget>
    </item>
@@ -141,23 +221,46 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>24</width>
-       <height>24</height>
+       <width>17</width>
+       <height>17</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>24</width>
-       <height>24</height>
+       <width>17</width>
+       <height>17</height>
       </size>
      </property>
      <property name="text">
-      <string>C</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="face-laugh" resource="res.qrc">
+       <normaloff>:/images/vs2019/dock_close_gray.png</normaloff>
+       <normalon>:/images/close_active.png</normalon>:/images/vs2019/dock_close_gray.png</iconset>
      </property>
     </widget>
    </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>3</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

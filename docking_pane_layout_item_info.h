@@ -33,6 +33,7 @@ namespace ady {
         int insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index);
 
         inline QLayoutItem* item(){return m_item;}
+        inline void setItem(QLayoutItem* item){m_item = item;}
         QLayoutItem* itemAt(int &index);
 
         int size();

@@ -11,6 +11,7 @@
 #include "docking_pane.h"
 #include <QLayout>
 #include <QResizeEvent>
+#include <QMouseEvent>
 #include <QStyleOption>
 #include <QPainter>
 #include <QDebug>
@@ -28,23 +29,19 @@ namespace ady {
         DockingPaneTabBar* tabBars[4];
         DockingPaneClient* client = nullptr;
         DockingPaneFixedWindow* fixed_window = nullptr;
-
     };
 
 
     DockingWorkbench::DockingWorkbench(QWidget* parent)
         :QFrame(parent){
-        setStyleSheet("ady--DockingWorkbench{background:rgb(41,57,85)}");//theme
+        setStyleSheet(".ady--DockingWorkbench{background:#eeeef2}");//theme
         d = new DockingWorkbenchPrivate();
 
         for(int i=0;i<4;i++){
             d->tabBars[i] = new DockingPaneTabBar(this);
             d->tabBars[i]->setPosition((DockingPaneManager::Position)i);
         }
-
         //init client container
-
-
     }
 
     void DockingWorkbench::initClient()
@@ -52,6 +49,7 @@ namespace ady {
         d->client = new DockingPaneClient(this);
         d->client->setObjectName("client_container");
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
+        //layout->setMargin(3);
         assert(layout!=nullptr);
         layout->addItem(d->client,DockingPaneManager::Center);
     }
@@ -249,16 +247,12 @@ namespace ady {
             }
         }
 
-
-
         if(position==DockingPaneManager::S_Left){
             QRect rc = geometry();
             coverRect.setX(workbenchPos.x());
             coverRect.setY(workbenchPos.y());
             coverRect.setWidth(rect.width());
             coverRect.setHeight(geometry().height());
-
-
 
             //qDebug()<<"rootItemOrientation:"<<rootItemOrientation;
            // qDebug()<<"rootItemOrientation size:"<<rootItem->childrenCount();
@@ -326,7 +320,6 @@ namespace ady {
                 if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Horizontal){
 
                 }else{
-
 
                 }
             }else if(position==DockingPaneManager::Top){
@@ -418,7 +411,11 @@ namespace ady {
             for(int i=0;i<size;i++){
                 DockingPane* pane = widget->pane(0);
                 container->appendPane(pane);
+                if(i==0){
+                   container->setPane(container->paneCount()-1);
+                }
             }
+
             widget->close();
         }
 
@@ -426,6 +423,56 @@ namespace ady {
         window->hide();
         window->deleteLater();
 
+    }
+
+    void DockingWorkbench::restoreWidget(DockingPaneContainer* widget,int position){
+        DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
+        widget->setState(DockingPaneContainer::Inner);
+
+        if(position==DockingPaneManager::S_Left || position==DockingPaneManager::S_Top || position==DockingPaneManager::S_Right || position==DockingPaneManager::S_Bottom){
+            //layout->addItem()
+
+
+            //sider tabbar remove item
+            DockingPaneTabBar* tabBar = this->tabBar(position);
+            tabBar->removeContainer(widget);
+            //d->fixed_window->close();
+            //delete d->fixed_window;
+            //d->fixed_window = nullptr;
+            widget->setParent(this);
+            layout->addItem(widget,(DockingPaneManager::Position)position);
+            widget->activeWidget(false);
+
+        }
+        d->fixed_window = nullptr;
+        layout->update();
+    }
+
+    void DockingWorkbench::restorePane(DockingPane* pane,int position){
+        DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
+        DockingPaneContainer* widget = new DockingPaneContainer(this);
+        widget->setState(DockingPaneContainer::Inner);
+        widget->appendPane(pane);
+        widget->setOriPosition((DockingPaneManager::Position)position);
+
+        if(position==DockingPaneManager::S_Left || position==DockingPaneManager::S_Top || position==DockingPaneManager::S_Right || position==DockingPaneManager::S_Bottom){
+            //layout->addItem()
+
+
+            //sider tabbar remove item
+            DockingPaneTabBar* tabBar = this->tabBar(position);
+
+            //tabBar->removeContainer(widget);
+            //d->fixed_window->close();
+            //delete d->fixed_window;
+            //d->fixed_window = nullptr;
+            //widget->setParent(this);
+            layout->addItem(widget,(DockingPaneManager::Position)position);
+            widget->activeWidget(false);
+
+        }
+        //d->fixed_window = nullptr;
+        layout->update();
     }
 
     void DockingWorkbench::hideGuideCover()
@@ -572,7 +619,11 @@ namespace ady {
             d->fixed_window = new DockingPaneFixedWindow(this,5);
             d->fixed_window->setCenterWidget(container);
             d->fixed_window->setFixedPosition(position);
+        }else{
+            d->fixed_window->setCenterWidget(container);
         }
+        //qDebug()<<"fixed:"<<container;
+        d->fixed_window->raise();
         container->setFocus();
         QRect rect = geometry();
 
@@ -649,7 +700,7 @@ namespace ady {
             }
             //d->fixed_window->move(pos);
             d->fixed_window->setGeometry(rc);
-            qDebug()<<"fix:"<<rc<<";size:"<<size;
+            //qDebug()<<"fix:"<<rc<<";size:"<<size;
         }
     }
 
@@ -679,6 +730,37 @@ namespace ady {
         style()->drawPrimitive(QStyle::PE_Frame, &opt, &p, this);
     }
 
+    void DockingWorkbench::mousePressEvent(QMouseEvent *event){
+        QWidget::mousePressEvent(event);
+        QPointF p = event->localPos();
+        if(d->fixed_window!=nullptr && d->fixed_window->isHidden()==false){
+            QRect rc = d->fixed_window->geometry();
+            if(rc.contains(p.x(),p.y())){
+                return ;
+            }
+        }
+        QObjectList lists = children();
+        foreach(auto one,lists){
+            QString name = one->metaObject()->className();
+            //qDebug()<<"name:"<<name;
+            if(name=="ady::DockingPaneContainer" || name=="ady::DockingPaneClient"){
+                QRect rc = ((QWidget*)one)->geometry();
+                if(rc.contains(p.x(),p.y())){
+                    //qDebug()<<"rc:"<<rc<<";pos:"<<p<<";one:"<<one;
+                    if(name=="ady::DockingPaneContainer"){
+                        ((DockingPaneContainer*)one)->activeWidget(true);
+                    }
+                    if(d->fixed_window!=nullptr){
+                        d->fixed_window->hide();
+                    }
+                }else{
+                    if(name=="ady::DockingPaneContainer"){
+                        ((DockingPaneContainer*)one)->activeWidget(false);
+                    }
+                }
+            }
+        }
+    }
 
 
 }

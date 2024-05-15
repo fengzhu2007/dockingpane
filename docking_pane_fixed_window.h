@@ -22,6 +22,7 @@ namespace ady {
 
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;
+        virtual void changeEvent(QEvent *event)override;
 
     private:
         void initResizer();
