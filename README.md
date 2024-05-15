@@ -50,3 +50,10 @@ class DockWindow : public QMainWindow
         delete ui;
     }
 ```
+
+
+
+## screens
+
+![](./screens/demo1.png)  
+![](./screens/demo2.png)
