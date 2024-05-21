@@ -6,14 +6,19 @@
 #include <QPainter>
 namespace ady {
 
-    DockingPaneClient::DockingPaneClient(DockingWorkbench* parent)
-        :DockingPaneContainer(parent,true)
+    DockingPaneClient::DockingPaneClient(DockingWorkbench* parent,bool init_view)
+        :DockingPaneContainer(parent,true,init_view)
     {
+        if(init_view){
+            DockingPaneContainerTabBar* tabBar = this->tabBar();
+            tabBar->setTabsClosable(true);
+        }
+    }
+
+    void DockingPaneClient::initView(){
+        DockingPaneContainer::initView();
         DockingPaneContainerTabBar* tabBar = this->tabBar();
         tabBar->setTabsClosable(true);
-
-        //this->setStyleSheet("border:1px solid red;");
-        //setStyleSheet("background:red");//theme
     }
 
 

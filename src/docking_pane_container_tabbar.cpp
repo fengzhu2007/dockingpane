@@ -2,16 +2,20 @@
 #include "docking_pane_float_window.h"
 #include "docking_pane_container.h"
 #include "docking_workbench.h"
+#include "docking_pane_layout_item_info.h"
+#include "docking_pane_handle.h"
 #include "docking_pane.h"
 #include <QMouseEvent>
 #include <QEvent>
 #include <QApplication>
+#include <QStylePainter>
 #include <QDebug>
 namespace ady {
     class DockingPaneContainerTabBarPrivate {
     public:
         bool moving = false;
         bool fixed = true;
+        bool del_parent = false;
         int offsetX = 0;
         int offsetY = 0;
         int position = -1;
@@ -56,6 +60,7 @@ namespace ady {
                     new_container->setObjectName(pane->id()+"_containter");
                     pane->setParent(new_container);
                     new_container->appendPane(pane);
+                    new_container->activeWidget(true);
                     QRect rc = pane->geometry();
                     //float widnow;
                     QPoint pos = mapToGlobal(e->pos());
@@ -77,6 +82,28 @@ namespace ady {
                     d->current_window->setCenterWidget(new_container);
                     d->current_window->updateResizer();
                     d->current_window->show();
+                    if(isClient){
+                        DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
+                        //itemInfo->dump("tabbar");
+                        DockingPaneLayoutItemInfo* parentItemInfo = itemInfo->parent();
+                        //parentItemInfo->dump("111");
+                        //qDebug()<<"client children:"<<parentItemInfo->clientChildren().size();
+                        if(parentItemInfo->clientChildren().size()>1){
+                            //DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
+                            /*DockingPaneHandle* handle = itemInfo->handle();
+                            if(handle!=nullptr){
+                                handle->hide();
+                            }*/
+                            //itemInfo->remove();
+                            parentItemInfo->removeItem(itemInfo);
+                            //delete itemInfo;
+                            container->hide();
+                            d->del_parent = true;
+                            //parentItemInfo->dump("222");
+                            //container->hide();
+                            //container->deleteLater();
+                        }
+                    }
                     //window->setMouseTracking(true);
                     //d->current_window->startMoving();
 
@@ -132,7 +159,7 @@ namespace ady {
             }
             //qDebug()<<"DockingPaneContainerTabBar::mouseMoveEvent";
         }else{
-            if(abs(d->offsetX - e->x())>5 || abs(d->offsetY-e->y())>5){
+            if(abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3){
                 d->moving = true;
             }
         }
@@ -157,7 +184,84 @@ namespace ady {
             }
         }
         d->current_window = nullptr;
+        if(d->del_parent){
+            d->del_parent = false;
+            container->close();
+            container->deleteLater();
+        }
 
+    }
+
+    void DockingPaneContainerTabBar::paintEvent(QPaintEvent* event){
+        QTabBar::paintEvent(event);
+        QStylePainter p(this);
+        int count = this->count();
+        int w = 0;
+        for(int i=0;i<count;i++){
+            QRect rc = this->tabRect(i);
+            w += rc.width();
+        }
+
+        QColor color, textColor;
+        color = textColor = QColor("#cccccc");
+        p.setPen(textColor);
+        p.fillRect(w, 0, width() - w, 1, color);
+
+
+        /*Q_UNUSED(event);
+
+        QStylePainter p(this);
+        QColor color, textColor;
+
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.setRenderHint(QPainter::HighQualityAntialiasing, true);
+
+        if (d->hover) {
+            color = textColor = QColor(0, 122, 204);
+        } else {
+            //#444444
+            //textColor = Qt::white;
+            textColor = QColor("#444444");
+            color = QColor(0xcc, 0xce, 0xdb);
+        }
+
+        p.setPen(textColor);
+
+        switch (d->orientation) {
+        case Qt::Horizontal: {
+            if (d->mirrored) {
+                p.rotate(180);
+                p.translate(-width(), -height());
+            }
+            if (d->swap) {
+                p.fillRect(0, height()-6, width(), 6, color);
+                p.drawText(0, 0, width(), height()-10, 0, this->text());
+            } else {
+                p.fillRect(0, 0, width(), 6, color);
+                p.drawText(0, 10, width(), height(), 0, this->text());
+            }
+            break;
+        }
+
+        case Qt::Vertical: {
+            if (d->mirrored) {
+                p.rotate(-90);
+                p.translate(-height(), 0);
+            } else {
+                p.rotate(90);
+                p.translate(0, -width());
+            }
+            if (d->swap) {
+                p.fillRect(0, 0, height(), 6, color);
+                p.drawText(0, 10, height(), width(), 0, this->text());
+            } else {
+                p.fillRect(0, width()-6, height(), 6, color);
+                p.drawText(0, 0, height(), width()-10, 0, this->text());
+            }
+
+            break;
+        }
+        }*/
     }
 
 }

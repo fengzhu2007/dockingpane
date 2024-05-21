@@ -7,6 +7,7 @@
 #include "docking_pane_handle.h"
 #include "docking_pane_tabbar.h"
 #include "docking_pane.h"
+#include "qss.h"
 #include "ui_docking_pane_container_nclient.h"
 #include <QStyleOption>
 #include <QPainter>
@@ -42,12 +43,6 @@ namespace ady{
         connect(ui->menu,&QPushButton::clicked,this,&DockingPaneContainerNClient::onMenuRequested);
         setActive(false);
 
-
-        //ui->pin->setStyleSheet("background-color: transparent; border: none;");
-
-        //ui->pin->setAttribute(Qt::WA_TranslucentBackground);
-        //ui->close->setAttribute(Qt::WA_TranslucentBackground);
-        //ui->menu->setAttribute(Qt::WA_TranslucentBackground);
     }
 
     void DockingPaneContainerNClient::onMenuRequested()
@@ -120,7 +115,9 @@ namespace ady{
     {
         //theme
         d->active = active;
-        if(d->active){
+        //this->setActiveState(active);
+        //this->setStyleSheet(QSS::containerNoClient(d->active));
+        /*if(d->active){
             this->setStyleSheet("ady--DockingPaneContainerNClient{background:#007acc}");
             ui->title->setStyleSheet("background:#007acc;color:white");
             ui->label->setStyleSheet("background-image: url(:/images/vs2019/dock_head_white.png);");
@@ -137,7 +134,7 @@ namespace ady{
             ui->close->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#e6e6e6; border: none;}");
             ui->menu->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#e6e6e6; border: none;}");
 
-        }
+        }*/
         DockingPaneContainer* container = (DockingPaneContainer*)this->parentWidget();
         int state = container->state();
         setButtonState(Close,Inner);
@@ -147,6 +144,15 @@ namespace ady{
 
     void DockingPaneContainerNClient::setMoving(bool state){
         d->moving = state;
+    }
+
+
+
+    void DockingPaneContainerNClient::stylePolish(){
+        QStyle* style = this->style();
+        style->polish(ui->title);
+        style->polish(ui->label);
+        style->polish(this);
     }
 
     void DockingPaneContainerNClient::onClose()
@@ -227,7 +233,7 @@ namespace ady{
                 int margin = 6;
                 DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
                 DockingPaneFloatWindow* window = new DockingPaneFloatWindow(workbench,margin);
-                if(paneCount>1){
+                if(false && paneCount>1){
                     int current = container->current();
                     DockingPane* pane = container->pane(current);
 
@@ -261,8 +267,7 @@ namespace ady{
                     delete itemInfo;
                 }
                 QRect rect;
-                rect.setWidth(rc.width() + margin * 2);
-                rect.setHeight(rc.height() + margin * 2);
+
                 if(!moving){
                     QPoint cpos = QCursor::pos();
                     rect.setX(cpos.x() - rect.width() + 80);//80= three buttons width
@@ -270,7 +275,11 @@ namespace ady{
                 }else{
                     rect.setX(pos.x() - margin);
                     rect.setY(pos.y()  - margin);
+                    //qDebug()<<rect;
                 }
+                rect.setWidth(rc.width() + margin * 2);
+                rect.setHeight(rc.height() + margin * 2);
+
                 container->activeWidget(true);
                 window->setGeometry(rect);
                 window->setCenterWidget(container);
@@ -407,7 +416,7 @@ namespace ady{
                 }
             }
         }else{
-            if(abs(d->offsetX - e->x())>5 || abs(d->offsetY-e->y())>5){
+            if(abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3){
                 d->moving = true;
                 DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
                 if(container->state()==DockingPaneContainer::Fixed){

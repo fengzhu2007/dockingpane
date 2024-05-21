@@ -1,6 +1,7 @@
 #include "docking_workbench.h"
 #include "docking_pane_client.h"
 #include "docking_guide.h"
+//#include "docking_client_guide.h"
 #include "docking_guide_diamond.h"
 #include "docking_guide_cover.h"
 #include "docking_pane_layout_item_info.h"
@@ -9,11 +10,13 @@
 #include "docking_pane_fixed_window.h"
 #include "docking_pane_tabbar.h"
 #include "docking_pane.h"
+#include "qss.h"
 #include <QLayout>
 #include <QResizeEvent>
 #include <QMouseEvent>
 #include <QStyleOption>
 #include <QPainter>
+#include <QStyle>
 #include <QDebug>
 
 namespace ady {
@@ -21,20 +24,23 @@ namespace ady {
     public:
         //QSplitter* vertical_splitter;//level 1
         DockingGuide* guide = nullptr;
+        //DockingClientGuide* client_guide = nullptr;
         DockingGuideDiamond* siders[4];
         bool guide_visibility = false;
         QList<DockingPaneContainer*> children;
         bool lookup = false;
         DockingGuideCover* cover = nullptr;
         DockingPaneTabBar* tabBars[4];
-        DockingPaneClient* client = nullptr;
+        //DockingPaneClient* client = nullptr;
+        QList<DockingPaneClient*> clients;
         DockingPaneFixedWindow* fixed_window = nullptr;
     };
 
 
     DockingWorkbench::DockingWorkbench(QWidget* parent)
         :QFrame(parent){
-        setStyleSheet(".ady--DockingWorkbench{background:#eeeef2}");//theme
+        //setStyleSheet(".ady--DockingWorkbench{background:#eeeef2}");//theme
+        setStyleSheet(QSS::global());
         d = new DockingWorkbenchPrivate();
 
         for(int i=0;i<4;i++){
@@ -46,12 +52,13 @@ namespace ady {
 
     void DockingWorkbench::initClient()
     {
-        d->client = new DockingPaneClient(this);
-        d->client->setObjectName("client_container");
+        auto client = new DockingPaneClient(this,false);
+        client->setObjectName("client_container");
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
         //layout->setMargin(3);
         assert(layout!=nullptr);
-        layout->addItem(d->client,DockingPaneManager::Center);
+        layout->addItem(client,DockingPaneManager::Center);
+        //d->clients.append(client);
     }
 
 
@@ -59,19 +66,21 @@ namespace ady {
         delete d;
     }
 
-    void DockingWorkbench::showGuide(QWidget* widget,QRect rect)
+    void DockingWorkbench::showGuide(DockingPaneContainer* widget,QRect rect)
     {
+        QWidget*g = nullptr;
         if(d->guide==nullptr){
+            d->guide = new DockingGuide(this);
+            d->guide->raise();
             for(int i=0;i<4;i++){
                 d->siders[i] = new DockingGuideDiamond((DockingPaneManager::Position)i,this);
                 d->siders[i]->setWindowFlags(Qt::CoverWindow|Qt::Tool|Qt::FramelessWindowHint);
                 d->siders[i]->setMaximumSize(40,40);
             }
-            d->guide = new DockingGuide(this);
-            d->guide->raise();
         }
-        d->guide->show();
-
+        int flags = widget->guideFlags();
+        d->guide->setSizeMode(flags);
+        //qDebug()<<"widget container:"<<widget;
         {
             QPoint pos = widget!=nullptr?widget->pos():this->pos();
             QPoint globalPos = this->mapToGlobal(pos);
@@ -87,6 +96,7 @@ namespace ady {
             guide_rect.setHeight(height);
             d->guide->setGeometry(guide_rect);
         }
+        d->guide->show();
 
     }
 
@@ -95,12 +105,8 @@ namespace ady {
         if(d->guide_visibility==true){
             return ;
         }
-
-
-        if(d->guide==nullptr){
-            return ;
-        }
-         d->guide_visibility = true;
+        if(d->guide!=nullptr){
+            d->guide_visibility = true;
             QPoint pos = this->pos();
             QPoint globalPos = this->mapToGlobal(pos);
             int offsetX = globalPos.x();
@@ -130,6 +136,7 @@ namespace ady {
                 d->siders[i]->setGeometry(child_rect);
             }
 
+        }
 
     }
 
@@ -154,11 +161,13 @@ namespace ady {
 
     int DockingWorkbench::activeGuide(const QPoint& pos )
     {
-        if(d->guide!=nullptr){
+        if(d->guide!=nullptr && d->guide->isHidden()==false){
             DockingGuideDiamond* diamond = d->guide->updateActive(pos);
             if(diamond!=nullptr){
                 return diamond->position();
             }
+        }
+        if(d->guide!=nullptr){
             for(int i=0;i<4;i++){
                 if(d->siders[i]->updateActive(pos)){
                     return d->siders[i]->position();
@@ -213,6 +222,9 @@ namespace ady {
         //qDebug()<<"rc:"<<rc<<";pos:"<<pos<<";rect:"<<rect;
         QPoint p(pos.x() - offsetX,pos.y() - offsetY);
         foreach(auto one,d->children){
+            if(one->isHidden()){
+               continue;
+            }
             QRect rc = one->geometry();
             //qDebug()<<"rc:"<<rc<<";pos:"<<p<<";one:"<<one;
             if(rc.contains(p)){
@@ -234,6 +246,7 @@ namespace ady {
         if(d->cover==nullptr){
             d->cover = new DockingGuideCover(this);
         }
+        //qDebug()<<"cover:"<<container;
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
         DockingPaneLayoutItemInfo* rootItem = layout->rootItem();
         DockingPaneLayoutItemInfo::Orientation rootItemOrientation = rootItem->childrenOrientation();
@@ -303,83 +316,107 @@ namespace ady {
                 coverRect.setHeight(rc.height() / 2);
             }
         }else{
-            //DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
-            //DockingPaneLayoutItemInfo* parentItemInfo = itemInfo->parent();
+            DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
+            DockingPaneLayoutItemInfo* parentItemInfo = itemInfo->parent();
             //DockingPaneLayoutItemInfo::Orientation parentItemOrientation = parentItemInfo->childrenOrientation();
 
+            int flags = d->guide->sizeMode();
             QPoint containerPos = mapToGlobal(container->pos());
             QRect rc = container->geometry();
 
-            if(position==DockingPaneManager::Left){
+            if(position==DockingPaneManager::Left || position==DockingPaneManager::C_Left){
 
-                coverRect.setX(containerPos.x());
-                coverRect.setY(containerPos.y());
-                coverRect.setWidth(rc.width() / 2);
-                coverRect.setHeight(rc.height());
+                if((flags&DockingGuide::C_Parent_Horizontal)>0){
+                   coverRect.setX(containerPos.x());
+                   coverRect.setY(containerPos.y());
+                   coverRect.setWidth(rc.width() / 2);
+                   coverRect.setHeight(rc.height());
+                }else if((flags&DockingGuide::C_Parent_Vertical)>0){
+                   QRect rc = parentItemInfo->clientGeometry();
+                   QPoint startPos = mapToGlobal(QPoint(rc.x(),rc.y()));
+                   coverRect.setX(startPos.x());
+                   coverRect.setY(startPos.y());
+                   coverRect.setWidth(rc.width()/2);
+                   coverRect.setHeight(rc.height());
+                }else{
+                   coverRect.setX(containerPos.x());
+                   coverRect.setY(containerPos.y());
+                   coverRect.setWidth(rc.width() / 2);
+                   coverRect.setHeight(rc.height());
+                }
+            }else if(position==DockingPaneManager::Top || position==DockingPaneManager::C_Top){
 
-                if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Horizontal){
+                if((flags&DockingGuide::C_Parent_Horizontal)>0){
+                   QRect rc = parentItemInfo->clientGeometry();
+                   QPoint startPos = mapToGlobal(QPoint(rc.x(),rc.y()));
+                   coverRect.setX(startPos.x());
+                   coverRect.setY(startPos.y());
+                   coverRect.setWidth(rc.width());
+                   coverRect.setHeight(rc.height()/2);
+                }else if((flags&DockingGuide::C_Parent_Vertical)>0){
+
+                   coverRect.setX(containerPos.x());
+                   coverRect.setY(containerPos.y());
+                   coverRect.setWidth(rc.width());
+                   coverRect.setHeight(rc.height() / 2);
 
                 }else{
-
+                   coverRect.setX(containerPos.x());
+                   coverRect.setY(containerPos.y());
+                   coverRect.setWidth(rc.width());
+                   coverRect.setHeight(rc.height() / 2);
                 }
-            }else if(position==DockingPaneManager::Top){
-
-                coverRect.setX(containerPos.x());
-                coverRect.setY(containerPos.y());
-                coverRect.setWidth(rc.width());
-                coverRect.setHeight(rc.height() / 2);
 
 
-                if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Vertical){
+            }else if(position==DockingPaneManager::Right || position==DockingPaneManager::C_Right){
 
+                if((flags&DockingGuide::C_Parent_Horizontal)>0){
+                   coverRect.setX(containerPos.x() + rc.width() /2);
+                   coverRect.setY(containerPos.y());
+                   coverRect.setWidth(rc.width() / 2);
+                   coverRect.setHeight(rc.height());
+                }else if((flags&DockingGuide::C_Parent_Vertical)>0){
+                   QRect rc = parentItemInfo->clientGeometry();
+                   QPoint startPos = mapToGlobal(QPoint(rc.x(),rc.y()));
+                   coverRect.setX(startPos.x()+rc.width()/2);
+                   coverRect.setY(startPos.y());
+                   coverRect.setWidth(rc.width()/2);
+                   coverRect.setHeight(rc.height());
                 }else{
-
-
+                   coverRect.setX(containerPos.x() + rc.width() /2);
+                   coverRect.setY(containerPos.y());
+                   coverRect.setWidth(rc.width() / 2);
+                   coverRect.setHeight(rc.height());
                 }
-
-            }else if(position==DockingPaneManager::Right){
-
-                coverRect.setX(containerPos.x() + rc.width() /2);
-                coverRect.setY(containerPos.y());
-                coverRect.setWidth(rc.width() / 2);
-                coverRect.setHeight(rc.height());
-
-
-                if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Horizontal){
-
+            }else if(position==DockingPaneManager::Bottom || position==DockingPaneManager::C_Bottom){
+                if((flags&DockingGuide::C_Parent_Horizontal)>0){
+                   QRect rc = parentItemInfo->clientGeometry();
+                   QPoint startPos = mapToGlobal(QPoint(rc.x(),rc.y()));
+                   coverRect.setX(startPos.x());
+                   coverRect.setY(startPos.y() + rc.height()/2);
+                   coverRect.setWidth(rc.width());
+                   coverRect.setHeight(rc.height()/2);
+                }else if((flags&DockingGuide::C_Parent_Vertical)>0){
+                   coverRect.setX(containerPos.x());
+                   coverRect.setY(containerPos.y() + rc.height() / 2);
+                   coverRect.setWidth(rc.width() );
+                   coverRect.setHeight(rc.height() / 2);
                 }else{
-
-
+                   coverRect.setX(containerPos.x());
+                   coverRect.setY(containerPos.y() + rc.height() / 2);
+                   coverRect.setWidth(rc.width() );
+                   coverRect.setHeight(rc.height() / 2);
                 }
-
-            }else if(position==DockingPaneManager::Bottom){
-
-                coverRect.setX(containerPos.x());
-                coverRect.setY(containerPos.y() + rc.height() / 2);
-                coverRect.setWidth(rc.width() );
-                coverRect.setHeight(rc.height() / 2);
-
-
-                if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Horizontal){
-
-                }else{
-
-
-                }
-
             }else if(position==DockingPaneManager::Center){
-
                 coverRect.setX(containerPos.x());
                 coverRect.setY(containerPos.y());
                 coverRect.setWidth(rc.width() );
                 coverRect.setHeight(rc.height());
-
             }else{
                 d->cover->hide();
                 return;
             }
         }
-
         d->cover->setGeometry(coverRect);
         d->cover->raise();
         d->cover->show();
@@ -399,14 +436,115 @@ namespace ady {
                 position = 0;
             }
         }
+
         if(position==DockingPaneManager::S_Left || position==DockingPaneManager::S_Top || position==DockingPaneManager::S_Right || position==DockingPaneManager::S_Bottom){
             //layout->addItem()
             layout->addItem(widget,(DockingPaneManager::Position)position);
+
         }else if(position==DockingPaneManager::Left || position==DockingPaneManager::Top || position==DockingPaneManager::Right ||position==DockingPaneManager::Bottom){
             DockingPaneLayoutItemInfo* relation = container->itemInfo();
-            //qDebug()<<"item info:"<<relation<<";name:"<<relation->objectName();
-            layout->addItem(widget,relation,(DockingPaneManager::Position)position);
+
+            int flags = d->guide->sizeMode();
+            if((flags & DockingGuide::C_Parent_Horizontal)>0 && (position==DockingPaneManager::Top || position==DockingPaneManager::Bottom)){
+                DockingPaneLayoutItemInfo* parentRelation = relation->parent();
+                if(parentRelation->childrenOrientation()!=DockingPaneLayoutItemInfo::Vertical){
+                    //new two item info
+                    //add widget item info
+                    QList<DockingPaneLayoutItemInfo*>list = parentRelation->clientChildren();
+                    if(list.size()>0){
+                        DockingPaneLayoutItemInfo* first = list.at(0);
+                        DockingPaneContainer* fc = (DockingPaneContainer*)first->item()->widget();
+                        layout->addItem(widget,first,(DockingPaneManager::Position)position);
+                        QList<DockingPaneContainer*>containers;
+                        for(int i=1;i<list.size();i++){
+                            DockingPaneContainer* w = (DockingPaneContainer*)list.at(i)->item()->widget();
+                            containers.push_back(w);
+                            DockingPaneLayoutItemInfo* itemInfo1 = w->itemInfo();
+                            parentRelation->removeItem(itemInfo1);
+                        }
+                        if(parentRelation->isEmpty()){
+                            DockingPaneLayoutItemInfo* lii = parentRelation;
+                            parentRelation = lii->parent();
+                            parentRelation->removeItem(lii);
+                        }
+                        DockingPaneLayoutItemInfo* rl = parentRelation->findItemInfo(fc);
+                        foreach (auto one, containers) {
+                            layout->addItem(one,rl,DockingPaneManager::Right);
+                        }
+                        /*DockingPaneLayoutItemInfo* first = list.at(0);
+                        DockingPaneContainer* fc = (DockingPaneContainer*)first->item()->widget();
+                        layout->addItem(widget,first,(DockingPaneManager::Position)position);
+
+                        DockingPaneLayoutItemInfo* new_first = first->findItemInfo(fc);
+                        for(int i=1;i<list.size();i++){
+                            QWidget* w = list.at(i)->item()->widget();
+                            parentRelation->takeAt((DockingPaneContainer*)w);
+                            layout->addItem((DockingPaneContainer*)w,new_first,DockingPaneManager::Right);
+                        }*/
+                        //first->dump("");
+                    }else{
+                        return ;
+                    }
+
+                }else{
+                    layout->addItem(widget,parentRelation,(DockingPaneManager::Position)position);
+                }
+
+            }else if((flags & DockingGuide::C_Parent_Vertical)>0 && (position==DockingPaneManager::Left || position==DockingPaneManager::Right)){
+                DockingPaneLayoutItemInfo* parentRelation = relation->parent();
+                if(parentRelation->childrenOrientation()!=DockingPaneLayoutItemInfo::Horizontal){
+                    QList<DockingPaneLayoutItemInfo*>list = parentRelation->clientChildren();
+                    if(list.size()>0){
+                        DockingPaneLayoutItemInfo* first = list.at(0);
+                        DockingPaneContainer* fc = (DockingPaneContainer*)first->item()->widget();
+                        layout->addItem(widget,first,(DockingPaneManager::Position)position);
+                        QList<DockingPaneContainer*>containers;
+                        for(int i=1;i<list.size();i++){
+                            DockingPaneContainer* w = (DockingPaneContainer*)list.at(i)->item()->widget();
+                            containers.push_back(w);
+                            DockingPaneLayoutItemInfo* itemInfo1 = w->itemInfo();
+                            parentRelation->removeItem(itemInfo1);
+                        }
+                        if(parentRelation->isEmpty()){
+                            DockingPaneLayoutItemInfo* lii = parentRelation;
+                            parentRelation = lii->parent();
+                            parentRelation->removeItem(lii);
+                        }
+                        DockingPaneLayoutItemInfo* rl = parentRelation->findItemInfo(fc);
+                        foreach (auto one, containers) {
+                            layout->addItem(one,rl,DockingPaneManager::Bottom);
+                        }
+                        //parentRelation->dump("result");
+                    }else{
+                        return ;
+                    }
+
+                }else{
+                    layout->addItem(widget,parentRelation,(DockingPaneManager::Position)position);
+                }
+
+            }else{
+                layout->addItem(widget,relation,(DockingPaneManager::Position)position);
+            }
+
+        }else if(position==DockingPaneManager::C_Left || position==DockingPaneManager::C_Top || position==DockingPaneManager::C_Right ||position==DockingPaneManager::C_Bottom){
+            DockingPaneClient* client_container = new DockingPaneClient(this,true);
+            int count = widget->paneCount();
+            for(int i=0;i<count;i++){
+                DockingPane* pane = widget->takeAt(0);
+                client_container->appendPane(pane);
+                if(i==0){
+                   client_container->setObjectName(pane->id()+"_client_container");
+                }
+            }
+            DockingPaneLayoutItemInfo* relation = container->itemInfo();
+            layout->addItem(client_container,relation,(DockingPaneManager::Position)position);
+            widget->close();
+            widget->deleteLater();
+
         }else{
+            //center
+            container->initView();
             int size = widget->paneCount();
             for(int i=0;i<size;i++){
                 DockingPane* pane = widget->pane(0);
@@ -415,8 +553,8 @@ namespace ady {
                    container->setPane(container->paneCount()-1);
                 }
             }
-
             widget->close();
+            widget->deleteLater();
         }
 
         layout->update();
@@ -460,7 +598,7 @@ namespace ady {
 
 
             //sider tabbar remove item
-            DockingPaneTabBar* tabBar = this->tabBar(position);
+            //DockingPaneTabBar* tabBar = this->tabBar(position);
 
             //tabBar->removeContainer(widget);
             //d->fixed_window->close();
@@ -608,9 +746,14 @@ namespace ady {
         return children;
     }
 
-    DockingPaneClient* DockingWorkbench::client()
+    DockingPaneClient* DockingWorkbench::client(int index)
     {
-        return d->client;
+        //return d->client;
+        if(d->clients.size()<=index){
+           return nullptr;
+        }else{
+           return d->clients.at(index);
+        }
     }
 
     void DockingWorkbench::showFixedWindow(DockingPaneContainer* container,int position)
@@ -758,8 +901,12 @@ namespace ady {
                         ((DockingPaneContainer*)one)->activeWidget(false);
                     }
                 }
+
             }
         }
+
+
+
     }
 
 

@@ -2,6 +2,7 @@
 #include "docking_pane_container_nclient.h"
 #include "docking_pane_layout_item_info.h"
 #include "docking_pane_container_tabbar.h"
+#include "docking_guide.h"
 #include "docking_pane.h"
 #include <QVBoxLayout>
 #include <QStyleOption>
@@ -25,17 +26,11 @@ namespace ady {
         :QWidget(parent)
     {
         setFocusPolicy(Qt::ClickFocus);
-        setStyleSheet("ady--DockingPaneContainer{background:white;border:1px solid #ccc;}");//theme
-        //ady--DockingPaneContainerNClient
-
         d = new DockingPaneContainerPrivate;
         d->ori_position = position;
-
-
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->setMargin(1);
         layout->setSpacing(0);
-
 
         d->nclient = new DockingPaneContainerNClient(this);
         d->stacked = new QStackedWidget(this);
@@ -46,14 +41,10 @@ namespace ady {
 
         connect(d->tabbar,SIGNAL(currentChanged(int )),this,SLOT(onCurrentChanged(int)));
         //connect(d->stacked,SIGNAL(widgetRemoved(int )),this,SLOT(onWidgetRemoved(int)));
-
-
         layout->addWidget(d->nclient);
         layout->addWidget(d->stacked);
         layout->addWidget(d->tabbar);
-
         this->setLayout(layout);
-
     }
 
     DockingPaneContainer::DockingPaneContainer(QWidget* parent,bool client)
@@ -62,22 +53,40 @@ namespace ady {
         setFocusPolicy(Qt::ClickFocus);
         d = new DockingPaneContainerPrivate;
         d->client = true;
+        this->initView();
+    }
 
-        QVBoxLayout* layout = new QVBoxLayout(this);
-        layout->setMargin(0);
-        layout->setSpacing(0);
-        //d->nclient = new DockingPaneContainerNClient(this);
-        d->tabbar = new DockingPaneContainerTabBar(this);
-        d->stacked = new QStackedWidget(this);
-        //d->tabbar->setAutoHide(true);
-        d->tabbar->setShape(QTabBar::RoundedNorth);
-        d->tabbar->setExpanding(false);
-        connect(d->tabbar,SIGNAL(currentChanged(int )),this,SLOT(onCurrentChanged(int)));
-        connect(d->stacked,SIGNAL(widgetRemoved(int )),this,SLOT(onWidgetRemoved(int)));
-        //layout->addWidget(d->nclient);
-        layout->addWidget(d->tabbar);
-        layout->addWidget(d->stacked);
-        this->setLayout(layout);
+    DockingPaneContainer::DockingPaneContainer(QWidget* parent,bool client,bool init_view)
+    :QWidget(parent)
+    {
+        setFocusPolicy(Qt::ClickFocus);
+        d = new DockingPaneContainerPrivate;
+        d->client = true;
+        d->stacked = nullptr;
+        d->tabbar = nullptr;
+        d->nclient = nullptr;
+        d->state = DockingPaneContainer::Inner;
+        if(init_view){
+            this->initView();
+        }
+    }
+
+    void DockingPaneContainer::initView(){
+        if(d->stacked==nullptr){
+            QVBoxLayout* layout = new QVBoxLayout(this);
+            layout->setMargin(0);
+            layout->setSpacing(0);
+            d->tabbar = new DockingPaneContainerTabBar(this);
+            d->stacked = new QStackedWidget(this);
+            d->tabbar->setShape(QTabBar::RoundedNorth);
+            d->tabbar->setExpanding(false);
+            connect(d->tabbar,SIGNAL(currentChanged(int )),this,SLOT(onCurrentChanged(int)));
+            connect(d->stacked,SIGNAL(widgetRemoved(int )),this,SLOT(onWidgetRemoved(int)));
+            layout->addWidget(d->tabbar);
+            layout->addWidget(d->stacked);
+            this->setLayout(layout);
+        }
+
     }
 
     DockingPaneContainer::~DockingPaneContainer()
@@ -115,6 +124,7 @@ namespace ady {
             d->nclient->updateTitle(pane->windowTitle());
         }
         d->tabbar->setCurrentIndex(index);
+        qDebug()<<d->tabbar->children();
     }
 
     void DockingPaneContainer::setState(State state)
@@ -147,10 +157,16 @@ namespace ady {
 
 
     void DockingPaneContainer::activeWidget(bool active){
+        //m_active_state = active;
+        //qDebug()<<this<<";"<<active;
+        this->setProperty("activeState",active);
         if(d->nclient!=nullptr){
             d->nclient->setActive(active);
+            d->nclient->stylePolish();
         }
     }
+
+
 
     void DockingPaneContainer::setItemInfo(DockingPaneLayoutItemInfo* info)
     {
@@ -165,6 +181,10 @@ namespace ady {
     bool DockingPaneContainer::isClient()
     {
         return d->client;
+    }
+
+    bool DockingPaneContainer::isClientRegion(){
+        return false;
     }
 
 
@@ -248,6 +268,74 @@ namespace ady {
         if(d->nclient!=nullptr){
             d->nclient->setMoving(state);
         }
+    }
+
+    int DockingPaneContainer::guideFlags(){
+        int flags = DockingGuide::Center;
+        if(d->client){
+            if(d->stacked==nullptr || d->stacked->count()==0){
+                flags |= DockingGuide::Normal;
+            }else{
+                flags |= DockingGuide::Large;
+                //parent
+                DockingPaneLayoutItemInfo* itemInfo = this->itemInfo();
+                DockingPaneLayoutItemInfo* previous = itemInfo->previous();
+                DockingPaneLayoutItemInfo* next = itemInfo->next();
+                bool p_client = false;
+                bool n_client = false;
+                if(previous!=nullptr){
+                    //qDebug()<<"previous:"<<previous;
+                    QLayoutItem* item = previous->item();
+                    if(item!=nullptr){
+                        DockingPaneContainer* pContainer = (DockingPaneContainer*)item->widget();
+                        p_client = pContainer->isClient();
+                    }
+
+                }
+                if(next!=nullptr){
+                    QLayoutItem* item = next->item();
+                    if(item!=nullptr){
+                        DockingPaneContainer* nContainer = (DockingPaneContainer*)item->widget();
+                        n_client = nContainer->isClient();
+                    }
+
+                }
+                DockingPaneLayoutItemInfo* parentIteminfo = itemInfo->parent();
+                if(p_client || n_client){
+
+                    if(parentIteminfo->childrenOrientation()==DockingPaneLayoutItemInfo::Horizontal){
+                        flags |= DockingGuide::C_Parent_Horizontal;
+                        flags |= (DockingGuide::C_Left | DockingGuide::C_Right);
+                        if(p_client==false){
+                            flags |= DockingGuide::Left;
+                        }
+                        if(n_client==false){
+                            flags |= DockingGuide::Right;
+                        }
+                        flags |= (DockingGuide::Top | DockingGuide::Bottom);
+                    }else{
+                        flags |= DockingGuide::C_Parent_Vertical;
+                        flags |= (DockingGuide::C_Top | DockingGuide::C_Bottom);
+                        if(p_client==false){
+                            flags |= DockingGuide::Top;
+                        }
+                        if(n_client==false){
+                            flags |= DockingGuide::Bottom;
+                        }
+                        flags |= (DockingGuide::Left | DockingGuide::Right);
+                    }
+                }else{
+                    flags |= (DockingGuide::C_Left | DockingGuide::C_Right | DockingGuide::C_Top | DockingGuide::C_Bottom | DockingGuide::Left | DockingGuide::Top | DockingGuide::Right | DockingGuide::Bottom);
+                }
+
+                //flags |= (DockingGuide::Left | DockingGuide::Top | DockingGuide::Right | DockingGuide::Bottom);
+
+                //int client_count = 0;
+            }
+        }else{
+            flags |= (DockingGuide::Normal | DockingGuide::Left | DockingGuide::Top | DockingGuide::Right | DockingGuide::Bottom);
+        }
+        return flags;
     }
 
     void DockingPaneContainer::onCurrentChanged(int i)

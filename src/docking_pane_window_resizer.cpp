@@ -18,7 +18,6 @@ namespace ady{
     {
         d = new DockingPaneWindowResizerPrivate;
         d->region = region;
-        //setStyleSheet("background:black");
         switch(d->region){
         case Left:
         case Right:

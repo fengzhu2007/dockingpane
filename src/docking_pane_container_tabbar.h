@@ -12,7 +12,7 @@ namespace ady {
         virtual void mousePressEvent(QMouseEvent *e) override;
         virtual void mouseMoveEvent(QMouseEvent *e) override;
         virtual void mouseReleaseEvent(QMouseEvent *e) override;
-
+        virtual void paintEvent(QPaintEvent* event) override;
     private:
         DockingPaneContainerTabBarPrivate* d;
     };

@@ -3,6 +3,8 @@
 #include "docking_pane_container.h"
 #include <QDebug>
 namespace ady {
+int DockingPaneLayoutItemInfo::gSeq = 0;
+
     DockingPaneLayoutItemInfo::DockingPaneLayoutItemInfo(QLayoutItem* item,DockingPaneManager::Position position,DockingPaneLayoutItemInfo* parent)
         :QObject()
     {
@@ -11,22 +13,50 @@ namespace ady {
         m_parent = parent;
         m_handle = nullptr;
         m_stretch = None;
+        m_seq = DockingPaneLayoutItemInfo::gSeq++;
+        qDebug()<<"init:"<<m_seq;
     }
 
     DockingPaneLayoutItemInfo::~DockingPaneLayoutItemInfo(){
-        //qDeleteAll(m_children);
         if(m_handle!=nullptr){
+            m_handle->close();
             delete m_handle;
+            m_handle = nullptr;
+        }
+        //DockingPaneLayoutItemInfo::gSeq--;
+        qDebug()<<"destory:"<<m_seq;
+        //qDebug()<<"destory:"<<this;
+    }
+
+    bool DockingPaneLayoutItemInfo::isClient(){
+        if(this->m_item!=nullptr){
+            ((DockingPaneContainer*)this->m_item->widget())->isClient();
+        }else if(m_children.size()==1){
+            return m_children.at(0)->isClient();
+        }else{
+            return false;
         }
     }
 
+    QList<DockingPaneLayoutItemInfo*> DockingPaneLayoutItemInfo::clientChildren(){
+        QList<DockingPaneLayoutItemInfo*> list;
+        Q_FOREACH(DockingPaneLayoutItemInfo* one,m_children){
+            if(one->isClient()){
+                list.push_back(one);
+            }
+        }
+        return list;
+    }
 
     void DockingPaneLayoutItemInfo::setChildrenOrientation(Orientation orientation)
     {
         m_children_ori = orientation;
     }
 
-    int DockingPaneLayoutItemInfo::insertItem(QWidget* workbench,QLayoutItem* item, DockingPaneManager::Position position)
+
+
+
+    DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::insertItem(QWidget* workbench,QLayoutItem* item, DockingPaneManager::Position position)
     {
         int size = m_children.size();
         if(size==0 && m_item!=nullptr){
@@ -38,7 +68,7 @@ namespace ady {
             m_children.push_back(child);
         }
         DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(item,position,this);
-         ((DockingPaneContainer*)item->widget())->setItemInfo(child);
+        ((DockingPaneContainer*)item->widget())->setItemInfo(child);
         child->setObjectName(item->widget()->objectName()+"_itemInfo");
         child->initHandle(workbench);
         if(position==DockingPaneManager::Top || position==DockingPaneManager::Left){
@@ -61,10 +91,10 @@ namespace ady {
             setObjectName(objectName);
         }
         m_item = nullptr;
-        return 1;
+        return child;
     }
 
-    int DockingPaneLayoutItemInfo::insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index)
+    DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index)
     {
         int size = m_children.size();
         if(size==0 && m_item!=nullptr){
@@ -75,17 +105,12 @@ namespace ady {
             child->initHandle(workbench);
             m_children.push_back(child);
         }
+
         DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(item,position,this);
-         ((DockingPaneContainer*)item->widget())->setItemInfo(child);
+        ((DockingPaneContainer*)item->widget())->setItemInfo(child);
         child->setObjectName(item->widget()->objectName()+"_itemInfo");
         child->initHandle(workbench);
         m_children.insert(index,child);
-        //qDebug()<<"children:"<<m_children;
-        /*if(position==DockingPaneManager::Top || position==DockingPaneManager::Left){
-            m_children.insert(0,child);
-        }else{
-            m_children.push_back(child);
-        }*/
         if(m_children_ori==Unkown){
             if(position==DockingPaneManager::Top || position==DockingPaneManager::Bottom){
                 m_children_ori = Vertical;
@@ -101,27 +126,29 @@ namespace ady {
             setObjectName(objectName);
         }
         m_item = nullptr;
-        return 1;
+        return child;
     }
 
     DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::removeItem(DockingPaneLayoutItemInfo* itemInfo)
     {
+
         QList<DockingPaneLayoutItemInfo*>::iterator iter = m_children.begin();
         while(iter!=m_children.end()){
             if(itemInfo==(*iter)){
-                //((DockingPaneContainer*)itemInfo->m_item->widget())->setItemInfo(nullptr);
-                //qDebug()<<"removeItemremoveItemremoveItemremoveItem";
                 delete (*iter);
                 m_children.erase(iter);
+                goto reset_layout_tree;
                 break;
             }
             iter++;
         }
+        delete itemInfo;
+        reset_layout_tree:
         if(m_children.size()==1 && m_parent!=nullptr){
-            iter = m_children.begin();
-            m_item = (*iter)->item();
+            DockingPaneLayoutItemInfo* first = m_children.at(0);
+            m_item = first->item();
             if(m_item!=nullptr){
-                delete (*iter);
+                delete first;
                 m_children.clear();
                 m_children_ori = Unkown;
                 DockingPaneContainer* container = (DockingPaneContainer*)m_item->widget();
@@ -131,7 +158,7 @@ namespace ady {
                 int row = this->row();
                 int i = 1;
                 DockingPaneLayoutItemInfo* parent = this->parent();
-                foreach(auto child,(*iter)->m_children){
+                foreach(auto child,first->m_children){
                     child->setParent(parent);
                     parent->m_children.insert(row+i,child);
                     i+=1;
@@ -139,8 +166,7 @@ namespace ady {
                 //remove this from this.parent
                 parent->m_children.removeAt(row);
                 m_children.clear();
-                delete (*iter);
-                //delete this;//todo
+                delete first;
                 return this;
             }
         }
@@ -387,10 +413,65 @@ namespace ady {
         return rc;
     }
 
+    QRect DockingPaneLayoutItemInfo::clientGeometry(){
+        QRect rc;
+        int count = m_children.size();
+        //int count = 0;
+        if(count>0){
+            int w = 0;
+            int h = 0;
+            int x = -1;
+            int y = -1;
+            int i = 0;
+            Q_FOREACH(DockingPaneLayoutItemInfo* one,m_children){
+                DockingPaneContainer* container = (DockingPaneContainer*)one->item()->widget();
+                //qDebug()<<"container"<<container;
+                if(container->isClient()){
+                    i += 1;
+                    QRect rect = one->geometry(m_spacing);
+                    if(x==-1){
+                        x = rect.x();
+                    }
+                    if(y==-1){
+                        y = rect.y();
+                    }
+                    if(m_children_ori==Horizontal){
+                        w += rect.width();
+                        if(h==0){
+                            h = rect.height();
+                        }
+                    }else{
+                        h += rect.height();
+                        if(w==0){
+                            w = rect.width();
+                        }
+                    }
+                }
+
+            }
+            if(i>1){
+                if(m_children_ori==Horizontal){
+                    w += ((i - 1) * m_spacing);
+                }else{
+                    h += ((i - 1) * m_spacing);
+                }
+            }
+
+            return QRect(x,y,w,h);
+        }else{
+            if(m_item!=nullptr){
+                rc = m_item->widget()->geometry();
+            }
+        }
+        return rc;
+    }
+
     void DockingPaneLayoutItemInfo::initHandle(QWidget* parent)
     {
-        if(m_handle==nullptr)
+        if(m_handle==nullptr){
             m_handle = new DockingPaneHandle(parent,this);
+            m_handle->hide();
+        }
     }
 
     int DockingPaneLayoutItemInfo::row()
@@ -424,6 +505,15 @@ namespace ady {
         }
     }
 
+    DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::previous(){
+        int row = this->row();
+        if(row>0){
+            return m_parent->child(row - 1);
+        }else{
+            return nullptr;
+        }
+    }
+
     DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::child(int row)
     {
         if(row>-1 && row<m_children.size()){
@@ -436,7 +526,7 @@ namespace ady {
     bool DockingPaneLayoutItemInfo::resize(Orientation orient,bool leftorright,int stretch_size)
     {
         QRect rc = geometry(m_spacing);
-        qDebug()<<"src resize:"<<rc;
+        //qDebug()<<"src resize:"<<rc;
         QSize size = calculateSize(MinimumSize,m_spacing);
         if(orient==Horizontal){
             if(leftorright==false){
@@ -470,7 +560,7 @@ namespace ady {
             QRect parent_rc = m_parent->geometry(m_spacing);
             m_stretch = rc.height() * 1.0f / parent_rc.height();
         }
-        qDebug()<<"dst resize:"<<rc;
+        //qDebug()<<"dst resize:"<<rc;
         this->setGeometry(rc,m_spacing);
 
         return true;
@@ -525,6 +615,19 @@ namespace ady {
          return nullptr;
     }
 
+    DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::take(DockingPaneLayoutItemInfo* itemInfo){
+        QList<DockingPaneLayoutItemInfo*>::iterator iter = m_children.begin();
+        while(iter!=m_children.end()){
+            if((*iter)==itemInfo){
+                m_children.erase(iter);
+                itemInfo->setParent(nullptr);
+                break;
+            }
+            iter++;
+        }
+        return itemInfo;
+    }
+
     DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::level0()
     {
         if(m_parent->m_parent==nullptr){
@@ -554,16 +657,18 @@ namespace ady {
 
     void DockingPaneLayoutItemInfo::dump(QString prefix)
     {
+
+        qDebug()<<prefix<<"gSeq:"<<DockingPaneLayoutItemInfo::gSeq;
         if(m_children.size()>0){
-            qDebug()<<prefix<<"Group size:"<<m_children.size()<<";rect:"<<m_rect;
+            qDebug()<<prefix<<"seq:"<<m_seq<<";Group size:"<<m_children.size()<<";rect:"<<m_rect<<";Orientation:"<<(m_children_ori);
             foreach(DockingPaneLayoutItemInfo* child,m_children){
                 child->dump(prefix +"----");
             }
         }else{
             if(m_item!=nullptr){
-                qDebug()<<prefix<<"Item name:"<<m_item->widget()->objectName()<<";rect:"<<m_item->widget()->geometry()<<";info rect:"<<m_rect<<";stretch:"<<m_stretch;
+                qDebug()<<prefix<<"seq:"<<m_seq<<";Item name:"<<m_item->widget()->objectName()<<";rect:"<<m_item->widget()->geometry()<<";info rect:"<<m_rect<<";stretch:"<<m_stretch;
             }else{
-                qDebug()<<prefix<<"Item NULL";
+                qDebug()<<prefix<<"seq:"<<m_seq<<";Item NULL";
             }
         }
         /*qDebug()<<prefix<<"DockingPaneLayoutItemInfo:"<<objectName()<<";size:"<<m_children.size()<<(m_item==nullptr?"NULL":m_item->widget()->objectName());

@@ -7,7 +7,8 @@ namespace ady {
     class DOCKINGPANE_EXPORT DockingPaneClient : public DockingPaneContainer {
         Q_OBJECT
     public:
-        DockingPaneClient(DockingWorkbench* parent);
+        DockingPaneClient(DockingWorkbench* parent,bool init_view=true);
+        virtual void initView() override;
     protected:
         virtual void focusInEvent(QFocusEvent *event) override;
         virtual void focusOutEvent(QFocusEvent *event) override;

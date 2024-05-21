@@ -11,6 +11,8 @@ namespace ady {
     class DockingPaneContainerNClientPrivate;
     class DockingPaneContainerNClient : public QFrame{
         Q_OBJECT
+
+
     public:
         enum Button {
             Dropdown,
@@ -30,6 +32,12 @@ namespace ady {
         void setButtonState(Button b,State s);
         void setActive(bool active);
         void setMoving(bool state);
+
+        bool activeState();
+        void setActiveState(bool active_state);
+
+        void stylePolish();
+
 
     public slots:
         void onMenuRequested();

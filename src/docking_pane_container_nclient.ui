@@ -119,7 +119,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-image: url(:/images/vs2019/dock_head_gray.png);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>

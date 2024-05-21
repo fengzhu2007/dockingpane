@@ -34,6 +34,7 @@ namespace ady {
         int m_offset = 0;
 
 
+
     };
 }
 #endif // DOCKING_PANE_HANDLE_H

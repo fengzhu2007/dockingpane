@@ -10,6 +10,7 @@ namespace ady{
     class DockingPaneLayoutItemInfo;
     class DOCKINGPANE_EXPORT DockingPaneContainer : public QWidget {
         Q_OBJECT
+        //Q_PROPERTY(bool activeState READ activeState WRITE setActiveState)
     public:
         enum State{
             Inner,
@@ -20,7 +21,9 @@ namespace ady{
         ~DockingPaneContainer();
 
 
+        virtual void initView();
         bool isClient();
+        virtual bool isClientRegion();
         void appendPane(DockingPane* pane);
         void insertPane(int index,DockingPane* pane);
         void setPane(int index);
@@ -48,6 +51,7 @@ namespace ady{
         void setOriRect(QRect rc);
         void setOriRect(int w,int h);
         void setMoving(bool state);
+        int guideFlags();
 
 
     public slots:
@@ -57,6 +61,7 @@ namespace ady{
 
     protected:
         DockingPaneContainer(QWidget* parent,bool client);
+        DockingPaneContainer(QWidget* parent,bool client,bool init_view);
         virtual void focusInEvent(QFocusEvent *event) override;
         //virtual void focusOutEvent(QFocusEvent *event) override;
         virtual void paintEvent(QPaintEvent *e) override;

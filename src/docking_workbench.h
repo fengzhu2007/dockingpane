@@ -19,7 +19,7 @@ namespace ady {
         ~DockingWorkbench();
         void initClient();
 
-        void showGuide(QWidget* widget,QRect rect);
+        void showGuide(DockingPaneContainer* widget,QRect rect);
         void showSiderGuide();
         void hideGuide();
 
@@ -44,7 +44,7 @@ namespace ady {
         void updateTabBars(const QSize& size);
 
         QList<DockingPaneContainer*> containers();
-        DockingPaneClient* client();
+        DockingPaneClient* client(int index=0);
 
         void showFixedWindow(DockingPaneContainer* container,int position);
         void resizeFixedWindow(const QSize& size);

@@ -8,8 +8,7 @@ namespace ady {
     DockingPaneHandle::DockingPaneHandle(QWidget* parent,DockingPaneLayoutItemInfo*itemInfo)
         :QFrame(parent)
     {
-        //this->setStyleSheet("background:orange");
-        setStyleSheet("background:#eeeef2");//theme
+        //setStyleSheet("background:#eeeef2");//theme
         m_itemInfo = itemInfo;
     }
 
@@ -93,6 +92,7 @@ namespace ady {
 
     void DockingPaneHandle::mousePressEvent(QMouseEvent *event)
     {
+        qDebug()<<"handle:"<<m_itemInfo<<";seq:"<<m_itemInfo->seq();
         QFrame::mousePressEvent(event);
         m_start_moving = true;
         m_offset = 0;

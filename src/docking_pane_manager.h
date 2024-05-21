@@ -19,7 +19,11 @@ namespace ady {
             Top,
             Right,
             Bottom,
-            Center
+            Center,
+            C_Left,
+            C_Top,
+            C_Right,
+            C_Bottom
         };
         DockingPaneManager(QWidget* parent);
         ~DockingPaneManager();

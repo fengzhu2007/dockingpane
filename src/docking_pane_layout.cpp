@@ -96,24 +96,26 @@ namespace ady {
 
     }
 
-    void DockingPaneLayout::addItem(DockingPaneContainer* widget,DockingPaneManager::Position position)
+
+
+    DockingPaneLayoutItemInfo* DockingPaneLayout::addItem(DockingPaneContainer* widget,DockingPaneManager::Position position)
     {
-        addItem(new QWidgetItem((QWidget*)widget),position);
+        return addItem(new QWidgetItem((QWidget*)widget),position);
     }
 
-    void DockingPaneLayout::addItem(QLayoutItem* itemInfo,DockingPaneManager::Position position)
+    DockingPaneLayoutItemInfo* DockingPaneLayout::addItem(QLayoutItem* itemInfo,DockingPaneManager::Position position)
     {
         int count = m_rootItem->m_children.size();
         if(count==0){
-            m_rootItem->insertItem(parentWidget(),itemInfo,position);
+            return m_rootItem->insertItem(parentWidget(),itemInfo,position);
         }else{
             if(m_rootItem->m_children_ori==DockingPaneLayoutItemInfo::Horizontal){
                 if(position==DockingPaneManager::Left || position==DockingPaneManager::S_Left){
                     //insert left 1
-                    m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Left);
+                    return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Left);
                 }else if(position==DockingPaneManager::Right || position==DockingPaneManager::S_Right){
                     //append 1
-                    m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Right);
+                    return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Right);
                 }else if(position == DockingPaneManager::Center){
 
 
@@ -132,19 +134,19 @@ namespace ady {
                     m_rootItem->m_children.append(child);
 
                     if(position==DockingPaneManager::Top || position==DockingPaneManager::S_Top){
-                        m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Top);
+                        return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Top);
                     }else{
-                        m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Bottom);
+                        return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Bottom);
                     }
                 }
 
             }else{
                 if(position==DockingPaneManager::Top || position==DockingPaneManager::S_Top){
                     //insert left 1
-                    m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Top);
+                    return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Top);
                 }else if(position==DockingPaneManager::Bottom || position==DockingPaneManager::S_Bottom){
                     //append 1
-                    m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Bottom);
+                    return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Bottom);
                 }else if(position == DockingPaneManager::Center){
 
 
@@ -162,18 +164,21 @@ namespace ady {
                     m_rootItem->m_children.append(child);
 
                     if(position==DockingPaneManager::Left || position==DockingPaneManager::S_Left){
-                        m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Left);
+                        return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Left);
                     }else{
-                        m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Right);
+                        return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Right);
                     }
                 }
 
             }
         }
+        return nullptr;
     }
 
 
-    void DockingPaneLayout::addItem(DockingPaneContainer* widget,DockingPaneLayoutItemInfo* relation,DockingPaneManager::Position position)
+
+
+    DockingPaneLayoutItemInfo* DockingPaneLayout::addItem(DockingPaneContainer* widget,DockingPaneLayoutItemInfo* relation,DockingPaneManager::Position position)
     {
         DockingPaneLayoutItemInfo* parentItemInfo = relation->parent();
         DockingPaneLayoutItemInfo::Orientation parentItemOrientation = parentItemInfo->childrenOrientation();
@@ -193,9 +198,9 @@ namespace ady {
                     row += 1;
                 }
                 //qDebug()<<"row:"<<row;
-                parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
+                return parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
             }else{
-                relation->insertItem(parentWidget(),itemInfo,position);
+                return relation->insertItem(parentWidget(),itemInfo,position);
             }
         }else if((position==DockingPaneManager::Top || position==DockingPaneManager::Bottom)){
             if((parentItemOrientation==DockingPaneLayoutItemInfo::Unkown || parentItemOrientation==DockingPaneLayoutItemInfo::Vertical)){
@@ -211,10 +216,46 @@ namespace ady {
                     row += 1;
                 }
 
-                parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
+                return parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
             }else{
                 //relation->insertItem()
-                relation->insertItem(parentWidget(),itemInfo,position);
+                return relation->insertItem(parentWidget(),itemInfo,position);
+            }
+        }else if(position==DockingPaneManager::C_Left || position==DockingPaneManager::C_Right){
+
+            int row = relation->row();
+            DockingPaneManager::Position p = DockingPaneManager::Left;
+            if(position==DockingPaneManager::C_Left){
+                if(row<0){
+                    row = 0;
+                }
+            }else if(position==DockingPaneManager::C_Right){
+                row += 1;
+                p = DockingPaneManager::Right;
+            }
+
+            if((parentItemOrientation==DockingPaneLayoutItemInfo::Unkown || parentItemOrientation==DockingPaneLayoutItemInfo::Horizontal)){
+
+
+                return parentItemInfo->insertItem(parentWidget(),itemInfo,p,row);
+            }else{
+                return relation->insertItem(parentWidget(),itemInfo,p);
+            }
+        }else if(position==DockingPaneManager::C_Top || position==DockingPaneManager::C_Bottom){
+            int row = relation->row();
+            DockingPaneManager::Position p = DockingPaneManager::Top;
+            if(position==DockingPaneManager::C_Top){
+                if(row<0){
+                    row = 0;
+                }
+            }else if(position==DockingPaneManager::C_Bottom){
+                row += 1;
+                p = DockingPaneManager::Bottom;
+            }
+            if(parentItemOrientation==DockingPaneLayoutItemInfo::Unkown || parentItemOrientation==DockingPaneLayoutItemInfo::Vertical){
+                return parentItemInfo->insertItem(parentWidget(),itemInfo,p,row);
+            }else{
+                return relation->insertItem(parentWidget(),itemInfo,p);
             }
         }
     }

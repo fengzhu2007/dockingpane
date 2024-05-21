@@ -63,7 +63,15 @@ add_library(dockingpane SHARED
     src/docking_workbench.cpp
     src/docking_guide.ui
     src/docking_pane_container_nclient.ui
-
+    src/theme.h
+    src/qss.h
+    src/qss.cpp
+    #src/docking_pane_client_region.h
+    #src/docking_pane_client_region.cpp
+    #src/docking_region.h
+    #src/docking_region.cpp
+    #src/docking_pane_client_region_item_info.h
+    #src/docking_pane_client_region_item_info.cpp
 
 )
 

@@ -27,10 +27,9 @@ namespace ady {
         void addPane(DockingPane* pane,DockingPaneManager::Position position);
         void addPane(DockingPane* pane,QLayoutItem* relation,DockingPaneManager::Position position);
 
-        void addItem(DockingPaneContainer* widget,DockingPaneManager::Position position);
-        void addItem(QLayoutItem* itemInfo,DockingPaneManager::Position position);
-
-        void addItem(DockingPaneContainer* widget,DockingPaneLayoutItemInfo* relation,DockingPaneManager::Position position);
+        DockingPaneLayoutItemInfo* addItem(DockingPaneContainer* widget,DockingPaneManager::Position position);
+        DockingPaneLayoutItemInfo* addItem(QLayoutItem* itemInfo,DockingPaneManager::Position position);
+        DockingPaneLayoutItemInfo* addItem(DockingPaneContainer* widget,DockingPaneLayoutItemInfo* relation,DockingPaneManager::Position position);
         //void addItem(DockingPaneLayoutItemInfo* itemInfo,DockingPaneLayoutItemInfo* parent,DockingPaneManager::Position position);
 
         DockingPaneLayoutItemInfo* rootItem();

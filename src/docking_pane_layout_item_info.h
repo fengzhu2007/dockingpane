@@ -8,6 +8,7 @@ namespace ady {
     class DockingPaneHandle;
     class DockingPaneLayout;
     class DockingPaneContainer;
+    class DockingPaneClientRegionItemInfo;
     class DOCKINGPANE_EXPORT DockingPaneLayoutItemInfo : public QObject {
     public:
         enum Orientation {
@@ -28,9 +29,11 @@ namespace ady {
 
         DockingPaneLayoutItemInfo(QLayoutItem* item,DockingPaneManager::Position position,DockingPaneLayoutItemInfo* parent=nullptr);
         ~DockingPaneLayoutItemInfo();
+        bool isClient();
+        QList<DockingPaneLayoutItemInfo*> clientChildren();
         void setChildrenOrientation(Orientation orientation);
-        int insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position);
-        int insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index);
+        DockingPaneLayoutItemInfo* insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position);
+        DockingPaneLayoutItemInfo* insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index);
 
         inline QLayoutItem* item(){return m_item;}
         inline void setItem(QLayoutItem* item){m_item = item;}
@@ -43,12 +46,14 @@ namespace ady {
 
         void setGeometry(const QRect &rect,int spacing);
         QRect geometry(int spacing);
+        QRect clientGeometry();
 
         void initHandle(QWidget* parent);
 
         int row();
         int indexOf(DockingPaneLayoutItemInfo* child);
         DockingPaneLayoutItemInfo* next();
+        DockingPaneLayoutItemInfo* previous();
         DockingPaneLayoutItemInfo* child(int row);
 
         bool resize(Orientation orient,bool leftorright,int stretch_size);
@@ -61,6 +66,7 @@ namespace ady {
 
         DockingPaneLayoutItemInfo* removeItem(DockingPaneLayoutItemInfo* itemInfo);
         DockingPaneLayoutItemInfo* takeAt(DockingPaneContainer* container);
+        DockingPaneLayoutItemInfo* take(DockingPaneLayoutItemInfo* itemInfo);
 
         DockingPaneLayoutItemInfo* level0();
 
@@ -82,6 +88,10 @@ namespace ady {
 
         void dump(QString prefix);
 
+        inline int seq(){return m_seq;}
+
+    public:
+        static int gSeq;
 
     private:
         QList<DockingPaneLayoutItemInfo*> m_children;
@@ -93,6 +103,7 @@ namespace ady {
         DockingPaneHandle* m_handle;
         float m_stretch;
         int m_spacing;
+        int m_seq;
         QRect m_rect;
 
 
