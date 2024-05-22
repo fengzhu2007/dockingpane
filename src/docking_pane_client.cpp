@@ -31,7 +31,6 @@ namespace ady {
     void DockingPaneClient::focusOutEvent(QFocusEvent *event)
     {
         QWidget::focusOutEvent(event);
-
     }
 
     void DockingPaneClient::paintEvent(QPaintEvent *e)

@@ -98,6 +98,7 @@ namespace ady {
 
     void DockingPaneContainer::appendPane(DockingPane* pane)
     {
+        //qDebug()<<"appendPane"<<d->stacked;
         pane->setParent(d->stacked);
         d->stacked->addWidget((QWidget*)pane);
         QString title = pane->windowTitle();

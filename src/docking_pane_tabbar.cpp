@@ -61,6 +61,7 @@ namespace ady{
 
     void DockingPaneTabBar::addContainer(DockingPaneContainer* container)
     {
+        container->setState(DockingPaneContainer::Fixed);
         d->list.append(container);
         int children = container->paneCount();
         for(int i=0;i<children;i++){
@@ -81,10 +82,11 @@ namespace ady{
                 //remove tabs
                 int children = container->paneCount();
                 for(int j=0;j<children;j++){
+                    qDebug()<<"removeTab:"<<i;
                     removeTab(i);
                 }
                 d->list.erase(iter);
-                return ;
+                break;
             }
             i += (*iter)->paneCount();
             iter++;
@@ -104,6 +106,9 @@ namespace ady{
                 for(int j=0;j<children;j++){
                     if(j==index){
                         removeTab(i);
+                        if(children<=1){
+                            d->list.erase(iter);
+                        }
                         break;
                     }
                 }
@@ -152,7 +157,7 @@ namespace ady{
 
     void DockingPaneTabBar::addTab(const QString& title)
     {
-        DockingPaneTabBarItem* item = new DockingPaneTabBarItem(this);
+        /*DockingPaneTabBarItem* item = new DockingPaneTabBarItem(this);
         if(d->shape==RoundedNorth){
             item->setOrientation(Qt::Horizontal);
         }else if(d->shape==RoundedSouth){
@@ -168,8 +173,33 @@ namespace ady{
         d->children.append(item);
         int size = d->children.size();
         d->layout->insertWidget(size - 1,item);
-        //qDebug()<<"addTab:"<<size;
-        //d->layout->addWidget(item);
+        setVisible(true);
+        connect(item,&QPushButton::clicked,this,&DockingPaneTabBar::onItemClicked);*/
+        addTab(-1,title);
+    }
+
+    void DockingPaneTabBar::addTab(int index,const QString& title){
+        DockingPaneTabBarItem* item = new DockingPaneTabBarItem(this);
+        if(d->shape==RoundedNorth){
+            item->setOrientation(Qt::Horizontal);
+        }else if(d->shape==RoundedSouth){
+            item->setOrientation(Qt::Horizontal);
+            item->setSwap(true);
+        }else if(d->shape==RoundedWest){
+            item->setOrientation(Qt::Vertical);
+        }else if(d->shape==RoundedEast){
+            item->setOrientation(Qt::Vertical);
+            item->setSwap(true);
+        }
+        item->setText(title);
+        if(index>=0 && index<d->children.size()){
+            d->children.insert(index,item);
+        }else{
+            d->children.append(item);
+        }
+
+        int size = d->children.size();
+        d->layout->insertWidget(size - 1,item);
         setVisible(true);
         connect(item,&QPushButton::clicked,this,&DockingPaneTabBar::onItemClicked);
     }
@@ -183,6 +213,34 @@ namespace ady{
         }
     }
 
+    int DockingPaneTabBar::search(DockingPaneContainer* container){
+        int i=0;
+        foreach(auto one,d->list){
+            if(one==container){
+                return i;
+            }
+            i+=1;
+        }
+        return -1;
+    }
+
+    void DockingPaneTabBar::insertContainer(int index,DockingPaneContainer* container){
+        int tabIndex = 0;
+        for(int i=0;i<index;i++){
+            tabIndex += d->list[i]->paneCount();
+        }
+        d->list.insert(index,container);
+        //add tabs
+        int children = container->paneCount();
+        for(int i=0;i<children;i++){
+            DockingPane* pane = container->pane(i);
+            QString title = pane->windowTitle();
+            addTab(tabIndex+i,title);
+        }
+        setVisible(true);
+        show();
+    }
+
     void DockingPaneTabBar::onCurrentChanged(int i)
     {
         //qDebug()<<"onCurrentChanged:"<<i<<";list:"<<d->list;
@@ -194,6 +252,7 @@ namespace ady{
                 //hide tabbar items
                 one->visibleTabBar(false);
                 DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
+                //qDebug()<<"onCurrentChanged"<<i<<d->position;
                 workbench->showFixedWindow(one,d->position);
                 break ;
             }else{

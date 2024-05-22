@@ -18,6 +18,7 @@ namespace ady {
         :QWidget(parent){
         //setWindowFlags(/*Qt::Tool | */Qt::FramelessWindowHint);
         d = new DockingPaneFixedWindowPrivate;
+        d->container = nullptr;
         d->resizer_size = margin;
         initResizer();
     }
@@ -29,12 +30,12 @@ namespace ady {
 
     void DockingPaneFixedWindow::setCenterWidget(DockingPaneContainer* container)
     {
-        if(d->container!=nullptr && d->container!=container){
-            d->container->setParent(nullptr);
-            d->container->hide();
-        }else if(container==nullptr){
+        if(container==nullptr){
             d->container = nullptr;
             return ;
+        }else if(d->container!=nullptr && d->container!=container){
+            d->container->setParent(nullptr);
+            d->container->hide();
         }
         d->container = container;
         d->container->setParent(this);
@@ -45,7 +46,7 @@ namespace ady {
 
         QGraphicsDropShadowEffect *shadow_effect = new QGraphicsDropShadowEffect(this);
         shadow_effect->setOffset(0, 0);
-        shadow_effect->setColor(Qt::black);
+        shadow_effect->setColor(Qt::gray);
         shadow_effect->setBlurRadius(10);
         container->setGraphicsEffect(shadow_effect);
     }
@@ -67,22 +68,20 @@ namespace ady {
                 d->container->setGeometry(d->resizer_size,0,rc.width() - d->resizer_size,rc.height());
             }
         }else if(region==DockingPaneWindowResizer::Top){
-             d->region->setGeometry(QRect(0,rc.height() - d->resizer_size,rc.width(),d->resizer_size));
+             d->region->setGeometry(QRect(0,0,rc.width(),d->resizer_size));
              if(d->container!=nullptr){
-                 d->container->setGeometry(0,0,rc.width() ,rc.height() - d->resizer_size);
+                 d->container->setGeometry(0,d->resizer_size,rc.width() ,rc.height() - d->resizer_size);
              }
         }else if(region==DockingPaneWindowResizer::Right){
-
-
             //to right
             d->region->setGeometry(QRect(rc.width() - d->resizer_size,0,d->resizer_size,rc.height()));
             if(d->container!=nullptr){
                 d->container->setGeometry(0,0,rc.width() - d->resizer_size,rc.height());
             }
         }else if(region==DockingPaneWindowResizer::Bottom){
-            d->region->setGeometry(QRect(0,0,rc.width(),d->resizer_size));
+            d->region->setGeometry(QRect(0,rc.height() - d->resizer_size,rc.width(),d->resizer_size));
             if(d->container!=nullptr){
-                d->container->setGeometry(0,d->resizer_size,rc.width() ,rc.height() - d->resizer_size);
+                d->container->setGeometry(0,0,rc.width() ,rc.height() - d->resizer_size);
             }
         }
     }

@@ -79,12 +79,26 @@ namespace ady {
 
     void DockingPaneManager::createPane(DockingPane* pane,DockingPaneContainer* container,Position position)
     {
-
+        //container->appendPane(pane);
     }
 
     DockingPane* DockingPaneManager::createPane(QString id,QString group,QString title,QWidget* widget,Position position)
     {
         //default client as target
+        if(position==Center){
+            //createPane(id,group,title,widget)
+            DockingPaneClient* client = d->workbench->client();
+            if(client!=nullptr){
+                client->initView();
+                DockingPane* pane = new DockingPane(nullptr);
+                pane->setCenterWidget(widget);
+                pane->setId(id);
+                pane->setGroup(group);
+                pane->setWindowTitle(title);
+                client->appendPane(pane);
+                return pane;
+            }
+        }
         DockingPaneContainer* container = new DockingPaneContainer(d->workbench);
         container->setObjectName(id+"_containter");
         DockingPane* pane = new DockingPane(container);
@@ -94,6 +108,7 @@ namespace ady {
         pane->setWindowTitle(title);
         container->appendPane(pane);
         //container->setItemInfo(d->layout->m_rootItem);
+
         d->layout->addItem(container,position);
         return pane;
     }

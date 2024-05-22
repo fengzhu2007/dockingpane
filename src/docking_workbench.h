@@ -49,6 +49,8 @@ namespace ady {
         void showFixedWindow(DockingPaneContainer* container,int position);
         void resizeFixedWindow(const QSize& size);
         void hideFixedWindow();
+        void unActiveAll();
+        void dump(QString prefix);
         //void updateGuidePosition();
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;

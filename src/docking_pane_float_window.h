@@ -18,6 +18,7 @@ namespace ady {
         void updateResizer();
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;
+        virtual void mousePressEvent(QMouseEvent *event)override;
     private:
         void initResizer();
 

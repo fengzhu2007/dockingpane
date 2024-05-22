@@ -109,6 +109,7 @@ namespace ady {
         if(count==0){
             return m_rootItem->insertItem(parentWidget(),itemInfo,position);
         }else{
+            //qDebug()<<"m_children_ori:"<<m_rootItem->m_children_ori;
             if(m_rootItem->m_children_ori==DockingPaneLayoutItemInfo::Horizontal){
                 if(position==DockingPaneManager::Left || position==DockingPaneManager::S_Left){
                     //insert left 1
@@ -186,8 +187,10 @@ namespace ady {
         if((position==DockingPaneManager::Left || position==DockingPaneManager::Right)){
 
             if((parentItemOrientation==DockingPaneLayoutItemInfo::Unkown || parentItemOrientation==DockingPaneLayoutItemInfo::Horizontal)){
-
+                //qDebug()<<"relation";
+                relation->parent()->dump("parentrelation");
                 int row = relation->row();
+                //qDebug()<<"row:"<<row;
 
                 if(position==DockingPaneManager::Left){
                     //row -= 1;
@@ -197,7 +200,7 @@ namespace ady {
                 }else if(position==DockingPaneManager::Right){
                     row += 1;
                 }
-                //qDebug()<<"row:"<<row;
+                qDebug()<<"row:"<<row;
                 return parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
             }else{
                 return relation->insertItem(parentWidget(),itemInfo,position);
@@ -265,5 +268,9 @@ namespace ady {
         return m_rootItem;
     }
 
+    void DockingPaneLayout::dump(QString prefix){
+        qDebug()<<prefix<<"root:"<<m_rootItem;
+        m_rootItem->dump(prefix);
+    }
 
 }

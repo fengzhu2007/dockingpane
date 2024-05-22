@@ -92,7 +92,7 @@ namespace ady {
 
     void DockingPaneHandle::mousePressEvent(QMouseEvent *event)
     {
-        qDebug()<<"handle:"<<m_itemInfo<<";seq:"<<m_itemInfo->seq();
+        //qDebug()<<"handle:"<<m_itemInfo<<";seq:"<<m_itemInfo->seq();
         QFrame::mousePressEvent(event);
         m_start_moving = true;
         m_offset = 0;

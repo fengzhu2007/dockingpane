@@ -24,7 +24,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             m_handle = nullptr;
         }
         //DockingPaneLayoutItemInfo::gSeq--;
-        qDebug()<<"destory:"<<m_seq;
+        //qDebug()<<"destory:"<<m_seq;
         //qDebug()<<"destory:"<<this;
     }
 
@@ -61,13 +61,16 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         int size = m_children.size();
         if(size==0 && m_item!=nullptr){
             //DockingPaneManager::Position pos =DockingPaneManager::Position::TOP;
+            //qDebug()<<"item:"<<item<<position;
             DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(m_item,position,this);
             ((DockingPaneContainer*)m_item->widget())->setItemInfo(child);
             child->setObjectName(m_item->widget()->objectName()+"_itemInfo");
             child->initHandle(workbench);
             m_children.push_back(child);
         }
+
         DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(item,position,this);
+
         ((DockingPaneContainer*)item->widget())->setItemInfo(child);
         child->setObjectName(item->widget()->objectName()+"_itemInfo");
         child->initHandle(workbench);
@@ -79,7 +82,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         if(m_children_ori==Unkown){
             if(position==DockingPaneManager::Top || position==DockingPaneManager::Bottom){
                 m_children_ori = Vertical;
-            }else{
+            }else if(position==DockingPaneManager::Left || position==DockingPaneManager::Right){
                 m_children_ori = Horizontal;
             }
         }
@@ -486,6 +489,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     int DockingPaneLayoutItemInfo::indexOf(DockingPaneLayoutItemInfo* child)
     {
         int i = 0;
+        //qDebug()<<"m_children"<<m_children;
         Q_FOREACH(DockingPaneLayoutItemInfo* one,m_children){
             if(one==child){
                 return i;
@@ -658,17 +662,18 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     void DockingPaneLayoutItemInfo::dump(QString prefix)
     {
 
-        qDebug()<<prefix<<"gSeq:"<<DockingPaneLayoutItemInfo::gSeq;
+        //qDebug()<<prefix<<"gSeq:"<<DockingPaneLayoutItemInfo::gSeq;
         if(m_children.size()>0){
-            qDebug()<<prefix<<"seq:"<<m_seq<<";Group size:"<<m_children.size()<<";rect:"<<m_rect<<";Orientation:"<<(m_children_ori);
+            //qDebug()<<prefix<<this<<"seq:"<<m_seq<<";Group size:"<<m_children.size()<<";rect:"<<m_rect<<";Orientation:"<<(m_children_ori);
             foreach(DockingPaneLayoutItemInfo* child,m_children){
                 child->dump(prefix +"----");
             }
         }else{
             if(m_item!=nullptr){
-                qDebug()<<prefix<<"seq:"<<m_seq<<";Item name:"<<m_item->widget()->objectName()<<";rect:"<<m_item->widget()->geometry()<<";info rect:"<<m_rect<<";stretch:"<<m_stretch;
+                //qDebug()<<prefix<<this<<"seq:"<<m_seq<<";Item name:"<<m_item->widget()->objectName()<<";rect:"<<m_item->widget()->geometry()<<";info rect:"<<m_rect<<";stretch:"<<m_stretch<<m_parent;
+                qDebug()<<prefix<<this<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo();
             }else{
-                qDebug()<<prefix<<"seq:"<<m_seq<<";Item NULL";
+                qDebug()<<this<<prefix<<"seq:"<<m_seq<<";Item NULL";
             }
         }
         /*qDebug()<<prefix<<"DockingPaneLayoutItemInfo:"<<objectName()<<";size:"<<m_children.size()<<(m_item==nullptr?"NULL":m_item->widget()->objectName());

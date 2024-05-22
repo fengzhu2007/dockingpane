@@ -19,7 +19,10 @@ namespace ady{
         void removeContainerChild(DockingPaneContainer* container,int index);
         void setShape(Shape shape);
         void addTab(const QString& title);
+        void addTab(int index,const QString& title);
         void removeTab(int i);
+        int search(DockingPaneContainer* container);
+        void insertContainer(int index,DockingPaneContainer* container);
 
         //QSize sizeHint();
 

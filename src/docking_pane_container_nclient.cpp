@@ -115,26 +115,6 @@ namespace ady{
     {
         //theme
         d->active = active;
-        //this->setActiveState(active);
-        //this->setStyleSheet(QSS::containerNoClient(d->active));
-        /*if(d->active){
-            this->setStyleSheet("ady--DockingPaneContainerNClient{background:#007acc}");
-            ui->title->setStyleSheet("background:#007acc;color:white");
-            ui->label->setStyleSheet("background-image: url(:/images/vs2019/dock_head_white.png);");
-
-            ui->pin->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#52b0ef; border: none;}");
-            ui->close->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#52b0ef; border: none;}");
-            ui->menu->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#52b0ef; border: none;}");
-        }else{
-            this->setStyleSheet("ady--DockingPaneContainerNClient{background:#eeeef2}");
-            ui->title->setStyleSheet("background:#eeeef2;color:#444444");
-            ui->label->setStyleSheet("background-image: url(:/images/vs2019/dock_head_gray.png);");
-
-            ui->pin->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#e6e6e6; border: none;}");
-            ui->close->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#e6e6e6; border: none;}");
-            ui->menu->setStyleSheet("QPushButton{background-color: transparent; border: none;} QPushButton:hover{background:#e6e6e6; border: none;}");
-
-        }*/
         DockingPaneContainer* container = (DockingPaneContainer*)this->parentWidget();
         int state = container->state();
         setButtonState(Close,Inner);
@@ -152,6 +132,9 @@ namespace ady{
         QStyle* style = this->style();
         style->polish(ui->title);
         style->polish(ui->label);
+        style->polish(ui->close);
+        style->polish(ui->menu);
+        style->polish(ui->pin);
         style->polish(this);
     }
 
@@ -181,11 +164,14 @@ namespace ady{
             DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();
             DockingPaneTabBar* tabBar = workbench->tabBar(position);
             if(tabBar!=nullptr){
-                tabBar->removeContainer(container);
+                tabBar->removeContainerChild(container,container->current());//fixed
             }
-            container->setParent(nullptr);
-            container->close();
-            container->deleteLater();
+            if(container->paneCount()==0){
+                container->setParent(nullptr);
+                container->close();
+                container->deleteLater();
+            }
+            window->hide();
         }
     }
 
@@ -226,7 +212,9 @@ namespace ady{
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr){
             int paneCount = container->paneCount();
-            if(container->state()==DockingPaneContainer::Inner){
+            DockingPaneContainer::State state = container->state();
+            qDebug()<<"onFloat"<<state;
+            if(state==DockingPaneContainer::Inner){
                 //fixed create float window;
                 QRect rc = container->geometry();
                 QPoint pos = mapToGlobal(container->pos());
@@ -286,19 +274,21 @@ namespace ady{
                 window->updateResizer();
                 window->show();
 
-            }else if(container->state()==DockingPaneContainer::Fixed){
+            }else if(state==DockingPaneContainer::Fixed){
                 //fixed create float window;
                 DockingPaneFixedWindow* fixed_window = (DockingPaneFixedWindow*)container->parentWidget();
                 //remove sider tabbar items
                 int position = fixed_window->fixedPosition();
+                //qDebug()<<"position"<<position;
                 DockingWorkbench* workbench = (DockingWorkbench*)fixed_window->parentWidget();
                 DockingPaneTabBar* tabBar = workbench->tabBar(position);
-
-                tabBar->removeContainer(container);
-
-                container->setParent(nullptr);
+                //tabBar->removeContainerChild(container,container->current());
+                //qDebug()<<"container:"<<container;
                 QRect rc = container->geometry();
                 QPoint pos = mapToGlobal(container->pos());
+                int index = tabBar->search(container);
+                tabBar->removeContainer(container);
+                //container->setParent(nullptr);
                 if(paneCount>1){
                     int current = container->current();
                     DockingPane* pane = container->pane(current);
@@ -319,10 +309,9 @@ namespace ady{
                         }
                     }
                     restore_container->setPane(0);
-                    tabBar->addContainer(restore_container);
+                    tabBar->insertContainer(index,restore_container);
                 }
                 int margin = 6;
-
                 QRect rect;
                 rect.setWidth(rc.width() + margin * 2);
                 rect.setHeight(rc.height() + margin * 2);
@@ -334,13 +323,13 @@ namespace ady{
                     rect.setX(pos.x() - margin);
                     rect.setY(pos.y()  - margin);
                 }
-
                 container->activeWidget(true);
                 DockingPaneFloatWindow* window = new DockingPaneFloatWindow(fixed_window->parentWidget(),margin);
                 window->setGeometry(rect);
                 window->setCenterWidget(container);
                 window->updateResizer();
                 window->show();
+                fixed_window->setCenterWidget(nullptr);
                 fixed_window->hide();
             }
         }

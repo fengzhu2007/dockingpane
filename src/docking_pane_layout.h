@@ -33,6 +33,7 @@ namespace ady {
         //void addItem(DockingPaneLayoutItemInfo* itemInfo,DockingPaneLayoutItemInfo* parent,DockingPaneManager::Position position);
 
         DockingPaneLayoutItemInfo* rootItem();
+        void dump(QString prefix);
 
     private:
         DockingPaneLayoutItemInfo* m_rootItem;

@@ -3,7 +3,7 @@
 #include "docking_pane_container.h"
 #include "docking_workbench.h"
 #include "docking_pane_layout_item_info.h"
-#include "docking_pane_handle.h"
+//#include "docking_pane_handle.h"
 #include "docking_pane.h"
 #include <QMouseEvent>
 #include <QEvent>

@@ -1,6 +1,6 @@
 #include "docking_guide.h"
 #include "ui_docking_guide.h"
-#include "docking_pane_container.h"
+//#include "docking_pane_container.h"
 #include "docking_workbench.h"
 
 #include <QPixmap>
@@ -98,7 +98,7 @@ namespace ady {
             return ;
         }
         d->size_mode = mode;
-        qDebug()<<"mode:"<<mode;
+        //qDebug()<<"mode:"<<mode;
         if((d->size_mode&DockingGuide::Normal)>0){
             ui->label->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/docking.png")));
             this->setGeometry(QRect(0,0,112,112));

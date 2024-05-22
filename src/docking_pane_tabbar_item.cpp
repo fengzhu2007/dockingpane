@@ -80,7 +80,7 @@ namespace ady {
                 }
                 if (d->swap) {
                     p.fillRect(0, height()-6, width(), 6, color);
-                    p.drawText(0, 0, width(), height()-10, 0, this->text());
+                    p.drawText(0, 6, width(), height()-10, 0, this->text());
                 } else {
                     p.fillRect(0, 0, width(), 6, color);
                     p.drawText(0, 10, width(), height(), 0, this->text());
@@ -101,7 +101,7 @@ namespace ady {
                     p.drawText(0, 10, height(), width(), 0, this->text());
                 } else {
                     p.fillRect(0, width()-6, height(), 6, color);
-                    p.drawText(0, 0, height(), width()-10, 0, this->text());
+                    p.drawText(0, 6, height(), width()-10, 0, this->text());
                 }
 
                 break;

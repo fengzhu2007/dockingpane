@@ -38,7 +38,6 @@ add_library(dockingpane SHARED
     src/docking_pane_manager.h
     src/docking_pane_tabbar.h
     src/docking_pane_tabbar_item.h
-    src/docking_pane_tabbar_item_1.h
     src/docking_pane_window_resizer.h
     src/docking_workbench.h
     src/global.h
@@ -58,7 +57,6 @@ add_library(dockingpane SHARED
     src/docking_pane_manager.cpp
     src/docking_pane_tabbar.cpp
     src/docking_pane_tabbar_item.cpp
-    src/docking_pane_tabbar_item_1.cpp
     src/docking_pane_window_resizer.cpp
     src/docking_workbench.cpp
     src/docking_guide.ui

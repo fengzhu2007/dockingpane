@@ -1,6 +1,7 @@
 #include "docking_pane_float_window.h"
 #include "docking_pane_container.h"
 #include "docking_pane_window_resizer.h"
+#include "docking_workbench.h"
 #include <QVBoxLayout>
 #include <QGraphicsDropShadowEffect>
 #include <QMouseEvent>
@@ -101,6 +102,12 @@ namespace ady{
     {
         QWidget::resizeEvent(event);
         updateResizer();
+    }
+
+    void DockingPaneFloatWindow::mousePressEvent(QMouseEvent *event){
+        QWidget::mousePressEvent(event);
+        ((DockingWorkbench*)parentWidget())->unActiveAll();
+        centerWidget()->activeWidget(true);
     }
 
 
