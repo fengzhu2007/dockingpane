@@ -4,6 +4,7 @@
 #include "docking_pane_container_tabbar.h"
 #include "docking_guide.h"
 #include "docking_pane.h"
+#include "docking_workbench.h"
 #include <QVBoxLayout>
 #include <QStyleOption>
 #include <QPainter>
@@ -18,6 +19,7 @@ namespace ady {
         DockingPaneContainer::State state = DockingPaneContainer::Inner;
         DockingPaneLayoutItemInfo* info = nullptr;
         bool client = false;
+        bool active_state = false;
         DockingPaneManager::Position ori_position = DockingPaneManager::S_Left;
         QRect ori_rc;
     };
@@ -92,7 +94,6 @@ namespace ady {
     DockingPaneContainer::~DockingPaneContainer()
     {
         delete d;
-        //qDebug()<<"DockingPaneContainer";
     }
 
 
@@ -125,7 +126,7 @@ namespace ady {
             d->nclient->updateTitle(pane->windowTitle());
         }
         d->tabbar->setCurrentIndex(index);
-        qDebug()<<d->tabbar->children();
+        //qDebug()<<d->tabbar->children();
     }
 
     void DockingPaneContainer::setState(State state)
@@ -156,10 +157,15 @@ namespace ady {
         return d->state;
     }
 
+    bool DockingPaneContainer::activeState(){
+        return d->active_state;
+    }
+
 
     void DockingPaneContainer::activeWidget(bool active){
         //m_active_state = active;
         //qDebug()<<this<<";"<<active;
+        d->active_state = active;
         this->setProperty("activeState",active);
         if(d->nclient!=nullptr){
             d->nclient->setActive(active);
@@ -265,6 +271,10 @@ namespace ady {
         d->ori_rc.setHeight(h);
     }
 
+    QRect DockingPaneContainer::oriRect(){
+        return d->ori_rc;
+    }
+
     void DockingPaneContainer::setMoving(bool state){
         if(d->nclient!=nullptr){
             d->nclient->setMoving(state);
@@ -339,6 +349,18 @@ namespace ady {
         return flags;
     }
 
+    DockingWorkbench* DockingPaneContainer::workbench(){
+        if(d->state==Inner){
+            return (DockingWorkbench*)parentWidget();
+        }else if(d->state==Float){
+            return (DockingWorkbench*)parentWidget()->parentWidget();
+        }else if(d->state==Fixed){
+            return (DockingWorkbench*)parentWidget()->parentWidget();
+        }else{
+            return nullptr;
+        }
+    }
+
     void DockingPaneContainer::onCurrentChanged(int i)
     {
         d->stacked->setCurrentIndex(i);
@@ -348,6 +370,11 @@ namespace ady {
                 d->nclient->updateTitle(pane->windowTitle());
             }
         }
+        /*if(d->active_state==false && d->state==Inner){
+            DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
+            workbench->unActiveAll();
+            this->activeWidget(true);
+        }*/
 
     }
 
@@ -362,8 +389,10 @@ namespace ady {
          QWidget::focusInEvent(event);
 
          //set active false for all container children
-         DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
-         QObjectList children = parentWidget()->children();
+         DockingWorkbench* workbench = this->workbench();
+         workbench->unActiveAll();
+         this->activeWidget(true);
+         /*QObjectList children = parentWidget()->children();
          foreach(QObject* one,children){
              QString name = one->metaObject()->className();
              if(name=="ady::DockingPaneClient"){
@@ -375,7 +404,7 @@ namespace ady {
 
          if(d->nclient!=nullptr){
              d->nclient->setActive(true);
-         }
+         }*/
      }
 
      /*void DockingPaneContainer::focusOutEvent(QFocusEvent *event)

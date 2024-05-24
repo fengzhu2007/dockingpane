@@ -16,6 +16,10 @@ namespace ady {
         void setCenterWidget(DockingPane* pane);
         DockingPaneContainer* centerWidget();
         void updateResizer();
+
+        void showMaximized();
+        void showNormal();
+
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;
         virtual void mousePressEvent(QMouseEvent *event)override;

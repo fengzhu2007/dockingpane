@@ -37,6 +37,20 @@ namespace ady {
         //d->moving = true;
         d->offsetX = e->x();
         d->offsetY = e->y();
+
+        DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
+        if(container!=nullptr && container->state()==DockingPaneContainer::Inner &&container->activeState()==false){
+            DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
+            workbench->unActiveAll();
+            container->activeWidget(true);
+        }
+
+
+
+        //qDebug()<<"DockingPaneContainerTabBar::mousePressEvent";
+
+        //DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
+
         //d->index = tabAt(e->pos());
         //qDebug()<<"index:"<<index;
     }

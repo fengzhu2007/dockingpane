@@ -5,7 +5,7 @@
 #include "docking_pane.h"
 #include "docking_pane_layout_item_info.h"
 #include "docking_pane_client.h"
-
+#include "docking_pane_float_window.h"
 #include <QLayoutItem>
 #include <QHBoxLayout>
 #include <QDebug>
@@ -170,6 +170,46 @@ namespace ady {
         //container->setItemInfo(d->layout->m_rootItem);
         d->layout->m_rootItem->insertItem(d->workbench,new QWidgetItem(container),position);
         return pane;
+    }
+
+    DockingPane* DockingPaneManager::createFixedPane(const QString& id,const QString& group,const QString& title,QWidget* widget,Position position){
+        DockingPaneContainer* container = new DockingPaneContainer(d->workbench,position);
+        DockingPane* pane = new DockingPane(container);
+        pane->setCenterWidget(widget);
+        pane->setId(id);
+        pane->setGroup(group);
+        pane->setWindowTitle(title);
+        container->appendPane(pane);
+        d->workbench->siderFixed(container,position);
+        //d->workbench->layout()->update();
+        return pane;
+    }
+
+    DockingPaneFloatWindow* DockingPaneManager::createFloatPane(const QString& id,const QString& group,const QString& title,QWidget* widget){
+        int margin = 6;
+        //qDebug()<<"widget:"<<widget->geometry();
+
+        DockingPaneFloatWindow* window = new DockingPaneFloatWindow(d->workbench,margin);
+        DockingPaneContainer* container = new DockingPaneContainer(d->workbench,Position::Left);
+        DockingPane* pane = new DockingPane(container);
+        pane->setCenterWidget(widget);
+        pane->setId(id);
+        pane->setGroup(group);
+        pane->setWindowTitle(title);
+        container->appendPane(pane);
+        //qDebug()<<"container:"<<container->geometry();
+        window->setCenterWidget(container);
+        window->updateResizer();
+        QRect rc = d->workbench->geometry();
+        //qDebug()<<"workbench:"<<rc;
+        //QPoint pos =
+        int width = rc.width() / 3;
+        int height = rc.height() / 3;
+
+        QPoint pos = d->workbench->mapToGlobal(QPoint(50,50));
+        window->setGeometry(QRect(pos.x(),pos.y(),width,height));
+        window->show();
+        return window;
     }
 
     /*void DockingPaneManager::addItem(QWidget* widget,Position position)

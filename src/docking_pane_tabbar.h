@@ -4,6 +4,7 @@
 #include <QTabBar>
 namespace ady{
     class DockingPaneContainer;
+    class DockingPaneTabBarItem;
     class DockingPaneTabBarPrivate;
     class DockingPaneTabBar : public QWidget {
         Q_OBJECT
@@ -23,6 +24,8 @@ namespace ady{
         void removeTab(int i);
         int search(DockingPaneContainer* container);
         void insertContainer(int index,DockingPaneContainer* container);
+        int count();
+        DockingPaneTabBarItem* item(int row);
 
         //QSize sizeHint();
 

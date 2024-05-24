@@ -50,8 +50,18 @@ namespace ady {
         void resizeFixedWindow(const QSize& size);
         void hideFixedWindow();
         void unActiveAll();
+        void updateLayout();
         void dump(QString prefix);
         //void updateGuidePosition();
+
+    signals:
+        void onShow();
+
+    public slots:
+        void onTimeout();
+
+
+
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;
         virtual void paintEvent(QPaintEvent *e) override;

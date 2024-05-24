@@ -97,6 +97,15 @@ namespace ady{
         }
     }
 
+    void DockingPaneFloatWindow::showMaximized(){
+        this->layout()->setMargin(0);
+        QWidget::showMaximized();
+    }
+
+    void DockingPaneFloatWindow::showNormal(){
+        this->layout()->setMargin(6);
+        QWidget::showNormal();
+    }
 
     void DockingPaneFloatWindow::resizeEvent(QResizeEvent *event)
     {
@@ -106,7 +115,9 @@ namespace ady{
 
     void DockingPaneFloatWindow::mousePressEvent(QMouseEvent *event){
         QWidget::mousePressEvent(event);
-        ((DockingWorkbench*)parentWidget())->unActiveAll();
+        DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
+        workbench->unActiveAll();
+        workbench->hideFixedWindow();
         centerWidget()->activeWidget(true);
     }
 

@@ -7,7 +7,7 @@
 #include "docking_pane_handle.h"
 #include "docking_pane_tabbar.h"
 #include "docking_pane.h"
-#include "qss.h"
+//#include "qss.h"
 #include "ui_docking_pane_container_nclient.h"
 #include <QStyleOption>
 #include <QPainter>
@@ -84,7 +84,12 @@ namespace ady{
                 if(s==Inner){
                     ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_white.png")));
                 }else if(s==Float){
-                    ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_white.png")));
+                    QWidget* window = parentWidget()->parentWidget();
+                    if(window->isMaximized()){
+                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_restore_white.png")));
+                    }else{
+                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_max_white.png")));
+                    }
                 }else if(s==Fixed){
                     ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_white.png")));
                 }
@@ -98,7 +103,12 @@ namespace ady{
                 if(s==Inner){
                     ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_gray.png")));
                 }else if(s==Float){
-                    ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_gray.png")));
+                    QWidget* window = parentWidget()->parentWidget();
+                    if(window->isMaximized()){
+                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_restore_gray.png")));
+                    }else{
+                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_max_gray.png")));
+                    }
                 }else if(s==Fixed){
                     ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_gray.png")));
                 }
@@ -125,8 +135,6 @@ namespace ady{
     void DockingPaneContainerNClient::setMoving(bool state){
         d->moving = state;
     }
-
-
 
     void DockingPaneContainerNClient::stylePolish(){
         QStyle* style = this->style();
@@ -197,14 +205,28 @@ namespace ady{
                 return ;
             }
             workbench->restoreWidget(container,window->fixedPosition());
-            window->close();
-            window->deleteLater();
+            //window->close();
+            //window->deleteLater();
+            //workbench->updateLayout();
+            window->setCenterWidget(nullptr);
+            workbench->hideFixedWindow();
         }else if(state==DockingPaneContainer::Float){
-            DockingPaneFloatWindow *window = (DockingPaneFloatWindow*)container->parentWidget();
+            /*DockingPaneFloatWindow *window = (DockingPaneFloatWindow*)container->parentWidget();
             DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget()->parentWidget();
             workbench->restoreWidget(container,container->oriPosition());
             window->close();
-            window->deleteLater();
+            window->deleteLater();*/
+            DockingPaneFloatWindow *window = (DockingPaneFloatWindow*)container->parentWidget();
+            DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget()->parentWidget();
+
+            workbench->unActiveAll();
+            container->activeWidget(true);
+            if(!window->isMaximized()){
+                window->showMaximized();
+            }else{
+                window->showNormal();
+            }
+            this->setButtonState(Pin,Float);
         }
     }
 
@@ -213,7 +235,7 @@ namespace ady{
         if(container!=nullptr){
             int paneCount = container->paneCount();
             DockingPaneContainer::State state = container->state();
-            qDebug()<<"onFloat"<<state;
+            //qDebug()<<"onFloat"<<state;
             if(state==DockingPaneContainer::Inner){
                 //fixed create float window;
                 QRect rc = container->geometry();
@@ -221,7 +243,7 @@ namespace ady{
                 int margin = 6;
                 DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
                 DockingPaneFloatWindow* window = new DockingPaneFloatWindow(workbench,margin);
-                if(false && paneCount>1){
+                if(false && paneCount>1){//drag move all tabs
                     int current = container->current();
                     DockingPane* pane = container->pane(current);
 
@@ -257,17 +279,26 @@ namespace ady{
                 QRect rect;
 
                 if(!moving){
-                    QPoint cpos = QCursor::pos();
+                    QRect w_rc = workbench->geometry();
+                    int x = (w_rc.width() - rc.width()) / 2;
+                    int y = (w_rc.height() - rc.height() / 4 * 3);
+
+                    QPoint gpos = workbench->mapToGlobal(QPoint(x,y));
+                    /*QPoint cpos = QCursor::pos();
                     rect.setX(cpos.x() - rect.width() + 80);//80= three buttons width
-                    rect.setY(cpos.y());
+                    rect.setY(cpos.y());*/
+                    //rect.setX(gpos.x());
+                    //rect.setY(gpos.y());
+                    rect = QRect(gpos.x(),gpos.y(),rc.width(),rc.height());
+                    //qDebug()<<"on float rc:"<<rc<<w_rc<<rect;
+
                 }else{
                     rect.setX(pos.x() - margin);
                     rect.setY(pos.y()  - margin);
                     //qDebug()<<rect;
+                    rect.setWidth(rc.width() + margin * 2);
+                    rect.setHeight(rc.height() + margin * 2);
                 }
-                rect.setWidth(rc.width() + margin * 2);
-                rect.setHeight(rc.height() + margin * 2);
-
                 container->activeWidget(true);
                 window->setGeometry(rect);
                 window->setCenterWidget(container);
@@ -331,6 +362,8 @@ namespace ady{
                 window->show();
                 fixed_window->setCenterWidget(nullptr);
                 fixed_window->hide();
+                //workbench->updateLayout();
+
             }
         }
     }
@@ -338,17 +371,78 @@ namespace ady{
     void DockingPaneContainerNClient::onDock(){
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr){
+            DockingWorkbench* workbench = container->workbench();
+            QWidget* parent = container->parentWidget();
+            int paneCount = container->paneCount();
             DockingPaneContainer::State state = container->state();
+
             if(state==DockingPaneContainer::Float){
-
+                DockingPane* pane = container->takeCurrent();
+                workbench->restorePane(pane,DockingPaneManager::S_Left);
+                if(paneCount<=1){
+                    parent->close();
+                    parent->deleteLater();
+                }
+                return ;
             }else if(state==DockingPaneContainer::Fixed){
-
+                DockingPaneFixedWindow* window = (DockingPaneFixedWindow*)parent;
+                int position = window->fixedPosition();
+                DockingPaneTabBar* tabBar = workbench->tabBar(position);
+                tabBar->removeContainerChild(container,container->current());
+                DockingPane* pane = container->takeCurrent();
+                workbench->restorePane(pane,position);
+                if(paneCount<=1){
+                    window->setCenterWidget(nullptr);
+                    container->close();
+                    container->deleteLater();
+                }
+                workbench->hideFixedWindow();
+                return ;
             }
         }
     }
 
     void DockingPaneContainerNClient::onTabDock(){
+        DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
+        DockingWorkbench* workbench = container->workbench();
+        DockingPaneContainer::State state = container->state();
+        QWidget* parent = container->parentWidget();
+        int paneCount = container->paneCount();
 
+        if(state==DockingPaneContainer::Float){
+            DockingPane* pane = container->takeCurrent();
+            workbench->restorePane(pane,DockingPaneManager::Center);
+            if(paneCount<=1){
+                parent->close();
+                parent->deleteLater();
+            }
+            return ;
+        }else if(state==DockingPaneContainer::Fixed){
+            DockingPaneFixedWindow* window = (DockingPaneFixedWindow*)parent;
+            int position = window->fixedPosition();
+            DockingPaneTabBar* tabBar = workbench->tabBar(position);
+            tabBar->removeContainerChild(container,container->current());
+            DockingPane* pane = container->takeCurrent();
+            workbench->restorePane(pane,DockingPaneManager::Center);
+            workbench->hideFixedWindow();
+            if(paneCount<=1){
+                window->setCenterWidget(nullptr);
+                container->close();
+                container->deleteLater();
+            }
+            return ;
+        }else if(state==DockingPaneContainer::Inner){
+            DockingPane* pane = container->takeCurrent();
+            workbench->restorePane(pane,DockingPaneManager::Center);
+            if(paneCount<=1){
+                DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
+                DockingPaneLayoutItemInfo* parentItemInfo = itemInfo->parent();
+                parentItemInfo->removeItem(itemInfo);
+                container->close();
+                container->deleteLater();
+                workbench->updateLayout();
+            }
+        }
     }
 
 
@@ -447,7 +541,6 @@ namespace ady{
                 //qDebug()<<"widget:"<<parent<<";guid:"<<d->guide_container<<";position:"<<d->position;
                 workbench->lockContainer((DockingPaneFloatWindow*)parent->parentWidget(),d->guide_container,d->position);
             }
-
         }
     }
 

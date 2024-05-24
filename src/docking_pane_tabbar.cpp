@@ -125,7 +125,6 @@ namespace ady{
     void DockingPaneTabBar::setShape(Shape shape)
     {
         d->shape = shape;
-        //qDebug()<<"shape:"<<d->shape;
         if(d->shape==RoundedNorth){
             d->layout->setDirection(QBoxLayout::LeftToRight);
             d->spacer->changeSize(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum);
@@ -157,24 +156,6 @@ namespace ady{
 
     void DockingPaneTabBar::addTab(const QString& title)
     {
-        /*DockingPaneTabBarItem* item = new DockingPaneTabBarItem(this);
-        if(d->shape==RoundedNorth){
-            item->setOrientation(Qt::Horizontal);
-        }else if(d->shape==RoundedSouth){
-            item->setOrientation(Qt::Horizontal);
-            item->setSwap(true);
-        }else if(d->shape==RoundedWest){
-            item->setOrientation(Qt::Vertical);
-        }else if(d->shape==RoundedEast){
-            item->setOrientation(Qt::Vertical);
-            item->setSwap(true);
-        }
-        item->setText(title);
-        d->children.append(item);
-        int size = d->children.size();
-        d->layout->insertWidget(size - 1,item);
-        setVisible(true);
-        connect(item,&QPushButton::clicked,this,&DockingPaneTabBar::onItemClicked);*/
         addTab(-1,title);
     }
 
@@ -241,9 +222,15 @@ namespace ady{
         show();
     }
 
+    int DockingPaneTabBar::count(){
+        return d->children.count();
+    }
+    DockingPaneTabBarItem* DockingPaneTabBar::item(int row){
+        return d->children[row];
+    }
+
     void DockingPaneTabBar::onCurrentChanged(int i)
     {
-        //qDebug()<<"onCurrentChanged:"<<i<<";list:"<<d->list;
         foreach(DockingPaneContainer* one , d->list){
             int children = one->paneCount();
             if(i<children){
@@ -252,7 +239,6 @@ namespace ady{
                 //hide tabbar items
                 one->visibleTabBar(false);
                 DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
-                //qDebug()<<"onCurrentChanged"<<i<<d->position;
                 workbench->showFixedWindow(one,d->position);
                 break ;
             }else{
@@ -264,11 +250,9 @@ namespace ady{
     void DockingPaneTabBar::onItemClicked()
     {
         QObject* sender = this->sender();
-        //qDebug()<<"sender:"<<sender;
         int i = 0;
         foreach(DockingPaneTabBarItem* one,d->children){
             if(one==sender){
-                //qDebug()<<"sender:"<<sender<<"index:"<<i;
                 emit currentChanged(i);
                 return;
             }
@@ -276,15 +260,4 @@ namespace ady{
         }
     }
 
-    /*QSize DockingPaneTabBar::sizeHint()
-    {
-        if(d->children.size()>0){
-            foreach(DockingPaneTabBarItem* one,d->children){
-                qDebug()<<"child:"<<one->sizeHint();
-            }
-            return QSize(0,0);
-        }else{
-            return QSize(0,0);
-        }
-    }*/
 }

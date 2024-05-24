@@ -25,6 +25,7 @@ namespace ady {
 
     DockingPaneFixedWindow::~DockingPaneFixedWindow()
     {
+        qDebug()<<"~DockingPaneFixedWindow";
         delete d;
     }
 

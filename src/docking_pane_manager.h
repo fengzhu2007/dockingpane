@@ -6,6 +6,7 @@
 namespace ady {
     class DockingWorkbench;
     class DockingPane;
+    class DockingPaneFloatWindow;
     class DockingPaneContainer;
     class DockingPaneManagerPrivate;
     class DOCKINGPANE_EXPORT DockingPaneManager :public QObject{
@@ -34,6 +35,8 @@ namespace ady {
 
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,Position position);
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,DockingPaneContainer* target,Position position);
+        DockingPane* createFixedPane(const QString& id,const QString& group,const QString& title,QWidget* widget,Position position);
+        DockingPaneFloatWindow* createFloatPane(const QString& id,const QString& group,const QString& title,QWidget* widget);
         //void addItem(QWidget* widget,Position position);
 
         void dump();

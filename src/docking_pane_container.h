@@ -6,8 +6,10 @@
 namespace ady{
     class DockingPane;
     class DockingPaneContainerTabBar;
-    class DockingPaneContainerPrivate;
     class DockingPaneLayoutItemInfo;
+    class DockingWorkbench;
+    class DockingPaneContainerPrivate;
+
     class DOCKINGPANE_EXPORT DockingPaneContainer : public QWidget {
         Q_OBJECT
         //Q_PROPERTY(bool activeState READ activeState WRITE setActiveState)
@@ -30,6 +32,7 @@ namespace ady{
 
         void setState(State state);
         State state();
+        bool activeState();
         void activeWidget(bool active);
 
         void setItemInfo(DockingPaneLayoutItemInfo* info);
@@ -50,8 +53,11 @@ namespace ady{
         DockingPaneManager::Position oriPosition();
         void setOriRect(QRect rc);
         void setOriRect(int w,int h);
+        QRect oriRect();
         void setMoving(bool state);
         int guideFlags();
+
+        DockingWorkbench* workbench();
 
 
     public slots:

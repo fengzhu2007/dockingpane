@@ -27,7 +27,7 @@ namespace ady {
         QSize size;
         QFontMetrics fm(this->font());
         size.setWidth(fm.width(this->text()));
-        size.setHeight(30);
+        size.setHeight(30);//theme
         if (d->orientation == Qt::Vertical) {
             size.transpose();
         }
