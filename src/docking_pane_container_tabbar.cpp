@@ -38,6 +38,7 @@ namespace ady {
         d->offsetX = e->x();
         d->offsetY = e->y();
 
+
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr && container->state()==DockingPaneContainer::Inner &&container->activeState()==false){
             DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
@@ -69,6 +70,7 @@ namespace ady {
                     setAutoHide(false);
                     bool isClient = container->isClient();
                     QRect parentRect = container->geometry();
+                    qDebug()<<"paneCount:"<<container->paneCount();
                     DockingPane* pane = container->takeAt(index);
                     DockingPaneContainer* new_container = new DockingPaneContainer(container->parentWidget());
                     new_container->setObjectName(pane->id()+"_containter");
@@ -99,7 +101,10 @@ namespace ady {
                     if(isClient){
                         DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
                         //itemInfo->dump("tabbar");
+
                         DockingPaneLayoutItemInfo* parentItemInfo = itemInfo->parent();
+
+                        qDebug()<<"itemInfo:"<<itemInfo<<";parentItemInfo:"<<parentItemInfo;
                         //parentItemInfo->dump("111");
                         //qDebug()<<"client children:"<<parentItemInfo->clientChildren().size();
                         if(parentItemInfo->clientChildren().size()>1){
@@ -109,21 +114,15 @@ namespace ady {
                                 handle->hide();
                             }*/
                             //itemInfo->remove();
-                            parentItemInfo->removeItem(itemInfo);
-                            //delete itemInfo;
-                            container->hide();
-                            d->del_parent = true;
-                            //parentItemInfo->dump("222");
-                            //container->hide();
-                            //container->deleteLater();
+                            if(container->paneCount()==0){
+                                parentItemInfo->removeItem(itemInfo);
+                                //delete itemInfo;
+                                container->hide();
+                                d->del_parent = true;
+                            }
+
                         }
                     }
-                    //window->setMouseTracking(true);
-                    //d->current_window->startMoving();
-
-                    //QMouseEvent event(QEvent::MouseButtonPress, e->pos(), Qt::LeftButton, 0, 0);
-                    //QApplication::sendEvent(window, &event);
-
                     d->fixed=false;
                 }else{
                     QPoint cursorPos = e->pos();

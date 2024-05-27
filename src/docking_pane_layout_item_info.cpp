@@ -40,6 +40,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     QList<DockingPaneLayoutItemInfo*> DockingPaneLayoutItemInfo::clientChildren(){
         QList<DockingPaneLayoutItemInfo*> list;
+        //qDebug()<<"clientChildren:"<<m_children;
         Q_FOREACH(DockingPaneLayoutItemInfo* one,m_children){
             if(one->isClient()){
                 list.push_back(one);
@@ -74,18 +75,20 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         ((DockingPaneContainer*)item->widget())->setItemInfo(child);
         child->setObjectName(item->widget()->objectName()+"_itemInfo");
         child->initHandle(workbench);
-        if(position==DockingPaneManager::Top || position==DockingPaneManager::Left){
+        if(position==DockingPaneManager::Top || position==DockingPaneManager::Left || position==DockingPaneManager::S_Top || position==DockingPaneManager::S_Left ){
             m_children.insert(0,child);
         }else{
             m_children.push_back(child);
         }
+        qDebug()<<"ori:"<<m_children_ori<<"position:"<<position;
         if(m_children_ori==Unkown){
-            if(position==DockingPaneManager::Top || position==DockingPaneManager::Bottom){
+            if(position==DockingPaneManager::Top || position==DockingPaneManager::Bottom || position==DockingPaneManager::S_Top ||position==DockingPaneManager::S_Bottom){
                 m_children_ori = Vertical;
-            }else if(position==DockingPaneManager::Left || position==DockingPaneManager::Right){
+            }else if(position==DockingPaneManager::Left || position==DockingPaneManager::Right || position==DockingPaneManager::S_Left ||position==DockingPaneManager::S_Right){
                 m_children_ori = Horizontal;
             }
         }
+
         if(m_children.size()>0){
             QString objectName = "itemInfoGroup:";
             foreach(auto one,m_children){
@@ -147,13 +150,15 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         }
         delete itemInfo;
         reset_layout_tree:
+        if(m_children.size()<=1){
+            m_children_ori = Unkown;
+        }
         if(m_children.size()==1 && m_parent!=nullptr){
             DockingPaneLayoutItemInfo* first = m_children.at(0);
             m_item = first->item();
             if(m_item!=nullptr){
                 delete first;
                 m_children.clear();
-                m_children_ori = Unkown;
                 DockingPaneContainer* container = (DockingPaneContainer*)m_item->widget();
                 container->setItemInfo(this);
             }else{
@@ -671,7 +676,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         }else{
             if(m_item!=nullptr){
                 //qDebug()<<prefix<<this<<"seq:"<<m_seq<<";Item name:"<<m_item->widget()->objectName()<<";rect:"<<m_item->widget()->geometry()<<";info rect:"<<m_rect<<";stretch:"<<m_stretch<<m_parent;
-                qDebug()<<prefix<<this<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo();
+                qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()<<"parent:"<<parent();
             }else{
                 qDebug()<<this<<prefix<<"seq:"<<m_seq<<";Item NULL";
             }
@@ -692,53 +697,56 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             delete m_item;
             m_item = nullptr;
 
-            //check parent children equal one
-            if(parent->m_children.size()==1){
+            //check parent children equal one and parent->parent() is not root item
+            if(parent->m_children.size()==1 ){
+                parent->setChildrenOrientation(Unkown);
                 //will remove parent
-                DockingPaneLayoutItemInfo* neighbor = parent->m_children.at(0);
-                if(neighbor->m_children.size()>0){
-                    //neighbor has children item
-                    DockingPaneLayoutItemInfo* parentParent = parent->parent();
-                    int parent_row = parent->row();
-                    if(parentParent!=nullptr){
-                        int i = 1;
-                        foreach(DockingPaneLayoutItemInfo* child,neighbor->m_children){
-                            child->setParent(parentParent);
-                            parentParent->m_children.insert(parent_row + i,child);
-                            i+=1;
+                if(parent->parent()!=nullptr){
+                    DockingPaneLayoutItemInfo* neighbor = parent->m_children.at(0);
+                    if(neighbor->m_children.size()>0){
+                        //neighbor has children item
+                        DockingPaneLayoutItemInfo* parentParent = parent->parent();
+                        int parent_row = parent->row();
+                        if(parentParent!=nullptr){
+                            int i = 1;
+                            foreach(DockingPaneLayoutItemInfo* child,neighbor->m_children){
+                                child->setParent(parentParent);
+                                parentParent->m_children.insert(parent_row + i,child);
+                                i+=1;
+                            }
+
+                            //remove parent from parentParent
+                            parentParent->m_children.removeAt(parent_row);
+                            delete parent;
+                            delete neighbor;
+                        }else{
+                            int neighbor_row = neighbor->row();
+                            int i = 1;
+                            foreach(DockingPaneLayoutItemInfo* child,neighbor->m_children){
+                                child->setParent(parent);
+                                parent->m_children.insert(neighbor_row + i,child);
+                                i+=1;
+                            }
+                            parent->setChildrenOrientation(neighbor->childrenOrientation());
+                            //remove parent from parentParent
+                            parent->m_children.removeAt(neighbor_row);
+                            //delete parent;
+                            delete neighbor;
+                            //qDebug()<<"removeremoveremoveremoveparentParentparentParentparentParent";
                         }
 
-                        //remove parent from parentParent
-                        parentParent->m_children.removeAt(parent_row);
-                        delete parent;
-                        delete neighbor;
                     }else{
-                        int neighbor_row = neighbor->row();
-                        int i = 1;
-                        foreach(DockingPaneLayoutItemInfo* child,neighbor->m_children){
-                            child->setParent(parent);
-                            parent->m_children.insert(neighbor_row + i,child);
-                            i+=1;
+                        //neighbor has only one item
+                        //m_item = neighbor;
+                        parent->m_item = neighbor->item();
+                        parent->m_children_ori = Unkown;
+                        DockingPaneContainer* container = (DockingPaneContainer*)parent->m_item->widget();
+                        if(container!=nullptr){
+                            container->setItemInfo(parent);
                         }
-                        parent->setChildrenOrientation(neighbor->childrenOrientation());
-                        //remove parent from parentParent
-                        parent->m_children.removeAt(neighbor_row);
-                        //delete parent;
+                        parent->m_children.clear();
                         delete neighbor;
-                        //qDebug()<<"removeremoveremoveremoveparentParentparentParentparentParent";
                     }
-
-                }else{
-                    //neighbor has only one item
-                    //m_item = neighbor;
-                    parent->m_item = neighbor->item();
-                    parent->m_children_ori = Unkown;
-                    DockingPaneContainer* container = (DockingPaneContainer*)parent->m_item->widget();
-                    if(container!=nullptr){
-                        container->setItemInfo(parent);
-                    }
-                    parent->m_children.clear();
-                    delete neighbor;
                 }
             }
 

@@ -269,6 +269,7 @@ namespace ady{
                     itemInfo->setItem(new QWidgetItem(restore_container));
                 }else{
                     DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
+                    qDebug()<<"itemInfo:"<<itemInfo;
                     DockingPaneHandle* handle = itemInfo->handle();
                     if(handle!=nullptr){
                         handle->hide();

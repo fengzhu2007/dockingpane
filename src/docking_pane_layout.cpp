@@ -106,7 +106,7 @@ namespace ady {
     DockingPaneLayoutItemInfo* DockingPaneLayout::addItem(QLayoutItem* itemInfo,DockingPaneManager::Position position)
     {
         int count = m_rootItem->m_children.size();
-        if(count==0){
+        if(count<=1){
             return m_rootItem->insertItem(parentWidget(),itemInfo,position);
         }else{
             //qDebug()<<"m_children_ori:"<<m_rootItem->m_children_ori;
@@ -184,6 +184,7 @@ namespace ady {
         DockingPaneLayoutItemInfo* parentItemInfo = relation->parent();
         DockingPaneLayoutItemInfo::Orientation parentItemOrientation = parentItemInfo->childrenOrientation();
         QWidgetItem* itemInfo = new QWidgetItem((QWidget*)widget);
+
         if((position==DockingPaneManager::Left || position==DockingPaneManager::Right)){
 
             if((parentItemOrientation==DockingPaneLayoutItemInfo::Unkown || parentItemOrientation==DockingPaneLayoutItemInfo::Horizontal)){
@@ -269,7 +270,7 @@ namespace ady {
     }
 
     void DockingPaneLayout::dump(QString prefix){
-        qDebug()<<prefix<<"root:"<<m_rootItem;
+        qDebug()<<prefix<<"root:"<<m_rootItem<<"ori:"<<m_rootItem->childrenOrientation()<<"parent:"<<m_rootItem->parent();
         m_rootItem->dump(prefix);
     }
 

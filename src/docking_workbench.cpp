@@ -250,74 +250,104 @@ namespace ady {
         if(d->cover==nullptr){
             d->cover = new DockingGuideCover(this);
         }
-        //qDebug()<<"cover:"<<container;
+
+
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
         DockingPaneLayoutItemInfo* rootItem = layout->rootItem();
         DockingPaneLayoutItemInfo::Orientation rootItemOrientation = rootItem->childrenOrientation();
         QPoint workbenchPos = mapToGlobal(this->pos());
         QRect coverRect;
 
-        if(container==nullptr && position>=4){
+        /*if(container==nullptr && position>=4){
             position -= 4;
             if(position==4){
                 position = 0;
             }
-        }
+        }*/
 
         if(position==DockingPaneManager::S_Left){
             QRect rc = geometry();
-            coverRect.setX(workbenchPos.x());
+            int w = rc.width()/2;
+            if(rect.width()<w){
+                w = rect.width();
+            }
+            coverRect = QRect(workbenchPos.x(),workbenchPos.y(),w,rc.height());
+            /*coverRect.setX(workbenchPos.x());
             coverRect.setY(workbenchPos.y());
             coverRect.setWidth(rect.width());
-            coverRect.setHeight(geometry().height());
+            coverRect.setHeight(geometry().height());*/
 
             //qDebug()<<"rootItemOrientation:"<<rootItemOrientation;
            // qDebug()<<"rootItemOrientation size:"<<rootItem->childrenCount();
             if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Horizontal){
 
             }else{
-                coverRect.setWidth(rc.width() / 2);
+                //coverRect.setWidth(rc.width() / 2);
             }
-
+            //qDebug()<<"cover:"<<coverRect<<";rect:"<<rect<<";workbench rc:"<<rc;
 
         }else if(position==DockingPaneManager::S_Top){
             QRect rc = geometry();
-            coverRect.setX(workbenchPos.x());
+            int h = rc.height()/2;
+            if(rect.height()<h){
+                h = rect.height();
+            }
+            coverRect = QRect(workbenchPos.x(),workbenchPos.y(),rc.width(),h);
+
+
+            /*coverRect.setX(workbenchPos.x());
             coverRect.setY(workbenchPos.y());
             coverRect.setWidth(geometry().width());
-            coverRect.setHeight(rect.height());
+            coverRect.setHeight(rect.height());*/
             if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Vertical){
 
             }else{
-                coverRect.setHeight(rc.height() / 2);
+                //coverRect.setHeight(rc.height() / 2);
             }
 
 
         }else if(position==DockingPaneManager::S_Right){
             QRect rc = geometry();
-            coverRect.setX(workbenchPos.x() + rc.width() - rect.width());
+            int w = rc.width()/2;
+            if(rect.width()<w){
+                w = rect.width();
+            }
+            int x = workbenchPos.x() + rc.width() - w;
+            int y = workbenchPos.y();
+            coverRect = QRect(x,y,w,rc.height());
+
+            /*coverRect.setX(workbenchPos.x() + rc.width() - rect.width());
             coverRect.setY(workbenchPos.y());
-            coverRect.setWidth(rect.width());
-            coverRect.setHeight(rc.height());
+            coverRect.setWidth(w);
+            coverRect.setHeight(rc.height());*/
 
             if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Horizontal){
 
             }else{
-                coverRect.setWidth(rc.width() / 2);
+                //coverRect.setWidth(rc.width() / 2);
             }
+            //qDebug()<<"cover:"<<coverRect<<";rect:"<<rect<<";workbench rc:"<<rc;
 
         }else if(position==DockingPaneManager::S_Bottom){
             QRect rc = geometry();
-            coverRect.setX(workbenchPos.x());
+            int h = rc.height()/2;
+            if(rect.height()<h){
+                h = rect.height();
+            }
+            int x = workbenchPos.x();
+            int y = workbenchPos.y() + rc.height() - h;
+            coverRect = QRect(x,y,rc.width(),h);
+
+            /*coverRect.setX(workbenchPos.x());
             coverRect.setY(workbenchPos.y() + rc.height() - rect.height());
             coverRect.setWidth(rc.width());
-            coverRect.setHeight(rect.height());
+            coverRect.setHeight(rect.height());*/
 
             if(rootItemOrientation==DockingPaneLayoutItemInfo::Unkown || rootItemOrientation==DockingPaneLayoutItemInfo::Vertical){
 
             }else{
-                coverRect.setY(workbenchPos.y() + rc.height() /2);
-                coverRect.setHeight(rc.height() / 2);
+                //coverRect.setY(workbenchPos.y() + rc.height() /2);
+                //coverRect.setHeight(rc.height() / 2);
             }
         }else{
             DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
@@ -444,12 +474,14 @@ namespace ady {
 
         if(position==DockingPaneManager::S_Left || position==DockingPaneManager::S_Top || position==DockingPaneManager::S_Right || position==DockingPaneManager::S_Bottom){
             //layout->addItem()
+            //qDebug()<<"lockContainer:"<<position;
             layout->addItem(widget,(DockingPaneManager::Position)position);
 
         }else if(position==DockingPaneManager::Left || position==DockingPaneManager::Top || position==DockingPaneManager::Right ||position==DockingPaneManager::Bottom){
             DockingPaneLayoutItemInfo* relation = container->itemInfo();
 
             int flags = d->guide->sizeMode();
+            qDebug()<<"flags:"<<flags <<";"<< (flags & DockingGuide::C_Parent_Horizontal)<<";"<<(flags & DockingGuide::C_Parent_Vertical);
             if((flags & DockingGuide::C_Parent_Horizontal)>0 && (position==DockingPaneManager::Top || position==DockingPaneManager::Bottom)){
                 DockingPaneLayoutItemInfo* parentRelation = relation->parent();
                 if(parentRelation->childrenOrientation()!=DockingPaneLayoutItemInfo::Vertical){
@@ -529,7 +561,7 @@ namespace ady {
                 }
 
             }else{
-                //qDebug()<<"lockContainer:"<<container<<"relation"<<relation<<";pos:"<<position;
+                qDebug()<<"lockContainer:"<<container<<"relation"<<relation<<";pos:"<<position;
                 //this->dump("result");
                 layout->addItem(widget,relation,(DockingPaneManager::Position)position);
             }
