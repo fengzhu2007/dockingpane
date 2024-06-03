@@ -35,8 +35,14 @@ namespace ady {
             d->container = nullptr;
             return ;
         }else if(d->container!=nullptr && d->container!=container){
+            QGraphicsEffect * effect = container->graphicsEffect();
+            if(effect!=nullptr){
+                effect->deleteLater();
+            }
+            container->setGraphicsEffect(nullptr);
             d->container->setParent(nullptr);
             d->container->hide();
+
         }
         d->container = container;
         d->container->setParent(this);

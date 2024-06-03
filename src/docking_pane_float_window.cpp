@@ -23,8 +23,6 @@ namespace ady{
         d->resizer_size = margin;
         initResizer();
         this->setAttribute(Qt::WA_TranslucentBackground);
-
-
     }
 
     DockingPaneFloatWindow::~DockingPaneFloatWindow(){

@@ -13,6 +13,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QGraphicsEffect>
 #include <QMenu>
 
 
@@ -204,6 +205,11 @@ namespace ady{
                 window->hide();
                 return ;
             }
+            QGraphicsEffect* effect = container->graphicsEffect();
+            if(effect!=nullptr){
+                effect->deleteLater();
+            }
+            container->setGraphicsEffect(nullptr);
             workbench->restoreWidget(container,window->fixedPosition());
             //window->close();
             //window->deleteLater();
