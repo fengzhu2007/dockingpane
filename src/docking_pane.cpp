@@ -1,5 +1,5 @@
 #include "docking_pane.h"
-#include "docking_pane_container.h"
+//#include "docking_pane_container.h"
 
 #include <QVBoxLayout>
 namespace ady {
@@ -12,8 +12,8 @@ namespace ady {
     };
 
 
-    DockingPane::DockingPane(DockingPaneContainer* parent)
-        :QWidget((QWidget*)parent){
+    DockingPane::DockingPane(QWidget* parent)
+        :QWidget(parent){
 
         d = new DockingPanePrivate;
         setCloseEnable(true);

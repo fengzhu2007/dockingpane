@@ -9,16 +9,17 @@ namespace ady {
     class DOCKINGPANE_EXPORT DockingPane : public QWidget {
         Q_OBJECT
     public:
-        DockingPane(DockingPaneContainer* parent);
+        //DockingPane(DockingPaneContainer* parent=nullptr);
+        DockingPane(QWidget* parent=nullptr);
         ~DockingPane();
         void setCenterWidget(QWidget* widget);
         QWidget* centerWidget();
         void setId(QString id);
         void setGroup(QString group);
-        QString id();
-        QString group();
+        virtual QString id();
+        virtual QString group();
         void setCloseEnable(bool enable);
-        bool closeEnable();
+        virtual bool closeEnable();
 
 
 

@@ -53,28 +53,20 @@ namespace ady {
 
     void DockingPaneManager::createPane(DockingPane* pane,Position position)
     {
-        //parent containter workbench
-        DockingPaneContainer* containter = new DockingPaneContainer(d->workbench,position);
-
-        if(position==S_Left){
-            //d->workbench->insertContainer(0,containter);
-        }else if(position==S_Top){
-
-        }else if(position==S_Right){
-             //d->workbench->appendContainer(containter);
-        }else if(position==S_Bottom){
-
-        }else if(position==Left){
-
-        }else if(position==Top){
-
-        }else if(position==Right){
-
-        }else if(position==Bottom){
-
-        }else if(position==Center){
-
+        if(position==Center){
+            DockingPaneClient* client = d->workbench->client();
+            if(client!=nullptr){
+                pane->setParent(client);
+                client->initView();
+                client->appendPane(pane);
+                return ;
+            }
         }
+        DockingPaneContainer* container = new DockingPaneContainer(d->workbench);
+        container->setObjectName(pane->id()+"_containter");
+        container->appendPane(pane);
+        pane->setParent(container);
+        d->layout->addItem(container,position);
     }
 
     void DockingPaneManager::createPane(DockingPane* pane,DockingPaneContainer* container,Position position)
