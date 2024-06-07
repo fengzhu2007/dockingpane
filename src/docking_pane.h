@@ -17,6 +17,8 @@ namespace ady {
         void setGroup(QString group);
         QString id();
         QString group();
+        void setCloseEnable(bool enable);
+        bool closeEnable();
 
 
 

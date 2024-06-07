@@ -56,6 +56,8 @@ namespace ady {
 
     signals:
         void onShow();
+        void beforePaneClose(DockingPane* pane,bool isClient);
+        void paneClosed(QString& id,QString&group,bool isClient);
 
     public slots:
         void onTimeout();

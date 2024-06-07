@@ -151,6 +151,20 @@ namespace ady{
     {
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         DockingPaneContainer::State state = container->state();
+
+        //emit willclose pane
+        bool isClient = container->isClient();
+        DockingWorkbench* workbench = container->workbench();
+        DockingPane* pane = container->pane(container->current());
+        QString id = pane->id();
+        QString group = pane->group();
+        bool closeEnable = pane->closeEnable();//keep ori close enable
+        workbench->beforePaneClose(pane,isClient);
+        if(pane->closeEnable()==false){
+            //stop close pane
+            pane->setCloseEnable(closeEnable);
+            return ;
+        }
         int paneCount = container->paneCount();
         if(state==DockingPaneContainer::Inner){
             if(paneCount>1){
@@ -182,6 +196,8 @@ namespace ady{
             }
             window->hide();
         }
+        //emit closed pane
+        workbench->paneClosed(id,group,isClient);
     }
 
     void DockingPaneContainerNClient::onAutoHide()

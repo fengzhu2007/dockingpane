@@ -9,6 +9,8 @@ namespace ady {
     public:
         DockingPaneClient(DockingWorkbench* parent,bool init_view=true);
         virtual void initView() override;
+    public slots:
+        void onTabClose(int i);
     protected:
         virtual void focusInEvent(QFocusEvent *event) override;
         virtual void focusOutEvent(QFocusEvent *event) override;

@@ -139,7 +139,6 @@ namespace ady {
                 child_rect.setHeight(height);
                 d->siders[i]->setGeometry(child_rect);
             }
-
         }
 
     }

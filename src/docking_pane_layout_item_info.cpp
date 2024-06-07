@@ -30,7 +30,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     bool DockingPaneLayoutItemInfo::isClient(){
         if(this->m_item!=nullptr){
-            ((DockingPaneContainer*)this->m_item->widget())->isClient();
+            return ((DockingPaneContainer*)this->m_item->widget())->isClient();
         }else if(m_children.size()==1){
             return m_children.at(0)->isClient();
         }else{
@@ -42,10 +42,12 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         QList<DockingPaneLayoutItemInfo*> list;
         //qDebug()<<"clientChildren:"<<m_children;
         Q_FOREACH(DockingPaneLayoutItemInfo* one,m_children){
+            qDebug()<<"DockingPaneLayoutItemInfo:"<<one<<":"<<one->isClient();
             if(one->isClient()){
                 list.push_back(one);
             }
         }
+        //qDebug()<<"clientChildren:"<<list;
         return list;
     }
 

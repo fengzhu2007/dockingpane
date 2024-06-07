@@ -29,6 +29,7 @@ namespace ady {
     {
         setFocusPolicy(Qt::ClickFocus);
         d = new DockingPaneContainerPrivate;
+        d->client=false;
         d->ori_position = position;
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->setMargin(1);
@@ -88,7 +89,6 @@ namespace ady {
             layout->addWidget(d->stacked);
             this->setLayout(layout);
         }
-
     }
 
     DockingPaneContainer::~DockingPaneContainer()

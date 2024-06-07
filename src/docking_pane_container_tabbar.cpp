@@ -38,22 +38,12 @@ namespace ady {
         d->offsetX = e->x();
         d->offsetY = e->y();
 
-
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr && container->state()==DockingPaneContainer::Inner &&container->activeState()==false){
             DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
             workbench->unActiveAll();
             container->activeWidget(true);
         }
-
-
-
-        //qDebug()<<"DockingPaneContainerTabBar::mousePressEvent";
-
-        //DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
-
-        //d->index = tabAt(e->pos());
-        //qDebug()<<"index:"<<index;
     }
 
     void DockingPaneContainerTabBar::mouseMoveEvent(QMouseEvent *e)
@@ -107,6 +97,7 @@ namespace ady {
                         qDebug()<<"itemInfo:"<<itemInfo<<";parentItemInfo:"<<parentItemInfo;
                         //parentItemInfo->dump("111");
                         //qDebug()<<"client children:"<<parentItemInfo->clientChildren().size();
+                        qDebug()<<"size:"<<parentItemInfo->clientChildren().size();
                         if(parentItemInfo->clientChildren().size()>1){
                             //DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
                             /*DockingPaneHandle* handle = itemInfo->handle();
@@ -136,8 +127,6 @@ namespace ady {
                     QPoint pos = window->pos();
                     pos.rx() += x;
                     pos.ry() += y;
-                    //qDebug()<<"x:"<<x<<";y:"<<y<<";";
-                    //qDebug()<<"pos:"<<pos;
                     window->move(pos);
 
                     DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();
@@ -167,10 +156,7 @@ namespace ady {
                     d->position = position;
                     d->guide_container = container;
                 }
-
-
             }
-            //qDebug()<<"DockingPaneContainerTabBar::mouseMoveEvent";
         }else{
             if(abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3){
                 d->moving = true;
@@ -202,79 +188,27 @@ namespace ady {
             container->close();
             container->deleteLater();
         }
-
     }
 
     void DockingPaneContainerTabBar::paintEvent(QPaintEvent* event){
         QTabBar::paintEvent(event);
-        QStylePainter p(this);
-        int count = this->count();
-        int w = 0;
-        for(int i=0;i<count;i++){
-            QRect rc = this->tabRect(i);
-            w += rc.width();
+        if(!this->tabsClosable()){
+            //container tabbar
+            QStylePainter p(this);
+            int count = this->count();
+            int w = 0;
+            for(int i=0;i<count;i++){
+                QRect rc = this->tabRect(i);
+                w += rc.width();
+            }
+            QColor color, textColor;
+            color = textColor = QColor("#cccccc");
+            p.setPen(textColor);
+            p.fillRect(w, 0, width() - w, 1, color);
+        }else{
+            //client tabbar
         }
 
-        QColor color, textColor;
-        color = textColor = QColor("#cccccc");
-        p.setPen(textColor);
-        p.fillRect(w, 0, width() - w, 1, color);
-
-
-        /*Q_UNUSED(event);
-
-        QStylePainter p(this);
-        QColor color, textColor;
-
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.setRenderHint(QPainter::HighQualityAntialiasing, true);
-
-        if (d->hover) {
-            color = textColor = QColor(0, 122, 204);
-        } else {
-            //#444444
-            //textColor = Qt::white;
-            textColor = QColor("#444444");
-            color = QColor(0xcc, 0xce, 0xdb);
-        }
-
-        p.setPen(textColor);
-
-        switch (d->orientation) {
-        case Qt::Horizontal: {
-            if (d->mirrored) {
-                p.rotate(180);
-                p.translate(-width(), -height());
-            }
-            if (d->swap) {
-                p.fillRect(0, height()-6, width(), 6, color);
-                p.drawText(0, 0, width(), height()-10, 0, this->text());
-            } else {
-                p.fillRect(0, 0, width(), 6, color);
-                p.drawText(0, 10, width(), height(), 0, this->text());
-            }
-            break;
-        }
-
-        case Qt::Vertical: {
-            if (d->mirrored) {
-                p.rotate(-90);
-                p.translate(-height(), 0);
-            } else {
-                p.rotate(90);
-                p.translate(0, -width());
-            }
-            if (d->swap) {
-                p.fillRect(0, 0, height(), 6, color);
-                p.drawText(0, 10, height(), width(), 0, this->text());
-            } else {
-                p.fillRect(0, width()-6, height(), 6, color);
-                p.drawText(0, 0, height(), width()-10, 0, this->text());
-            }
-
-            break;
-        }
-        }*/
     }
 
 }

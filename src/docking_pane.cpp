@@ -8,6 +8,7 @@ namespace ady {
         QString id;
         QString group;
         QWidget* widget=nullptr;
+        bool closeEnable=true;
     };
 
 
@@ -15,7 +16,7 @@ namespace ady {
         :QWidget((QWidget*)parent){
 
         d = new DockingPanePrivate;
-
+        setCloseEnable(true);
     }
 
     DockingPane::~DockingPane()
@@ -59,5 +60,12 @@ namespace ady {
         return d->group;
     }
 
+    void DockingPane::setCloseEnable(bool enable){
+        d->closeEnable = enable;
+    }
+
+    bool DockingPane::closeEnable(){
+        return d->closeEnable;
+    }
 
 }

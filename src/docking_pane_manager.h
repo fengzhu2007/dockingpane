@@ -41,6 +41,7 @@ namespace ady {
 
         void dump();
 
+
     private:
         DockingPaneManagerPrivate* d;
 

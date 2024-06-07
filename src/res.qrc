@@ -77,5 +77,6 @@
         <file>images/vs2019/dock_border_sider_right_active.png</file>
         <file>images/vs2019/dock_border_sider_top.png</file>
         <file>images/vs2019/dock_border_sider_top_active.png</file>
+        <file>images/vs2019/dock_close_light_gray.png</file>
     </qresource>
 </RCC>
