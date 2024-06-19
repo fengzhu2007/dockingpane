@@ -2,6 +2,7 @@
 //#include "docking_pane_container.h"
 
 #include <QVBoxLayout>
+#include <QDebug>
 namespace ady {
     class DockingPanePrivate {
     public:
@@ -27,12 +28,16 @@ namespace ady {
     void DockingPane::setCenterWidget(QWidget* widget)
     {
         d->widget = widget;
-        QVBoxLayout* layout = new QVBoxLayout(this);
-        layout->setMargin(0);
-        layout->setSpacing(0);
+        QVBoxLayout* layout = (QVBoxLayout* )this->layout();
+        if(layout==nullptr){
+            layout = new QVBoxLayout(this);
+            layout->setMargin(0);
+            layout->setSpacing(0);
+            this->setLayout(layout);
+        }
         widget->setParent(this);
         layout->addWidget(widget);
-        this->setLayout(layout);
+        qDebug()<<"children:"<<widget->children();
     }
 
     QWidget* DockingPane::centerWidget()

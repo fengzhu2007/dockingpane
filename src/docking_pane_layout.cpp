@@ -201,7 +201,7 @@ namespace ady {
                 }else if(position==DockingPaneManager::Right){
                     row += 1;
                 }
-                qDebug()<<"row:"<<row;
+                //qDebug()<<"row:"<<row;
                 return parentItemInfo->insertItem(parentWidget(),itemInfo,position,row);
             }else{
                 return relation->insertItem(parentWidget(),itemInfo,position);
@@ -261,6 +261,8 @@ namespace ady {
             }else{
                 return relation->insertItem(parentWidget(),itemInfo,p);
             }
+        }else{
+            return nullptr;
         }
     }
 

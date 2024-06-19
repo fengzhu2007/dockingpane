@@ -62,10 +62,11 @@ namespace ady {
                 return ;
             }
         }
+
         DockingPaneContainer* container = new DockingPaneContainer(d->workbench);
+        pane->setParent(container);
         container->setObjectName(pane->id()+"_containter");
         container->appendPane(pane);
-        pane->setParent(container);
         d->layout->addItem(container,position);
     }
 
