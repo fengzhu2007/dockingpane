@@ -25,6 +25,7 @@ namespace ady {
             None=-10,
             Auto=-2,
             Fill=-1
+
         };
 
         DockingPaneLayoutItemInfo(QLayoutItem* item,DockingPaneManager::Position position,DockingPaneLayoutItemInfo* parent=nullptr);
@@ -54,6 +55,8 @@ namespace ady {
         int indexOf(DockingPaneLayoutItemInfo* child);
         DockingPaneLayoutItemInfo* next();
         DockingPaneLayoutItemInfo* previous();
+        DockingPaneLayoutItemInfo* first();
+        DockingPaneLayoutItemInfo* last();
         DockingPaneLayoutItemInfo* child(int row);
 
         bool resize(Orientation orient,bool leftorright,int stretch_size);
@@ -70,6 +73,9 @@ namespace ady {
 
         DockingPaneLayoutItemInfo* level0();
 
+        DockingPaneContainer* container();
+        void setChildrenStretch(float stretch);
+        void setStretch(float stretch);
 
 
 
@@ -89,6 +95,8 @@ namespace ady {
         void dump(QString prefix);
 
         inline int seq(){return m_seq;}
+
+
 
     public:
         static int gSeq;

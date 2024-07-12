@@ -8,6 +8,7 @@ namespace ady {
     class DockingPane;
     class DockingPaneFloatWindow;
     class DockingPaneContainer;
+    class DockingPaneLayoutItemInfo;
     class DockingPaneManagerPrivate;
     class DOCKINGPANE_EXPORT DockingPaneManager :public QObject{
     public:
@@ -30,7 +31,7 @@ namespace ady {
         ~DockingPaneManager();
         DockingWorkbench* workbench();
         QWidget* widget();
-        void createPane(DockingPane* pane,Position position);
+        DockingPaneLayoutItemInfo* createPane(DockingPane* pane,Position position,bool active=false);
         void createPane(DockingPane* pane,DockingPaneContainer* container,Position position);
 
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,Position position);

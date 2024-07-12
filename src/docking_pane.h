@@ -3,6 +3,7 @@
 #include <QWidget>
 #include "global.h"
 namespace ady {
+    class DockingEventFilter;
     class DockingPanePrivate;
     class DockingPaneContainer;
     class DockingPaneManager;
@@ -18,10 +19,21 @@ namespace ady {
         void setGroup(QString group);
         virtual QString id();
         virtual QString group();
+        virtual QString description();
         void setCloseEnable(bool enable);
         virtual bool closeEnable();
+        virtual void activation();
+        virtual void save(bool rename=false);
+        virtual void contextMenu(const QPoint& pos);
+        DockingPaneContainer* container();
+        void activeToCurrent();
+        float stretch();
+        void setStretch(float s);
 
 
+
+    private:
+        void installEventFilter(QWidget* w);
 
     protected:
         DockingPanePrivate* d;

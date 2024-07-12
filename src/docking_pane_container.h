@@ -20,15 +20,16 @@ namespace ady{
             Float
         };
         DockingPaneContainer(QWidget* parent,DockingPaneManager::Position position=DockingPaneManager::S_Left);
-        ~DockingPaneContainer();
+        virtual ~DockingPaneContainer();
 
 
         virtual void initView();
         bool isClient();
         virtual bool isClientRegion();
-        void appendPane(DockingPane* pane);
-        void insertPane(int index,DockingPane* pane);
+        void appendPane(DockingPane* pane,bool active=false);
+        void insertPane(int index,DockingPane* pane,bool active=false);
         void setPane(int index);
+        void setPane(DockingPane* pane);
 
         void setState(State state);
         State state();
@@ -41,12 +42,18 @@ namespace ady{
         int paneCount();
         int current();
         DockingPane* pane(int i);
+        DockingPane* currentPane();
         DockingPane* takeAt(int i);
         DockingPane* takeCurrent();
+        int indexOf(DockingPane* pane);
 
         DockingPaneContainerTabBar* tabBar();
         QStackedWidget* stacked();
-        void closeCurrent();
+        bool closeCurrent();
+        bool closePane(DockingPane* pane,bool force=false);
+        bool closePane(int i,bool force=false);
+        void fixedPane(int i);
+        void floatPane(int i);
 
         void visibleTabBar(bool visible);
         void setOriPosition(DockingPaneManager::Position position);
@@ -56,8 +63,11 @@ namespace ady{
         QRect oriRect();
         void setMoving(bool state);
         int guideFlags();
+        float stretch();
 
         DockingWorkbench* workbench();
+
+
 
 
     public slots:

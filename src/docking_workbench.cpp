@@ -10,7 +10,7 @@
 #include "docking_pane_fixed_window.h"
 #include "docking_pane_tabbar.h"
 #include "docking_pane.h"
-#include "qss.h"
+#include "docking_qss.h"
 #include <QLayout>
 #include <QResizeEvent>
 #include <QMouseEvent>
@@ -42,7 +42,7 @@ namespace ady {
     DockingWorkbench::DockingWorkbench(QWidget* parent)
         :QFrame(parent){
         //setStyleSheet(".ady--DockingWorkbench{background:#eeeef2}");//theme
-        setStyleSheet(QSS::global());
+        setStyleSheet(DockingQSS::global());
         d = new DockingWorkbenchPrivate();
         d->timer = new QTimer(this);
         connect(d->timer,&QTimer::timeout,this,&DockingWorkbench::onTimeout);
@@ -480,7 +480,7 @@ namespace ady {
             DockingPaneLayoutItemInfo* relation = container->itemInfo();
 
             int flags = d->guide->sizeMode();
-            qDebug()<<"flags:"<<flags <<";"<< (flags & DockingGuide::C_Parent_Horizontal)<<";"<<(flags & DockingGuide::C_Parent_Vertical);
+            //qDebug()<<"flags:"<<flags <<";"<< (flags & DockingGuide::C_Parent_Horizontal)<<";"<<(flags & DockingGuide::C_Parent_Vertical);
             if((flags & DockingGuide::C_Parent_Horizontal)>0 && (position==DockingPaneManager::Top || position==DockingPaneManager::Bottom)){
                 DockingPaneLayoutItemInfo* parentRelation = relation->parent();
                 if(parentRelation->childrenOrientation()!=DockingPaneLayoutItemInfo::Vertical){
@@ -560,7 +560,7 @@ namespace ady {
                 }
 
             }else{
-                qDebug()<<"lockContainer:"<<container<<"relation"<<relation<<";pos:"<<position;
+                //qDebug()<<"lockContainer:"<<container<<"relation"<<relation<<";pos:"<<position;
                 //this->dump("result");
                 layout->addItem(widget,relation,(DockingPaneManager::Position)position);
             }
@@ -741,7 +741,8 @@ namespace ady {
             itemInfo->remove();//remove self
             delete itemInfo;
         }
-        container->setParent(nullptr);
+        //container->setParent(nullptr);
+        container->hide();
         DockingPaneTabBar* tabBar = d->tabBars[position];
         QRect r = geometry();
         if(position==DockingPaneManager::S_Top || position==DockingPaneManager::S_Bottom){
@@ -762,7 +763,7 @@ namespace ady {
         QSize top = tabBarSize(DockingPaneManager::S_Top);
         QSize right = tabBarSize(DockingPaneManager::S_Right);
         QSize bottom = tabBarSize(DockingPaneManager::S_Bottom);
-        qDebug()<<"updateTabBars"<<left<<top<<right<<bottom;
+        //qDebug()<<"updateTabBars"<<left<<top<<right<<bottom;
 
         {
             int x = 0;
@@ -789,6 +790,7 @@ namespace ady {
         }
     }
 
+
     QList<DockingPaneContainer*> DockingWorkbench::containers()
     {
         QList<DockingPaneContainer*> children;
@@ -800,6 +802,19 @@ namespace ady {
            }
         }
         return children;
+    }
+
+
+    int DockingWorkbench::clientCount(){
+        QObjectList objectlist = children();
+        int i = 0;
+        foreach(auto one,objectlist){
+           QString name = one->metaObject()->className();
+           if(name=="ady::DockingPaneClient"){
+               i+=1;
+           }
+        }
+        return i;
     }
 
     DockingPaneClient* DockingWorkbench::client(int index)

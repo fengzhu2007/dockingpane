@@ -1,5 +1,5 @@
 #include "docking_pane_window_resizer.h"
-#include "docking_pane_float_window.h"
+//#include "docking_pane_float_window.h"
 
 #include <QMouseEvent>
 #include <QDebug>
@@ -37,7 +37,6 @@ namespace ady{
             break;
         }
         this->setAttribute(Qt::WA_TranslucentBackground);
-
     }
 
     DockingPaneWindowResizer::~DockingPaneWindowResizer()

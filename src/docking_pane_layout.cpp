@@ -109,7 +109,7 @@ namespace ady {
         if(count<=1){
             return m_rootItem->insertItem(parentWidget(),itemInfo,position);
         }else{
-            //qDebug()<<"m_children_ori:"<<m_rootItem->m_children_ori;
+
             if(m_rootItem->m_children_ori==DockingPaneLayoutItemInfo::Horizontal){
                 if(position==DockingPaneManager::Left || position==DockingPaneManager::S_Left){
                     //insert left 1

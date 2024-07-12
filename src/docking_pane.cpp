@@ -1,21 +1,46 @@
 #include "docking_pane.h"
-//#include "docking_pane_container.h"
-
+#include "docking_pane_container.h"
+#include <QCoreApplication>
 #include <QVBoxLayout>
+#include <QEvent>
+#include <QMouseEvent>
 #include <QDebug>
 namespace ady {
+class DockingEventFilter : public QObject{
+public:
+    DockingEventFilter(QWidget* widget){
+        m_widget = widget;
+    }
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override {
+        if (event->type() == QEvent::MouseButtonPress) {
+            //qDebug() << obj->metaObject()->className() << "clicked";
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            QCoreApplication::sendEvent(m_widget, mouseEvent);
+            return false;
+        }
+        return false;
+    }
+
+private:
+    QWidget* m_widget;
+
+};
+
+
     class DockingPanePrivate {
     public:
         QString id;
         QString group;
         QWidget* widget=nullptr;
         bool closeEnable=true;
+        float stretch = -10;
     };
 
 
     DockingPane::DockingPane(QWidget* parent)
         :QWidget(parent){
-
         d = new DockingPanePrivate;
         setCloseEnable(true);
     }
@@ -37,7 +62,8 @@ namespace ady {
         }
         widget->setParent(this);
         layout->addWidget(widget);
-        qDebug()<<"children:"<<widget->children();
+        //install event filter
+        this->installEventFilter(widget);
     }
 
     QWidget* DockingPane::centerWidget()
@@ -65,6 +91,10 @@ namespace ady {
         return d->group;
     }
 
+    QString DockingPane::description(){
+        return {};
+    }
+
     void DockingPane::setCloseEnable(bool enable){
         d->closeEnable = enable;
     }
@@ -73,4 +103,48 @@ namespace ady {
         return d->closeEnable;
     }
 
+    void DockingPane::activation(){
+
+    }
+
+    void DockingPane::save(bool rename){
+        Q_UNUSED(rename);
+    }
+
+    void DockingPane::contextMenu(const QPoint& pos){
+        Q_UNUSED(pos);
+    }
+
+    DockingPaneContainer* DockingPane::container(){
+        if(parentWidget()!=nullptr){
+            return static_cast<DockingPaneContainer*>(parentWidget()->parentWidget());
+        }else{
+            return nullptr;
+        }
+    }
+
+    void DockingPane::activeToCurrent(){
+        auto container = this->container();
+        if(container!=nullptr){
+            container->setPane(this);
+        }
+    }
+
+    float DockingPane::stretch(){
+        return d->stretch;
+    }
+
+    void DockingPane::setStretch(float s){
+        d->stretch = s;
+    }
+
+
+
+    void DockingPane::installEventFilter(QWidget* w){
+        const auto children = w->findChildren<QWidget*>();
+        for (QWidget* child : children) {
+            child->installEventFilter(new DockingEventFilter(this));
+            installEventFilter(child);
+        }
+    }
 }

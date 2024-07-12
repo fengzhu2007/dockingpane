@@ -147,8 +147,7 @@ namespace ady{
         style->polish(this);
     }
 
-    void DockingPaneContainerNClient::onClose()
-    {
+    bool DockingPaneContainerNClient::closeCurrent(){
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         DockingPaneContainer::State state = container->state();
 
@@ -159,17 +158,18 @@ namespace ady{
         QString id = pane->id();
         QString group = pane->group();
         bool closeEnable = pane->closeEnable();//keep ori close enable
+        //qDebug()<<"DockingPaneContainerNClient::onClose"<<pane;
         workbench->beforePaneClose(pane,isClient);
         if(pane->closeEnable()==false){
             //stop close pane
             pane->setCloseEnable(closeEnable);
-            return ;
+            return false;
         }
         int paneCount = container->paneCount();
         if(state==DockingPaneContainer::Inner){
             if(paneCount>1){
                 container->closeCurrent();
-                return ;
+                return true;
             }
             DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
             itemInfo->remove();
@@ -198,6 +198,12 @@ namespace ady{
         }
         //emit closed pane
         workbench->paneClosed(id,group,isClient);
+        return true;
+    }
+
+    void DockingPaneContainerNClient::onClose()
+    {
+        this->closeCurrent();
     }
 
     void DockingPaneContainerNClient::onAutoHide()
@@ -227,20 +233,11 @@ namespace ady{
             }
             container->setGraphicsEffect(nullptr);
             workbench->restoreWidget(container,window->fixedPosition());
-            //window->close();
-            //window->deleteLater();
-            //workbench->updateLayout();
             window->setCenterWidget(nullptr);
             workbench->hideFixedWindow();
         }else if(state==DockingPaneContainer::Float){
-            /*DockingPaneFloatWindow *window = (DockingPaneFloatWindow*)container->parentWidget();
-            DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget()->parentWidget();
-            workbench->restoreWidget(container,container->oriPosition());
-            window->close();
-            window->deleteLater();*/
             DockingPaneFloatWindow *window = (DockingPaneFloatWindow*)container->parentWidget();
             DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget()->parentWidget();
-
             workbench->unActiveAll();
             container->activeWidget(true);
             if(!window->isMaximized()){
@@ -252,7 +249,7 @@ namespace ady{
         }
     }
 
-    void DockingPaneContainerNClient::onFloat(bool moving){
+    void DockingPaneContainerNClient::onFloat(int i,bool moving){
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr){
             int paneCount = container->paneCount();
@@ -266,8 +263,13 @@ namespace ady{
                 DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
                 DockingPaneFloatWindow* window = new DockingPaneFloatWindow(workbench,margin);
                 if(false && paneCount>1){//drag move all tabs
-                    int current = container->current();
-                    DockingPane* pane = container->pane(current);
+                    DockingPane* pane;
+                    if(i>=0){
+                        int current = container->current();
+                        pane = container->pane(current);
+                    }else{
+                        pane = container->pane(i);
+                    }
 
                     DockingPaneContainer* restore_container = new DockingPaneContainer(workbench);
                     restore_container->setState(DockingPaneContainer::Inner);
@@ -291,7 +293,6 @@ namespace ady{
                     itemInfo->setItem(new QWidgetItem(restore_container));
                 }else{
                     DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
-                    qDebug()<<"itemInfo:"<<itemInfo;
                     DockingPaneHandle* handle = itemInfo->handle();
                     if(handle!=nullptr){
                         handle->hide();
@@ -307,18 +308,10 @@ namespace ady{
                     int y = (w_rc.height() - rc.height() / 4 * 3);
 
                     QPoint gpos = workbench->mapToGlobal(QPoint(x,y));
-                    /*QPoint cpos = QCursor::pos();
-                    rect.setX(cpos.x() - rect.width() + 80);//80= three buttons width
-                    rect.setY(cpos.y());*/
-                    //rect.setX(gpos.x());
-                    //rect.setY(gpos.y());
                     rect = QRect(gpos.x(),gpos.y(),rc.width(),rc.height());
-                    //qDebug()<<"on float rc:"<<rc<<w_rc<<rect;
-
                 }else{
                     rect.setX(pos.x() - margin);
                     rect.setY(pos.y()  - margin);
-                    //qDebug()<<rect;
                     rect.setWidth(rc.width() + margin * 2);
                     rect.setHeight(rc.height() + margin * 2);
                 }
@@ -344,8 +337,13 @@ namespace ady{
                 tabBar->removeContainer(container);
                 //container->setParent(nullptr);
                 if(paneCount>1){
-                    int current = container->current();
-                    DockingPane* pane = container->pane(current);
+                    DockingPane* pane;
+                    if(i>=0){
+                        int current = container->current();
+                        container->pane(current);
+                    }else{
+                        pane = container->pane(i);
+                    }
                     DockingPaneContainer* restore_container = new DockingPaneContainer(nullptr);
                     restore_container->setState(DockingPaneContainer::Fixed);
                     restore_container->setOriPosition((DockingPaneManager::Position)position);
@@ -477,7 +475,7 @@ namespace ady{
             if(container!=nullptr){
                 DockingPaneContainer::State state = container->state();
                 if(state==DockingPaneContainer::Inner || state==DockingPaneContainer::Fixed){
-                    this->onFloat(true);
+                    this->onFloat(-1,true);
                 }else{
                     //int paneCount = container->paneCount();
                     //float move window
@@ -490,6 +488,9 @@ namespace ady{
                     QPoint pos = window->pos();
                     pos.rx() += x;
                     pos.ry() += y;
+                    if(pos.y()<-5){
+                        pos.ry() = -5;
+                    }
                     window->move(pos);
 
                     DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();

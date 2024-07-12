@@ -38,12 +38,14 @@ namespace ady {
 
         void stylePolish();
 
+        bool closeCurrent();
+
 
     public slots:
         void onMenuRequested();
         void onClose();
         void onAutoHide();
-        void onFloat(bool moving=false);
+        void onFloat(int i=-1,bool moving=false);
         void onDock();
         void onTabDock();
 

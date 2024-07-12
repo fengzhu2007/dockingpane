@@ -7,10 +7,16 @@
 #include <QPainter>
 #include <QDebug>
 namespace ady {
+class DockingPaneClientPrivate{
+public:
+    bool init_view=false;
+};
 
     DockingPaneClient::DockingPaneClient(DockingWorkbench* parent,bool init_view)
         :DockingPaneContainer(parent,true,init_view)
     {
+    d = new DockingPaneClientPrivate;
+    d->init_view = init_view;
         if(init_view){
             DockingPaneContainerTabBar* tabBar = this->tabBar();
             tabBar->setTabsClosable(true);
@@ -19,11 +25,18 @@ namespace ady {
 
     }
 
+    DockingPaneClient::~DockingPaneClient(){
+        delete d;
+    }
+
     void DockingPaneClient::initView(){
         DockingPaneContainer::initView();
-        DockingPaneContainerTabBar* tabBar = this->tabBar();
-        tabBar->setTabsClosable(true);
-        connect(tabBar,&QTabBar::tabCloseRequested,this,&DockingPaneClient::onTabClose);
+        if(d->init_view==false){
+            DockingPaneContainerTabBar* tabBar = this->tabBar();
+            tabBar->setTabsClosable(true);
+            connect(tabBar,&QTabBar::tabCloseRequested,this,&DockingPaneClient::onTabClose);
+        }
+        d->init_view = true;
     }
 
     void DockingPaneClient::onTabClose(int i){

@@ -26,7 +26,7 @@ namespace ady {
 
 
         d->workbench = new DockingWorkbench(d->widget);
-        d->layout = new DockingPaneLayout(d->workbench,0,8);
+        d->layout = new DockingPaneLayout(d->workbench,0,6);
 
         d->workbench->initClient();
 
@@ -51,23 +51,55 @@ namespace ady {
         return d->widget;
     }
 
-    void DockingPaneManager::createPane(DockingPane* pane,Position position)
+    DockingPaneLayoutItemInfo* DockingPaneManager::createPane(DockingPane* pane,Position position,bool active)
     {
         if(position==Center){
             DockingPaneClient* client = d->workbench->client();
             if(client!=nullptr){
                 pane->setParent(client);
                 client->initView();
-                client->appendPane(pane);
-                return ;
+                client->appendPane(pane,active);
+                return client->itemInfo();
             }
         }
+        auto root = d->layout->rootItem();
+        auto orientation = root->childrenOrientation();
+        DockingPaneContainer* container = nullptr;
+        DockingPaneLayoutItemInfo* relation = nullptr;
+        if(orientation==DockingPaneLayoutItemInfo::Horizontal && (position==Position::Left || position==Position::S_Left)){
+            relation = root->first();
+            if(relation->isClient()==false){
+                container = relation->container();
+            }
+        }else if(orientation==DockingPaneLayoutItemInfo::Horizontal && (position==Position::Right || position==Position::S_Right)){
+            relation = root->last();
+            if(relation->isClient()==false){
+                container = relation->container();
+            }
+        }else if(orientation==DockingPaneLayoutItemInfo::Vertical && (position==Position::Top || position==Position::S_Top)){
+            relation = root->first();
+            if(relation->isClient()==false){
+                container = relation->container();
+            }
+        }else if(orientation==DockingPaneLayoutItemInfo::Vertical && (position==Position::Bottom || position==Position::S_Bottom)){
+            relation = root->last();
+            if(relation->isClient()==false){
+                container = relation->container();
+            }
+        }
+        if(container==nullptr){
+            container = new DockingPaneContainer(d->workbench);
+            pane->setParent(container);
+            container->setObjectName(pane->id()+"_containter");
+            container->appendPane(pane,active);
+            return d->layout->addItem(container,position);
+        }else{
+            pane->setParent(container);
+            container->appendPane(pane,active);
+            //qDebug()<<"append pane :"<<active;
+            return relation;
+        }
 
-        DockingPaneContainer* container = new DockingPaneContainer(d->workbench);
-        pane->setParent(container);
-        container->setObjectName(pane->id()+"_containter");
-        container->appendPane(pane);
-        d->layout->addItem(container,position);
     }
 
     void DockingPaneManager::createPane(DockingPane* pane,DockingPaneContainer* container,Position position)
@@ -101,7 +133,6 @@ namespace ady {
         pane->setWindowTitle(title);
         container->appendPane(pane);
         //container->setItemInfo(d->layout->m_rootItem);
-
         d->layout->addItem(container,position);
         return pane;
     }

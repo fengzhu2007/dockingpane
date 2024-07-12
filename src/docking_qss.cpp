@@ -1,13 +1,13 @@
-#include "qss.h"
+#include "docking_qss.h"
 namespace ady{
 
 
-QString QSS::global()
+QString DockingQSS::global()
 {
 
     QString qss = ".ady--DockingWorkbench{background:#eeeef2}"
                   ".ady--DockingGuideCover{background:#007acc;border:5px solid #aaa}"
-                  ".ady--DockingPaneContainer{background:white;border:1px solid #ccc;}"
+                  ".ady--DockingPaneContainer{background:#EEEEF2;border:1px solid #ccc;}"
                   ".ady--DockingPaneClient{background:white;}"
                   ".ady--DockingPaneClient>QTabBar{background-color:#EEEEF2;border:0;border-bottom:2px solid #1c97ea}"
                   ".ady--DockingPaneClient>QTabBar::tab{background-color:#EEEEF2;border-bottom:2px solid #007acc;height:24px;padding:0 4px 0 6px;}"
@@ -15,7 +15,6 @@ QString QSS::global()
                   ".ady--DockingPaneClient>QTabBar::tab:selected{background-color:#007acc;color:white;}"
                   ".ady--DockingPaneClient>QTabBar::close-button{image:url(':/images/vs2019/dock_close_light_gray.png')}"
                   ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url(':/images/vs2019/dock_close_white.png')}"
-                  ".ady--DockingPaneClient>QStackedWidget{border:1px solid #ccc;border-top:0;}"
                   ".ady--DockingPaneContainer>QTabBar{background-color:#EEEEF2;padding:0;border:0}"
                   ".ady--DockingPaneContainer>QTabBar::tab{border:0;background-color:#EEEEF2;height:22px;padding-left:5px;padding-right:5px;color:#444444;border-top:1px solid #ccc;}"
                   ".ady--DockingPaneContainer>QTabBar::tab:hover{background:#c9DCF5}"

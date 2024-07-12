@@ -44,6 +44,7 @@ namespace ady {
         void updateTabBars(const QSize& size);
 
         QList<DockingPaneContainer*> containers();
+        int clientCount();
         DockingPaneClient* client(int index=0);
 
         void showFixedWindow(DockingPaneContainer* container,int position);
@@ -58,6 +59,8 @@ namespace ady {
         void onShow();
         void beforePaneClose(DockingPane* pane,bool isClient);
         void paneClosed(QString& id,QString&group,bool isClient);
+        //void paneCloseRequested(DockingPane* pane,bool isClient);
+        void paneCurrentChanged(int index,DockingPane* pane);
 
     public slots:
         void onTimeout();

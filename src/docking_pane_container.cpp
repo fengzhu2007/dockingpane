@@ -43,7 +43,7 @@ namespace ady {
         d->tabbar->setExpanding(false);
 
         connect(d->tabbar,SIGNAL(currentChanged(int )),this,SLOT(onCurrentChanged(int)));
-        //connect(d->stacked,SIGNAL(widgetRemoved(int )),this,SLOT(onWidgetRemoved(int)));
+        connect(d->stacked,SIGNAL(widgetRemoved(int )),this,SLOT(onWidgetRemoved(int)));
         layout->addWidget(d->nclient);
         layout->addWidget(d->stacked);
         layout->addWidget(d->tabbar);
@@ -97,25 +97,42 @@ namespace ady {
     }
 
 
-    void DockingPaneContainer::appendPane(DockingPane* pane)
+    void DockingPaneContainer::appendPane(DockingPane* pane,bool active)
     {
         //qDebug()<<"appendPane"<<d->stacked;
         pane->setParent(d->stacked);
         d->stacked->addWidget((QWidget*)pane);
         QString title = pane->windowTitle();
         d->tabbar->addTab(title);
-        if(d->nclient!=nullptr){
+        if(d->nclient!=nullptr && d->tabbar->count()==1){
             d->nclient->updateTitle(title);
         }
+        int i = d->tabbar->count() - 1;
+        if(active){
+            this->setPane(i);
+        }
+        QString tooltip = pane->description();
+        if(!tooltip.isEmpty()){
+            d->tabbar->setTabToolTip(i,tooltip);
+        }
+        d->stacked->show();
     }
 
-    void DockingPaneContainer::insertPane(int index,DockingPane* pane)
+    void DockingPaneContainer::insertPane(int index,DockingPane* pane,bool active)
     {
         pane->setParent(d->stacked);
         d->stacked->insertWidget(index,(QWidget*)pane);
         if(d->nclient!=nullptr){
             d->nclient->updateTitle(pane->windowTitle());
         }
+        if(active){
+            this->setPane(index);
+        }
+        QString tooltip = pane->description();
+        if(!tooltip.isEmpty()){
+            d->tabbar->setTabToolTip(index,tooltip);
+        }
+        d->stacked->show();
     }
 
     void DockingPaneContainer::setPane(int index)
@@ -126,7 +143,17 @@ namespace ady {
             d->nclient->updateTitle(pane->windowTitle());
         }
         d->tabbar->setCurrentIndex(index);
-        //qDebug()<<d->tabbar->children();
+    }
+
+    void DockingPaneContainer::setPane(DockingPane* pane){
+        int count = d->stacked->count();
+        for(int i=0;i<count;i++){
+            auto one = d->stacked->widget(i);
+            if(one==pane){
+                this->setPane(i);
+                return ;
+            }
+        }
     }
 
     void DockingPaneContainer::setState(State state)
@@ -206,7 +233,16 @@ namespace ady {
 
     DockingPane* DockingPaneContainer::pane(int i)
     {
-        return (DockingPane*)d->stacked->widget(i);
+        if(i<0){
+            return nullptr;
+        }else{
+            return (DockingPane*)d->stacked->widget(i);
+        }
+
+    }
+
+    DockingPane* DockingPaneContainer::currentPane(){
+        return this->pane(this->current());
     }
 
     DockingPane* DockingPaneContainer::takeAt(int i)
@@ -214,11 +250,27 @@ namespace ady {
         QWidget* widget = d->stacked->widget(i);
         d->stacked->removeWidget(widget);
         d->tabbar->removeTab(i);
+        if(d->stacked->count()==0){
+            d->stacked->hide();
+        }
         return (DockingPane*)widget;
     }
 
     DockingPane* DockingPaneContainer::takeCurrent(){
         return this->takeAt(d->stacked->currentIndex());
+    }
+
+    int DockingPaneContainer::indexOf(DockingPane* pane){
+        if(d->stacked!=nullptr){
+            int count = d->stacked->count();
+            for(int i=0;i<count;i++){
+                if(d->stacked->widget(i)==pane){
+                    return i;
+                }
+            }
+        }
+
+        return -1;
     }
 
     DockingPaneContainerTabBar* DockingPaneContainer::tabBar()
@@ -231,16 +283,64 @@ namespace ady {
         return d->stacked;
     }
 
-    void DockingPaneContainer::closeCurrent(){
+    bool DockingPaneContainer::closeCurrent(){
         if(d!=nullptr&&d->stacked!=nullptr){
-            int index = d->stacked->currentIndex();
-            DockingPane* pane = this->takeAt(index);
-            pane->close();
-            index -= 1;
-            if(index<0){
-                index = 0;
+            int i = d->stacked->currentIndex();
+            return this->closePane(i);
+        }
+        return false;
+    }
+
+    bool DockingPaneContainer::closePane(DockingPane* pane,bool force){
+        int count = d->stacked->count();
+        for(int i=0;i<count;i++){
+            auto one = d->stacked->widget(i);
+            if(one==pane){
+                return this->closePane(i,force);
             }
-            this->onCurrentChanged(index);
+        }
+        return false;
+    }
+    bool DockingPaneContainer::closePane(int i,bool force){
+        DockingPane* pane = this->pane(i);
+        if(pane==nullptr){
+            return false;
+        }
+        auto workbench = this->workbench();
+        bool isClient = this->isClient();
+        int count = this->paneCount();
+        if(count>1 || isClient){
+            bool closeEnable = pane->closeEnable();//keep ori close enable
+            workbench->beforePaneClose(pane,this->isClient());
+            if(force==false && pane->closeEnable()==false){
+                //stop close pane
+                pane->setCloseEnable(closeEnable);
+                return false;
+            }
+            pane = this->takeAt(i);
+            QString id = pane->id();
+            QString group = pane->group();
+            pane->close();
+            workbench->paneClosed(id,group,isClient);
+            i -= 1;
+            if(i<0){
+                i = 0;
+            }
+            this->onCurrentChanged(i);
+            return true;
+        }else{
+            return d->nclient->closeCurrent();
+        }
+    }
+
+    void DockingPaneContainer::fixedPane(int i){
+
+    }
+
+    void DockingPaneContainer::floatPane(int i){
+        if(d->tabbar!=nullptr){
+            d->tabbar->onFloat(i,false);
+            d->tabbar->onFloatRelease();
         }
     }
 
@@ -349,12 +449,22 @@ namespace ady {
         return flags;
     }
 
+    float DockingPaneContainer::stretch(){
+        auto pane = this->currentPane();
+        if(pane!=nullptr){
+            return pane->stretch();
+        }else{
+            return -10;
+        }
+    }
+
     DockingWorkbench* DockingPaneContainer::workbench(){
         if(d->state==Inner){
             return (DockingWorkbench*)parentWidget();
         }else if(d->state==Float){
             return (DockingWorkbench*)parentWidget()->parentWidget();
         }else if(d->state==Fixed){
+            //qDebug()<<"workbench:"<<parentWidget();
             return (DockingWorkbench*)parentWidget()->parentWidget();
         }else{
             return nullptr;
@@ -363,13 +473,22 @@ namespace ady {
 
     void DockingPaneContainer::onCurrentChanged(int i)
     {
+        //qDebug()<<"onCurrentChanged:"<<i;
         d->stacked->setCurrentIndex(i);
         DockingPane* pane = (DockingPane*)d->stacked->widget(i);
         if(pane!=nullptr){
             if(d->nclient!=nullptr){
                 d->nclient->updateTitle(pane->windowTitle());
             }
+            pane->activation();
+            auto workbench = this->workbench();
+            //qDebug()<<"DockingPaneContainer onCurrentChanged workbench:"<<workbench;
+            if(workbench!=nullptr){
+                emit workbench->paneCurrentChanged(i,pane);
+            }
+            //emit workbench()->paneCurrentChanged(i,pane);
         }
+
         /*if(d->active_state==false && d->state==Inner){
             DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
             workbench->unActiveAll();
