@@ -321,6 +321,9 @@ namespace ady {
             QString id = pane->id();
             QString group = pane->group();
             pane->close();
+            //pane->deleteLater();
+            delete pane;
+
             workbench->paneClosed(id,group,isClient);
             i -= 1;
             if(i<0){
@@ -474,20 +477,23 @@ namespace ady {
     void DockingPaneContainer::onCurrentChanged(int i)
     {
         //qDebug()<<"onCurrentChanged:"<<i;
-        d->stacked->setCurrentIndex(i);
-        DockingPane* pane = (DockingPane*)d->stacked->widget(i);
-        if(pane!=nullptr){
-            if(d->nclient!=nullptr){
-                d->nclient->updateTitle(pane->windowTitle());
+        if(i>=0 && i<d->stacked->count()){
+            d->stacked->setCurrentIndex(i);
+            DockingPane* pane = (DockingPane*)d->stacked->widget(i);
+            if(pane!=nullptr){
+                if(d->nclient!=nullptr){
+                    d->nclient->updateTitle(pane->windowTitle());
+                }
+                pane->activation();
+                auto workbench = this->workbench();
+                //qDebug()<<"DockingPaneContainer onCurrentChanged workbench:"<<workbench;
+                if(workbench!=nullptr){
+                    emit workbench->paneCurrentChanged(i,pane);
+                }
+                //emit workbench()->paneCurrentChanged(i,pane);
             }
-            pane->activation();
-            auto workbench = this->workbench();
-            //qDebug()<<"DockingPaneContainer onCurrentChanged workbench:"<<workbench;
-            if(workbench!=nullptr){
-                emit workbench->paneCurrentChanged(i,pane);
-            }
-            //emit workbench()->paneCurrentChanged(i,pane);
         }
+
 
         /*if(d->active_state==false && d->state==Inner){
             DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();

@@ -46,6 +46,9 @@ namespace ady {
     void DockingPaneContainerTabBar::onFloat(int i,bool moving){
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr){
+            if(container->state()!=DockingPaneContainer::Inner){
+                return ;
+            }
             if(d->fixed==true){
                 setAutoHide(false);
                 bool isClient = container->isClient();

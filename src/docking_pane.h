@@ -12,7 +12,7 @@ namespace ady {
     public:
         //DockingPane(DockingPaneContainer* parent=nullptr);
         DockingPane(QWidget* parent=nullptr);
-        ~DockingPane();
+        virtual ~DockingPane();
         void setCenterWidget(QWidget* widget);
         QWidget* centerWidget();
         void setId(QString id);
@@ -25,21 +25,17 @@ namespace ady {
         virtual void activation();
         virtual void save(bool rename=false);
         virtual void contextMenu(const QPoint& pos);
+        virtual void undo();
         DockingPaneContainer* container();
         void activeToCurrent();
         float stretch();
         void setStretch(float s);
 
-
-
     private:
         void installEventFilter(QWidget* w);
 
-    protected:
+    private:
         DockingPanePrivate* d;
-
-
-
 
     friend class DockingPaneManager;
 

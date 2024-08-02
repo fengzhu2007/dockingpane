@@ -55,10 +55,10 @@ public:
             }
             pane = this->takeAt(i);
             pane->close();
-            pane->deleteLater();
+            //pane->deleteLater();
+            delete pane;
 
             workbench->paneClosed(id,group,isClient);
-
             //remove client container;
             DockingPaneLayoutItemInfo* itemInfo = this->itemInfo();
             DockingPaneLayoutItemInfo* parentItemInfo = itemInfo->parent();

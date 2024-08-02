@@ -653,7 +653,11 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     }
 
     DockingPaneContainer* DockingPaneLayoutItemInfo::container(){
-        return static_cast<DockingPaneContainer*>(m_item->widget());
+        if(m_item!=nullptr){
+            return static_cast<DockingPaneContainer*>(m_item->widget());
+        }else{
+            return nullptr;
+        }
     }
 
     void DockingPaneLayoutItemInfo::setChildrenStretch(float stretch){

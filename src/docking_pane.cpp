@@ -31,6 +31,9 @@ private:
 
     class DockingPanePrivate {
     public:
+    ~DockingPanePrivate(){
+        qDebug()<<"~DockingPanePrivate";
+    }
         QString id;
         QString group;
         QWidget* widget=nullptr;
@@ -113,6 +116,10 @@ private:
 
     void DockingPane::contextMenu(const QPoint& pos){
         Q_UNUSED(pos);
+    }
+
+    void DockingPane::undo(){
+
     }
 
     DockingPaneContainer* DockingPane::container(){
