@@ -1,5 +1,6 @@
 #include "docking_pane.h"
 #include "docking_pane_container.h"
+#include "docking_workbench.h"
 #include <QCoreApplication>
 #include <QVBoxLayout>
 #include <QEvent>
@@ -133,7 +134,17 @@ private:
     void DockingPane::activeToCurrent(){
         auto container = this->container();
         if(container!=nullptr){
-            container->setPane(this);
+            //if(container->mo)
+            auto state = container->state();
+            if(state==DockingPaneContainer::Fixed){
+                container->workbench()->showFixedWindow(container,container->fixedPosition());
+            }else if(state==DockingPaneContainer::Float){
+                auto window = container->parentWidget();
+                window->raise();
+                container->activeWidget(true);
+            }else{
+                container->setPane(this);
+            }
         }
     }
 

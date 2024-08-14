@@ -66,7 +66,81 @@ namespace ady {
         auto orientation = root->childrenOrientation();
         DockingPaneContainer* container = nullptr;
         DockingPaneLayoutItemInfo* relation = nullptr;
-        if(orientation==DockingPaneLayoutItemInfo::Horizontal && (position==Position::Left || position==Position::S_Left)){
+        DockingPaneLayoutItemInfo* clientRelation = nullptr;
+        if(position==Position::S_Left){
+            if(orientation==DockingPaneLayoutItemInfo::Horizontal){
+                relation = root->first();
+                if(relation->isClient()==false){
+                    container = relation->container();
+                }
+            }
+        }else if(position==Position::S_Right){
+            if(orientation==DockingPaneLayoutItemInfo::Horizontal){
+                relation = root->last();
+                if(relation->isClient()==false){
+                    container = relation->container();
+                }
+            }
+        }else if(position==Position::S_Top){
+            if(orientation==DockingPaneLayoutItemInfo::Vertical){
+                relation = root->first();
+                if(relation->isClient()==false){
+                    container = relation->container();
+                }
+            }
+        }else if(position==Position::S_Bottom){
+            if(orientation==DockingPaneLayoutItemInfo::Vertical){
+                relation = root->last();
+                if(relation->isClient()==false){
+                    container = relation->container();
+                }
+            }
+        }else if(position==Position::Left || position==Position::Right || position==Position::Top || position==Position::Bottom){
+            //get client
+            int clientCount = d->workbench->clientCount();
+            auto client = d->workbench->client();
+            if(client!=nullptr){
+                auto info = client->itemInfo();
+                DockingPaneLayoutItemInfo* parent = info->parent();
+                if(clientCount>1){
+                    parent = parent->parent();
+                }
+                auto orientation = parent->childrenOrientation();
+                if(orientation==DockingPaneLayoutItemInfo::Horizontal){
+                    if(position==Position::Left){
+                        relation = parent->first();
+                        if(relation->isClient()==false){
+                            container = relation->container();
+                        }
+                    }else if(position==Position::Right){
+                        relation = parent->last();
+                        if(relation->isClient()==false){
+                            container = relation->container();
+                        }
+                    }else{
+                        clientRelation = clientCount>1?info->parent():info;
+                    }
+                }else if(orientation==DockingPaneLayoutItemInfo::Vertical){
+                    if(position==Position::Top){
+                        relation = parent->first();
+                        if(relation->isClient()==false){
+                            container = relation->container();
+                        }
+                    }else if(position==Position::Bottom){
+                        relation = parent->last();
+                        if(relation->isClient()==false){
+                            container = relation->container();
+                        }
+                    }else{
+                        clientRelation = clientCount>1?info->parent():info;
+                    }
+                }
+            }else{
+                return this->createPane(pane,static_cast<Position>(position - 4),active);
+            }
+        }
+
+        /*if(orientation==DockingPaneLayoutItemInfo::Horizontal && (position==Position::Left || position==Position::S_Left)){
             relation = root->first();
             if(relation->isClient()==false){
                 container = relation->container();
@@ -86,13 +160,18 @@ namespace ady {
             if(relation->isClient()==false){
                 container = relation->container();
             }
-        }
+        }*/
         if(container==nullptr){
             container = new DockingPaneContainer(d->workbench);
             pane->setParent(container);
             container->setObjectName(pane->id()+"_containter");
             container->appendPane(pane,active);
-            return d->layout->addItem(container,position);
+            if(clientRelation!=nullptr){
+                return d->layout->addItem(container,clientRelation,position);
+            }else{
+                return d->layout->addItem(container,position);
+            }
+
         }else{
             pane->setParent(container);
             container->appendPane(pane,active);

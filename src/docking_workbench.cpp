@@ -51,6 +51,7 @@ namespace ady {
             d->tabBars[i]->setPosition((DockingPaneManager::Position)i);
         }
         //init client container
+        qDebug()<<"DockingWorkbench"<<this;
     }
 
     void DockingWorkbench::initClient()
@@ -742,6 +743,7 @@ namespace ady {
             delete itemInfo;
         }
         //container->setParent(nullptr);
+        container->setFixedPosition(position);
         container->hide();
         DockingPaneTabBar* tabBar = d->tabBars[position];
         QRect r = geometry();
@@ -750,6 +752,7 @@ namespace ady {
         }else if(position==DockingPaneManager::S_Left || position==DockingPaneManager::S_Right){
             tabBar->setGeometry(0,0,30,r.height());
         }
+
         tabBar->addContainer(container);
         //qDebug()<<"size:"<<size();
         updateTabBars(size());

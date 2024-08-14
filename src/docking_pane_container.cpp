@@ -22,6 +22,7 @@ namespace ady {
         bool active_state = false;
         DockingPaneManager::Position ori_position = DockingPaneManager::S_Left;
         QRect ori_rc;
+        int fixed_position = 0;
     };
 
     DockingPaneContainer::DockingPaneContainer(QWidget* parent,DockingPaneManager::Position position)
@@ -461,6 +462,14 @@ namespace ady {
         }
     }
 
+    void DockingPaneContainer::setFixedPosition(int position){
+        d->fixed_position = position;
+    }
+
+    int DockingPaneContainer::fixedPosition(){
+        return d->fixed_position;
+    }
+
     DockingWorkbench* DockingPaneContainer::workbench(){
         if(d->state==Inner){
             return (DockingWorkbench*)parentWidget();
@@ -468,7 +477,16 @@ namespace ady {
             return (DockingWorkbench*)parentWidget()->parentWidget();
         }else if(d->state==Fixed){
             //qDebug()<<"workbench:"<<parentWidget();
-            return (DockingWorkbench*)parentWidget()->parentWidget();
+            auto parent = parentWidget();
+            const QString className = parent->metaObject()->className();
+            if(className==QString::fromUtf8("ady::DockingWorkbench")){
+                return static_cast<DockingWorkbench*>(parent);
+            }else if(className==QString::fromUtf8("ady::DockingPaneFixedWindow")){
+                return static_cast<DockingWorkbench*>(parent->parentWidget());
+            }else{
+                qDebug()<<"DockingPaneContainer::workbench:"<<className;
+            }
+            return nullptr;
         }else{
             return nullptr;
         }

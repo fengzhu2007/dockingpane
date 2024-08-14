@@ -65,6 +65,9 @@ namespace ady{
         int guideFlags();
         float stretch();
 
+        void setFixedPosition(int position);
+        int fixedPosition();
+
         DockingWorkbench* workbench();
 
 
