@@ -29,6 +29,9 @@ namespace ady{
 
         //QSize sizeHint();
 
+        QList<DockingPaneContainer*> containerList();
+        int current();
+
 
     signals:
         void currentChanged(int i);

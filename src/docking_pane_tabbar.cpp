@@ -15,6 +15,7 @@ namespace ady{
         DockingPaneTabBar::Shape shape;
         QBoxLayout* layout;
         QSpacerItem* spacer;
+        int current = -1;
     };
 
     DockingPaneTabBar::DockingPaneTabBar(QWidget* parent)
@@ -183,6 +184,9 @@ namespace ady{
         d->layout->insertWidget(size - 1,item);
         setVisible(true);
         connect(item,&QPushButton::clicked,this,&DockingPaneTabBar::onItemClicked);
+        if(index<=d->current){
+            d->current += 1;
+        }
     }
 
     void DockingPaneTabBar::removeTab(int i)
@@ -191,6 +195,9 @@ namespace ady{
         child->close();
         if(d->children.size()==0){
             setVisible(false);
+        }
+        if(i<=d->current){
+            d->current -= 1;
         }
     }
 
@@ -229,6 +236,14 @@ namespace ady{
         return d->children[row];
     }
 
+    QList<DockingPaneContainer*> DockingPaneTabBar::containerList(){
+        return d->list;
+    }
+
+    int DockingPaneTabBar::current(){
+        return d->current;
+    }
+
     void DockingPaneTabBar::onCurrentChanged(int i)
     {
         foreach(DockingPaneContainer* one , d->list){
@@ -240,6 +255,7 @@ namespace ady{
                 one->visibleTabBar(false);
                 DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
                 workbench->showFixedWindow(one,d->position);
+                d->current = i;
                 break ;
             }else{
                 i -= children;

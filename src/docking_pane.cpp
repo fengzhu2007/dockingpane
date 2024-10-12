@@ -123,6 +123,13 @@ private:
 
     }
 
+    QJsonObject DockingPane::toJson(){
+        return {
+            {"id",this->id()},
+            {"group",this->group()}
+        };
+    }
+
     DockingPaneContainer* DockingPane::container(){
         if(parentWidget()!=nullptr){
             return static_cast<DockingPaneContainer*>(parentWidget()->parentWidget());

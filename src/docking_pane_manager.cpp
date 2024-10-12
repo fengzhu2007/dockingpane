@@ -6,8 +6,11 @@
 #include "docking_pane_layout_item_info.h"
 #include "docking_pane_client.h"
 #include "docking_pane_float_window.h"
+#include "docking_pane_tabbar.h"
 #include <QLayoutItem>
 #include <QHBoxLayout>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include <QDebug>
 namespace ady {
 
@@ -103,7 +106,14 @@ namespace ady {
                 auto info = client->itemInfo();
                 DockingPaneLayoutItemInfo* parent = info->parent();
                 if(clientCount>1){
-                    parent = parent->parent();
+                    if((position == Position::Left || position == Position::Right) && parent->childrenOrientation() == DockingPaneLayoutItemInfo::Vertical){
+
+                        parent = parent->parent();
+                    }else if((position == Position::Top || position == Position::Bottom) && parent->childrenOrientation() == DockingPaneLayoutItemInfo::Horizontal){
+
+                        parent = parent->parent();
+                    }
+
                 }
                 auto orientation = parent->childrenOrientation();
                 if(orientation==DockingPaneLayoutItemInfo::Horizontal){
@@ -319,6 +329,104 @@ namespace ady {
     {
         d->layout->addItem(widget,position);
     }*/
+
+    QJsonObject DockingPaneManager::layoutSerialize(){
+        //QJsonDocument doc;
+        auto list = this->layoutSerializeOne(d->layout->m_rootItem);
+        QJsonObject inner = {{"list",list},{"orientation",d->layout->m_rootItem->childrenOrientation()}};
+        //floatlist
+        QJsonArray floatlist;
+        auto floatwindows = DockingPaneFloatWindow::windowsList();
+        for(auto one:floatwindows){
+            auto containerWidget = one->centerWidget();
+            int active = containerWidget->current();
+            int paneCount = containerWidget->paneCount();
+            QJsonArray tabs;
+            for(int i=0;i<paneCount;i++){
+                auto pane = containerWidget->pane(i);
+                auto jObject = pane->toJson();
+                tabs<<jObject;
+            }
+            const QRect rc = one->geometry();
+            QJsonObject container = {
+                {"left",rc.left()},
+                {"top",rc.top()},
+                {"width",rc.width()},
+                {"height",rc.height()},
+                {"active",active},
+                {"tabs",tabs}
+            };
+            floatlist<<container;
+        }
+
+        //fixed
+        //DockingPaneTabBar* tabBar(int position);
+        QJsonArray fixedlist;
+        for(int i=0;i<4;i++){
+            auto bar = d->workbench->tabBar(i);
+            auto list = bar->containerList();
+
+            for(auto one:list){
+                int paneCount = one->paneCount();
+                QJsonArray tabs;
+                for(int i=0;i<paneCount;i++){
+                    auto pane = one->pane(i);
+                    auto jObject = pane->toJson();
+                    tabs<<jObject;
+                }
+                QJsonObject container = {
+                    {"position",i},
+                    {"tabs",tabs}
+                };
+                fixedlist<<container;
+            }
+        }
+
+
+        return {
+            {"inner",inner},
+            {"float",floatlist},
+            {"fixed",fixedlist}
+        };
+    }
+
+    QJsonArray DockingPaneManager::layoutSerializeOne(DockingPaneLayoutItemInfo* layouItem){
+        QJsonArray list;
+        int count = layouItem->childrenCount();
+        for(int i=0;i<count;i++){
+            auto ci = d->layout->m_rootItem->child(i);
+            if(ci->item()==nullptr){
+                //has children
+                auto children = this->layoutSerializeOne(ci);
+                if(children.size()>1){
+                    QJsonObject paneGroup = {
+                        {"children",children}
+                    };
+                    list<<paneGroup;
+                }else if(children.size()==1){
+                    list<<children.at(0);
+                }
+            }else{
+                QJsonArray tabs;
+                auto container = ci->container();
+                int active = container->current();
+                int position = container->isClient()?0:1;
+                int paneCount = container->paneCount();
+                for(int i=0;i<paneCount;i++){
+                    auto pane = container->pane(i);
+                    auto jObject = pane->toJson();
+                    tabs<<jObject;
+                }
+                QJsonObject pane = {
+                    {"position",position},
+                    {"active",active},
+                    {"tabs",tabs}
+                };
+                list<<pane;
+            }
+        }
+        return list;
+    }
 
     void DockingPaneManager::dump()
     {

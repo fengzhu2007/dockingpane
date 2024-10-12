@@ -20,6 +20,8 @@ namespace ady {
         void showMaximized();
         void showNormal();
 
+
+        static QList<DockingPaneFloatWindow*> windowsList();
     protected:
         virtual void resizeEvent(QResizeEvent *event) override;
         virtual void mousePressEvent(QMouseEvent *event)override;
@@ -28,6 +30,7 @@ namespace ady {
 
     private:
         DockingPaneFloatWindowPrivate* d;
+        static QList<DockingPaneFloatWindow*> list;
 
     };
 }

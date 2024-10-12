@@ -3,6 +3,7 @@
 #include "global.h"
 #include <QObject>
 #include <QWidget>
+#include <QJsonObject>
 namespace ady {
     class DockingWorkbench;
     class DockingPane;
@@ -39,6 +40,8 @@ namespace ady {
         DockingPane* createFixedPane(const QString& id,const QString& group,const QString& title,QWidget* widget,Position position);
         DockingPaneFloatWindow* createFloatPane(const QString& id,const QString& group,const QString& title,QWidget* widget);
         //void addItem(QWidget* widget,Position position);
+        QJsonObject layoutSerialize();
+        QJsonArray layoutSerializeOne(DockingPaneLayoutItemInfo* layouItem);
 
         void dump();
 

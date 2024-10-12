@@ -57,7 +57,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     {
         int size = m_children.size();
         float stretch = -10;
-        qDebug()<<"insertItem1:";
+        //qDebug()<<"insertItem1:";
         if(size==0 && m_item!=nullptr){
             DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(m_item,position,this);
             ((DockingPaneContainer*)m_item->widget())->setItemInfo(child);
@@ -70,7 +70,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             if(container!=nullptr && container->isClient()==false){
                 stretch = container->stretch();
             }
-            qDebug()<<"container2:"<<container<<stretch;
+            //qDebug()<<"container2:"<<container<<stretch;
         }
 
         DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(item,position,this);

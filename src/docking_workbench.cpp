@@ -51,7 +51,7 @@ namespace ady {
             d->tabBars[i]->setPosition((DockingPaneManager::Position)i);
         }
         //init client container
-        qDebug()<<"DockingWorkbench"<<this;
+        //qDebug()<<"DockingWorkbench"<<this;
     }
 
     void DockingWorkbench::initClient()

@@ -1,6 +1,7 @@
 #ifndef DOCKING_PANE_H
 #define DOCKING_PANE_H
 #include <QWidget>
+#include <QJsonObject>
 #include "global.h"
 namespace ady {
     class DockingEventFilter;
@@ -26,6 +27,7 @@ namespace ady {
         virtual void save(bool rename=false);
         virtual void contextMenu(const QPoint& pos);
         virtual void undo();
+        virtual QJsonObject toJson();
         DockingPaneContainer* container();
         void activeToCurrent();
         float stretch();

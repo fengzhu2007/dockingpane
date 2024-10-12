@@ -7,6 +7,9 @@
 #include <QMouseEvent>
 #include <QDebug>
 namespace ady{
+QList<DockingPaneFloatWindow*> DockingPaneFloatWindow::list;
+
+
     class DockingPaneFloatWindowPrivate {
     public:
         DockingPaneWindowResizer* regions[8];
@@ -23,9 +26,11 @@ namespace ady{
         d->resizer_size = margin;
         initResizer();
         this->setAttribute(Qt::WA_TranslucentBackground);
+        list << this;
     }
 
     DockingPaneFloatWindow::~DockingPaneFloatWindow(){
+        list.removeOne(this);
         delete d;
     }
 
@@ -120,7 +125,9 @@ namespace ady{
     }
 
 
-
+    QList<DockingPaneFloatWindow*> DockingPaneFloatWindow::windowsList(){
+        return DockingPaneFloatWindow::list;
+    }
 
 
 }
