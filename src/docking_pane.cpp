@@ -32,9 +32,6 @@ private:
 
     class DockingPanePrivate {
     public:
-    ~DockingPanePrivate(){
-        qDebug()<<"~DockingPanePrivate";
-    }
         QString id;
         QString group;
         QWidget* widget=nullptr;

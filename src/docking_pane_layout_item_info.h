@@ -76,6 +76,7 @@ namespace ady {
         DockingPaneContainer* container();
         void setChildrenStretch(float stretch);
         void setStretch(float stretch);
+        inline float stretch(){return m_stretch;};
 
 
 

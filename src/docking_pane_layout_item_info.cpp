@@ -667,7 +667,6 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             for(int i=0;i<count;i++){
                 auto pane = container->pane(i);
                 pane->setStretch(stretch);
-
             }
         }
     }
@@ -676,6 +675,8 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         this->m_stretch = stretch;
         this->setChildrenStretch(stretch);
     }
+
+
 
     bool DockingPaneLayoutItemInfo::isEmpty()
     {

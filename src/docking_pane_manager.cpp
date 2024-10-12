@@ -191,9 +191,77 @@ namespace ady {
 
     }
 
-    void DockingPaneManager::createPane(DockingPane* pane,DockingPaneContainer* container,Position position)
+    DockingPaneLayoutItemInfo* DockingPaneManager::createPane(DockingPane* pane,DockingPaneContainer* target,Position position)
     {
-        //container->appendPane(pane);
+        Q_ASSERT(target!=nullptr);
+        if(position==Center){
+            target->appendPane(pane);
+            return target->itemInfo();
+        }else if(position == C_Right || position == C_Bottom){
+            //target is client and append next client
+            if(target->isClient()){
+                auto info = target->itemInfo();
+                auto next = info->next();
+                if(next!=nullptr){
+                    auto cli = next->container();
+                    if(cli!=nullptr && cli->isClient()){
+                        return this->createPane(pane,cli,Center);
+                    }
+                }
+                DockingPaneClient* cli = new DockingPaneClient(d->workbench,true);
+                cli->appendPane(pane);
+                cli->setObjectName(pane->id()+"_client_container");
+                return d->layout->addItem(cli,info,position);
+            }
+            position = (Position)(position - 5);//position fixed to Right or Bottom
+        }else if(position == C_Left || position == C_Top){
+            //target is client and append next client
+            if(target->isClient()){
+                auto info = target->itemInfo();
+                auto previous = info->previous();
+                if(previous!=nullptr){
+                    auto cli = previous->container();
+                    if(cli!=nullptr && cli->isClient()){
+                        return this->createPane(pane,cli,Center);
+                    }
+                }
+                DockingPaneClient* cli = new DockingPaneClient(d->workbench,true);
+                cli->appendPane(pane);
+                cli->setObjectName(pane->id()+"_client_container");
+                return d->layout->addItem(cli,info,position);
+
+            }
+            position = (Position)(position - 5);//position fixed to Left or Top
+        }
+
+
+        auto itemInfo = target->itemInfo();
+        Q_ASSERT(itemInfo!=nullptr);
+        DockingPaneContainer* container = new DockingPaneContainer(d->workbench);
+        container->setObjectName(pane->id()+"_containter");
+        pane->setParent(container);
+        container->appendPane(pane);
+
+        if(itemInfo->m_children_ori==DockingPaneLayoutItemInfo::Unkown){
+            return itemInfo->insertItem(d->workbench,new QWidgetItem(container),position);
+        }else if(itemInfo->m_children_ori == DockingPaneLayoutItemInfo::Horizontal){
+            if(position == Left || position == Right){
+                return itemInfo->insertItem(d->workbench,new QWidgetItem(container),position);
+            }else{
+                if(itemInfo->m_parent!=nullptr){
+                    return itemInfo->m_parent->insertItem(d->workbench,new QWidgetItem(container),position);
+                }
+            }
+        }else if(itemInfo->m_children_ori == DockingPaneLayoutItemInfo::Vertical){
+            if(position == Top || position == Bottom){
+                return itemInfo->insertItem(d->workbench,new QWidgetItem(container),position);
+            }else{
+                if(itemInfo->m_parent!=nullptr){
+                    return itemInfo->m_parent->insertItem(d->workbench,new QWidgetItem(container),position);
+                }
+            }
+        }
+        return d->layout->m_rootItem->insertItem(d->workbench,new QWidgetItem(container),position);
     }
 
     DockingPane* DockingPaneManager::createPane(QString id,QString group,QString title,QWidget* widget,Position position)
@@ -330,9 +398,9 @@ namespace ady {
         d->layout->addItem(widget,position);
     }*/
 
-    QJsonObject DockingPaneManager::layoutSerialize(){
+    QJsonObject DockingPaneManager::toJson(){
         //QJsonDocument doc;
-        auto list = this->layoutSerializeOne(d->layout->m_rootItem);
+        auto list = this->toJsonOne(d->layout->m_rootItem);
         QJsonObject inner = {{"list",list},{"orientation",d->layout->m_rootItem->childrenOrientation()}};
         //floatlist
         QJsonArray floatlist;
@@ -375,6 +443,7 @@ namespace ady {
                     tabs<<jObject;
                 }
                 QJsonObject container = {
+                    {"stretch",one->stretch()},
                     {"position",i},
                     {"tabs",tabs}
                 };
@@ -390,14 +459,15 @@ namespace ady {
         };
     }
 
-    QJsonArray DockingPaneManager::layoutSerializeOne(DockingPaneLayoutItemInfo* layouItem){
+    QJsonArray DockingPaneManager::toJsonOne(DockingPaneLayoutItemInfo* layouItem){
         QJsonArray list;
+        int client = 0;
         int count = layouItem->childrenCount();
         for(int i=0;i<count;i++){
             auto ci = d->layout->m_rootItem->child(i);
             if(ci->item()==nullptr){
                 //has children
-                auto children = this->layoutSerializeOne(ci);
+                auto children = this->toJsonOne(ci);
                 if(children.size()>1){
                     QJsonObject paneGroup = {
                         {"children",children}
@@ -409,8 +479,12 @@ namespace ady {
             }else{
                 QJsonArray tabs;
                 auto container = ci->container();
+                float stretch = ci->stretch();
+                qDebug()<<"stretch:"<<stretch;
                 int active = container->current();
-                int position = container->isClient()?0:1;
+                if(container->isClient()){
+                    client += 1;
+                }
                 int paneCount = container->paneCount();
                 for(int i=0;i<paneCount;i++){
                     auto pane = container->pane(i);
@@ -418,7 +492,8 @@ namespace ady {
                     tabs<<jObject;
                 }
                 QJsonObject pane = {
-                    {"position",position},
+                    {"client",client},
+                    {"stretch",stretch},
                     {"active",active},
                     {"tabs",tabs}
                 };
