@@ -106,7 +106,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index)
     {
-        qDebug()<<"insertItem2:";
+        //qDebug()<<"insertItem2:";
         int size = m_children.size();
         float stretch = -10;
         if(size==0 && m_item!=nullptr){
@@ -120,7 +120,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             if(container!=nullptr && container->isClient()==false){
                 stretch = container->stretch();
             }
-            qDebug()<<"container3:"<<item->widget()<<stretch;
+            //qDebug()<<"container3:"<<item->widget()<<stretch;
         }
 
         DockingPaneLayoutItemInfo* child = new DockingPaneLayoutItemInfo(item,position,this);
@@ -556,7 +556,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             if(m_stretch>1){
                 m_stretch = rc.width() ;
                 this->setChildrenStretch(m_stretch);
-            }else if(m_stretch>0){
+            }else{
                 m_stretch = rc.width() * 1.0f / parent_rc.width();
                 this->setChildrenStretch(m_stretch);
             }
@@ -573,7 +573,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             if(m_stretch>1){
                 m_stretch = rc.height() ;
                 this->setChildrenStretch(m_stretch);
-            }else if(m_stretch>0){
+            }else{
                 m_stretch = rc.height() * 1.0f / parent_rc.width();
                 this->setChildrenStretch(m_stretch);
             }
@@ -696,6 +696,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     void DockingPaneLayoutItemInfo::dump(QString prefix)
     {
+        qDebug()<<prefix<<":"<<this;
         if(m_children.size()>0){
             foreach(DockingPaneLayoutItemInfo* child,m_children){
                 child->dump(prefix +"----");

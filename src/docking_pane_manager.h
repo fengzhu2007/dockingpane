@@ -7,6 +7,7 @@
 namespace ady {
     class DockingWorkbench;
     class DockingPane;
+    class DockingPaneLayout;
     class DockingPaneFloatWindow;
     class DockingPaneContainer;
     class DockingPaneLayoutItemInfo;
@@ -34,12 +35,18 @@ namespace ady {
         QWidget* widget();
         DockingPaneLayoutItemInfo* createPane(DockingPane* pane,Position position,bool active=false);
         DockingPaneLayoutItemInfo* createPane(DockingPane* pane,DockingPaneContainer* target,Position position);
-
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,Position position);
-
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,DockingPaneContainer* target,Position position);
+
+
+        DockingPaneLayoutItemInfo* createPane(DockingPane* pane,DockingPaneLayoutItemInfo* parent,Position position);
+        DockingPaneLayoutItemInfo* restorePane(DockingPane* pane,Position position,DockingPaneLayoutItemInfo* parent,DockingPaneLayoutItemInfo* previous=nullptr);
+
+
         DockingPane* createFixedPane(const QString& id,const QString& group,const QString& title,QWidget* widget,Position position);
         DockingPaneFloatWindow* createFloatPane(const QString& id,const QString& group,const QString& title,QWidget* widget);
+
+        DockingPaneLayout* layout();
         //void addItem(QWidget* widget,Position position);
         QJsonObject toJson();
         QJsonArray toJsonOne(DockingPaneLayoutItemInfo* layouItem);

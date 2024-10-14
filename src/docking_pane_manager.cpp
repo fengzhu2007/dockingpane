@@ -353,6 +353,42 @@ namespace ady {
         return pane;
     }
 
+    DockingPaneLayoutItemInfo* DockingPaneManager::createPane(DockingPane* pane,DockingPaneLayoutItemInfo* parent,Position position){
+        if(position==Center){
+            DockingPaneContainer* container = parent==nullptr?d->workbench->client():parent->container();
+            container->appendPane(pane);
+            return container->itemInfo();
+        }else{
+            auto container = new DockingPaneContainer(d->workbench);
+            container->setObjectName(pane->id()+"_containter");
+            container->appendPane(pane);
+            //qDebug()<<"create pan:"<<pane->id()<<parent<<position;
+            if(parent!=nullptr){
+                return parent->insertItem(d->workbench,new QWidgetItem(container),position);
+            }else{
+                return d->layout->m_rootItem->insertItem(d->workbench,new QWidgetItem(container),position);
+            }
+        }
+    }
+
+    DockingPaneLayoutItemInfo* DockingPaneManager::restorePane(DockingPane* pane,Position position,DockingPaneLayoutItemInfo* parent,DockingPaneLayoutItemInfo* previous){
+        if(position==Center){
+            DockingPaneContainer* container = parent==nullptr?d->workbench->client():parent->container();
+            container->appendPane(pane);
+            return container->itemInfo();
+        }else{
+            auto container = new DockingPaneContainer(d->workbench);
+            container->setObjectName(pane->id()+"_containter");
+            container->appendPane(pane);
+            if(parent!=nullptr){
+                return parent->insertItem(d->workbench,new QWidgetItem(container),position);
+            }else{
+                return d->layout->m_rootItem->insertItem(d->workbench,new QWidgetItem(container),position);
+            }
+        }
+
+    }
+
     DockingPane* DockingPaneManager::createFixedPane(const QString& id,const QString& group,const QString& title,QWidget* widget,Position position){
         DockingPaneContainer* container = new DockingPaneContainer(d->workbench,position);
         DockingPane* pane = new DockingPane(container);
@@ -397,6 +433,10 @@ namespace ady {
     {
         d->layout->addItem(widget,position);
     }*/
+
+    DockingPaneLayout* DockingPaneManager::layout(){
+        return d->layout;
+    }
 
     QJsonObject DockingPaneManager::toJson(){
         //QJsonDocument doc;
@@ -464,12 +504,14 @@ namespace ady {
         int client = 0;
         int count = layouItem->childrenCount();
         for(int i=0;i<count;i++){
-            auto ci = d->layout->m_rootItem->child(i);
+            auto ci = layouItem->child(i);
             if(ci->item()==nullptr){
                 //has children
                 auto children = this->toJsonOne(ci);
+                float stretch = ci->stretch();
                 if(children.size()>1){
                     QJsonObject paneGroup = {
+                        {"stretch",stretch},
                         {"children",children}
                     };
                     list<<paneGroup;
@@ -479,15 +521,20 @@ namespace ady {
             }else{
                 QJsonArray tabs;
                 auto container = ci->container();
+                //qDebug()<<"contaner:"<<container<<i;
                 float stretch = ci->stretch();
-                qDebug()<<"stretch:"<<stretch;
+                //qDebug()<<"stretch:"<<stretch;
                 int active = container->current();
+                //float stretch = container->pane(active)->stretch();
+                //qDebug()<<"stretch:"<<stretch;
                 if(container->isClient()){
                     client += 1;
+                }else{
+                    client = 0;
                 }
                 int paneCount = container->paneCount();
-                for(int i=0;i<paneCount;i++){
-                    auto pane = container->pane(i);
+                for(int j=0;j<paneCount;j++){
+                    auto pane = container->pane(j);
                     auto jObject = pane->toJson();
                     tabs<<jObject;
                 }

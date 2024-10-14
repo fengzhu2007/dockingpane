@@ -100,10 +100,9 @@ namespace ady {
 
     void DockingPaneContainer::appendPane(DockingPane* pane,bool active)
     {
-        //qDebug()<<"appendPane"<<d->stacked;
         pane->setParent(d->stacked);
         d->stacked->addWidget((QWidget*)pane);
-        QString title = pane->windowTitle();
+        const QString title = pane->windowTitle();
         d->tabbar->addTab(title);
         if(d->nclient!=nullptr && d->tabbar->count()==1){
             d->nclient->updateTitle(title);
@@ -112,7 +111,7 @@ namespace ady {
         if(active){
             this->setPane(i);
         }
-        QString tooltip = pane->description();
+         const QString tooltip = pane->description();
         if(!tooltip.isEmpty()){
             d->tabbar->setTabToolTip(i,tooltip);
         }
