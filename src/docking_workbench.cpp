@@ -1006,6 +1006,7 @@ namespace ady {
 
     void DockingWorkbench::resizeEvent(QResizeEvent *event)
     {
+        qDebug()<<"resizeEvent";
         QWidget::resizeEvent(event);
         QSize size = event->size();
         updateTabBars(size);

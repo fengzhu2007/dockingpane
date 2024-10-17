@@ -224,11 +224,15 @@ namespace ady {
 
     int DockingPaneContainer::paneCount()
     {
-        return d->stacked->count();
+        if(d->stacked!=nullptr)
+         return d->stacked->count();
+        return 0;
     }
 
     int DockingPaneContainer::current(){
+        if(d->stacked!=nullptr)
         return d->stacked->currentIndex();
+        return -1;
     }
 
     DockingPane* DockingPaneContainer::pane(int i)
