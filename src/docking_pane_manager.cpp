@@ -28,7 +28,7 @@ namespace ady {
         d->widget = new QWidget(parent);
 
 
-        d->workbench = new DockingWorkbench(d->widget);
+        d->workbench = new DockingWorkbench(d->widget,this);
         d->layout = new DockingPaneLayout(d->workbench,0,6);
 
         d->workbench->initClient();

@@ -15,7 +15,7 @@ namespace ady {
     class DOCKINGPANE_EXPORT DockingWorkbench : public QFrame {
         Q_OBJECT
     public:
-        DockingWorkbench(QWidget* parent);
+        DockingWorkbench(QWidget* parent,DockingPaneManager* manager);
         ~DockingWorkbench();
         void initClient();
 
@@ -47,12 +47,16 @@ namespace ady {
         int clientCount();
         DockingPaneClient* client(int index=0);
 
+        DockingPaneManager* manager();
+
         void showFixedWindow(DockingPaneContainer* container,int position);
         void resizeFixedWindow(const QSize& size);
         void hideFixedWindow();
         void unActiveAll();
         void updateLayout();
         void dump(QString prefix);
+
+
         //void updateGuidePosition();
 
     signals:

@@ -63,6 +63,7 @@ private:
         }
         widget->setParent(this);
         layout->addWidget(widget);
+        //qDebug()<<"widget geo:"<<widget->geometry();
         //install event filter
         this->installEventFilter(widget);
     }

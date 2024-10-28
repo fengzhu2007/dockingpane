@@ -24,6 +24,7 @@ namespace ady {
     class DockingWorkbenchPrivate {
     public:
         //QSplitter* vertical_splitter;//level 1
+        DockingPaneManager* manager = nullptr;
         DockingGuide* guide = nullptr;
         //DockingClientGuide* client_guide = nullptr;
         DockingGuideDiamond* siders[4];
@@ -39,11 +40,12 @@ namespace ady {
     };
 
 
-    DockingWorkbench::DockingWorkbench(QWidget* parent)
+    DockingWorkbench::DockingWorkbench(QWidget* parent,DockingPaneManager* manager)
         :QFrame(parent){
         //setStyleSheet(".ady--DockingWorkbench{background:#eeeef2}");//theme
         setStyleSheet(DockingQSS::global());
         d = new DockingWorkbenchPrivate();
+        d->manager = manager;
         d->timer = new QTimer(this);
         connect(d->timer,&QTimer::timeout,this,&DockingWorkbench::onTimeout);
         for(int i=0;i<4;i++){
@@ -834,6 +836,10 @@ namespace ady {
            }
         }
         return nullptr;
+    }
+
+    DockingPaneManager* DockingWorkbench::manager(){
+        return d->manager;
     }
 
     void DockingWorkbench::showFixedWindow(DockingPaneContainer* container,int position)
