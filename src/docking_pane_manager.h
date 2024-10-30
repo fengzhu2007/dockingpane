@@ -31,6 +31,7 @@ namespace ady {
         };
         DockingPaneManager(QWidget* parent);
         ~DockingPaneManager();
+        void initClient();
         DockingWorkbench* workbench();
         QWidget* widget();
         DockingPaneLayoutItemInfo* createPane(DockingPane* pane,Position position,bool active=false);

@@ -114,12 +114,9 @@ namespace ady {
                 if(position==DockingPaneManager::Left || position==DockingPaneManager::S_Left){
                     //insert left 1
                     return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Left);
-                }else if(position==DockingPaneManager::Right || position==DockingPaneManager::S_Right){
+                }else if(position==DockingPaneManager::Right || position==DockingPaneManager::S_Right || position == DockingPaneManager::Center){
                     //append 1
                     return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Right);
-                }else if(position == DockingPaneManager::Center){
-
-
                 }else{
                     DockingPaneLayoutItemInfo* child = m_rootItem;
                     if(count==1){
@@ -145,12 +142,9 @@ namespace ady {
                 if(position==DockingPaneManager::Top || position==DockingPaneManager::S_Top){
                     //insert left 1
                     return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Top);
-                }else if(position==DockingPaneManager::Bottom || position==DockingPaneManager::S_Bottom){
+                }else if(position==DockingPaneManager::Bottom || position==DockingPaneManager::S_Bottom || position == DockingPaneManager::Center){
                     //append 1
                     return m_rootItem->insertItem(parentWidget(),itemInfo,DockingPaneManager::Bottom);
-                }else if(position == DockingPaneManager::Center){
-
-
                 }else{
                     DockingPaneLayoutItemInfo* child = m_rootItem;
                     if(count==1){

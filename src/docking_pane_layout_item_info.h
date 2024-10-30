@@ -36,6 +36,8 @@ namespace ady {
         DockingPaneLayoutItemInfo* insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position);
         DockingPaneLayoutItemInfo* insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position,int index);
 
+        void appendItem(DockingPaneLayoutItemInfo* child);
+
         inline QLayoutItem* item(){return m_item;}
         inline void setItem(QLayoutItem* item){m_item = item;}
         QLayoutItem* itemAt(int &index);
@@ -77,6 +79,7 @@ namespace ady {
         void setChildrenStretch(float stretch);
         void setStretch(float stretch);
         inline float stretch(){return m_stretch;};
+        int stretchSize();
 
 
 

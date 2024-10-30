@@ -147,6 +147,10 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         return child;
     }
 
+    void DockingPaneLayoutItemInfo::appendItem(DockingPaneLayoutItemInfo* child){
+        m_children<<child;
+    }
+
     DockingPaneLayoutItemInfo* DockingPaneLayoutItemInfo::removeItem(DockingPaneLayoutItemInfo* itemInfo)
     {
         QList<DockingPaneLayoutItemInfo*>::iterator iter = m_children.begin();
@@ -689,6 +693,18 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     }
 
 
+    int DockingPaneLayoutItemInfo::stretchSize(){
+        int size = 0;
+        int orientation = parent()->childrenOrientation();
+        auto rect = geometry(m_spacing);
+        if(orientation==Vertical){
+            size = rect.height();
+        }else{
+            size = rect.width();
+        }
+        return size;
+    }
+
 
     bool DockingPaneLayoutItemInfo::isEmpty()
     {
@@ -708,7 +724,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     void DockingPaneLayoutItemInfo::dump(QString prefix)
     {
-        qDebug()<<prefix<<":"<<this;
+        //qDebug()<<prefix<<":"<<this;
         if(m_children.size()>0){
             foreach(DockingPaneLayoutItemInfo* child,m_children){
                 child->dump(prefix +"----");

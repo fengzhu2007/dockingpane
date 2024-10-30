@@ -31,7 +31,7 @@ namespace ady {
         d->workbench = new DockingWorkbench(d->widget,this);
         d->layout = new DockingPaneLayout(d->workbench,0,6);
 
-        d->workbench->initClient();
+        //d->workbench->initClient();
 
         QHBoxLayout* l = new QHBoxLayout(d->widget);
         l->setMargin(0);
@@ -42,6 +42,10 @@ namespace ady {
 
     DockingPaneManager::~DockingPaneManager(){
         delete d;
+    }
+
+    void DockingPaneManager::initClient(){
+        d->workbench->initClient();
     }
 
     DockingWorkbench* DockingPaneManager::workbench()
@@ -508,7 +512,7 @@ namespace ady {
             if(ci->item()==nullptr){
                 //has children
                 auto children = this->toJsonOne(ci);
-                float stretch = ci->stretch();
+                int stretch = ci->stretchSize();
                 if(children.size()>1){
                     QJsonObject paneGroup = {
                         {"stretch",stretch},
@@ -521,12 +525,8 @@ namespace ady {
             }else{
                 QJsonArray tabs;
                 auto container = ci->container();
-                //qDebug()<<"contaner:"<<container<<i;
-                float stretch = ci->stretch();
-                //qDebug()<<"stretch:"<<stretch;
+                int stretch = ci->stretchSize();
                 int active = container->current();
-                //float stretch = container->pane(active)->stretch();
-                //qDebug()<<"stretch:"<<stretch;
                 if(container->isClient()){
                     client += 1;
                 }else{
