@@ -31,6 +31,7 @@ namespace ady {
         DockingPaneLayoutItemInfo(QLayoutItem* item,DockingPaneManager::Position position,DockingPaneLayoutItemInfo* parent=nullptr);
         ~DockingPaneLayoutItemInfo();
         bool isClient();
+        bool hasClient();
         QList<DockingPaneLayoutItemInfo*> clientChildren();
         void setChildrenOrientation(Orientation orientation);
         DockingPaneLayoutItemInfo* insertItem(QWidget* workbench,QLayoutItem* item,DockingPaneManager::Position position);
@@ -62,6 +63,7 @@ namespace ady {
         DockingPaneLayoutItemInfo* child(int row);
 
         bool resize(Orientation orient,bool leftorright,int stretch_size);
+        bool resize(Orientation orient,bool leftorright,QPoint& pos);
 
         void setParent(DockingPaneLayoutItemInfo* parent);
         inline DockingPaneLayoutItemInfo* parent(){return m_parent;}
@@ -80,6 +82,9 @@ namespace ady {
         void setStretch(float stretch);
         inline float stretch(){return m_stretch;};
         int stretchSize();
+        inline void setManualSize(int size){m_manual_size = size;}
+        inline int manualSize(){return m_manual_size;}
+        void calculateStretch();
 
 
 
@@ -114,6 +119,9 @@ namespace ady {
         DockingPaneManager::Position m_position;
         DockingPaneHandle* m_handle;
         float m_stretch;
+        float m_temp_stretch;
+        int m_temp_size;
+        int m_manual_size;
         int m_spacing;
         int m_seq;
         QRect m_rect;

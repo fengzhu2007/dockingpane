@@ -36,21 +36,27 @@ namespace ady {
             DockingPaneLayoutItemInfo* next = m_itemInfo->next();
             if(m_ori==Horizontal){
                 int x = event->x() ;
+
                 QPoint pos = this->pos();
+                //qDebug()<<"1"<<pos;
                 pos.rx() += x;
+                //qDebug()<<"2"<<pos;
+                //qDebug()<<"x"<<x<<pos;
                 if(x>0){
                     if(next!=nullptr){
-                        if(next->resize(DockingPaneLayoutItemInfo::Horizontal,true,pos.x())==false){
+                        if(next->resize(DockingPaneLayoutItemInfo::Horizontal,true,pos)==false){
+                            //return ;
+                            //qDebug()<<"3"<<pos;
                             return ;
                         }
                     }
-                    m_itemInfo->resize(DockingPaneLayoutItemInfo::Horizontal,false,pos.x());
+                    m_itemInfo->resize(DockingPaneLayoutItemInfo::Horizontal,false,pos);
                 }else if(x<0){
-                    if(m_itemInfo->resize(DockingPaneLayoutItemInfo::Horizontal,false,pos.x())==false){
+                    if(m_itemInfo->resize(DockingPaneLayoutItemInfo::Horizontal,false,pos)==false){
                         return ;
                     }
                     if(next!=nullptr){
-                        next->resize(DockingPaneLayoutItemInfo::Horizontal,true,pos.x());
+                        next->resize(DockingPaneLayoutItemInfo::Horizontal,true,pos);
                     }
                 }else{
                     return ;

@@ -63,10 +63,10 @@ namespace ady {
         QLayout::setGeometry(rect);
 
         DockingWorkbench* workbench = (DockingWorkbench*)parentWidget();
-        QSize left = workbench->tabBarSize(DockingPaneManager::S_Left);
-        QSize top = workbench->tabBarSize(DockingPaneManager::S_Top);
-        QSize right = workbench->tabBarSize(DockingPaneManager::S_Right);
-        QSize bottom = workbench->tabBarSize(DockingPaneManager::S_Bottom);
+        const QSize left = workbench->tabBarSize(DockingPaneManager::S_Left);
+        const QSize top = workbench->tabBarSize(DockingPaneManager::S_Top);
+        const QSize right = workbench->tabBarSize(DockingPaneManager::S_Right);
+        const QSize bottom = workbench->tabBarSize(DockingPaneManager::S_Bottom);
         int width = rect.width() - left.width() - right.width();
         int height = rect.height() - top.height() - bottom.height();
         int x = left.width();
@@ -266,7 +266,6 @@ namespace ady {
     }
 
     void DockingPaneLayout::dump(QString prefix){
-        qDebug()<<prefix<<"root:"<<m_rootItem<<"ori:"<<m_rootItem->childrenOrientation()<<"parent:"<<m_rootItem->parent();
         m_rootItem->dump(prefix);
     }
 

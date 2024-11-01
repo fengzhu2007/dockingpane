@@ -509,13 +509,17 @@ namespace ady {
         int count = layouItem->childrenCount();
         for(int i=0;i<count;i++){
             auto ci = layouItem->child(i);
+            auto hasClient = ci->hasClient();
             if(ci->item()==nullptr){
                 //has children
                 auto children = this->toJsonOne(ci);
-                int stretch = ci->stretchSize();
+
+                int stretch = hasClient?-10:ci->stretchSize();
+                int size = ci->manualSize();
                 if(children.size()>1){
                     QJsonObject paneGroup = {
                         {"stretch",stretch},
+                        {"size",size},
                         {"children",children}
                     };
                     list<<paneGroup;
@@ -525,7 +529,8 @@ namespace ady {
             }else{
                 QJsonArray tabs;
                 auto container = ci->container();
-                int stretch = ci->stretchSize();
+                int stretch = hasClient?-10:ci->stretchSize();
+                int size = ci->manualSize();
                 int active = container->current();
                 if(container->isClient()){
                     client += 1;
@@ -541,6 +546,7 @@ namespace ady {
                 QJsonObject pane = {
                     {"client",client},
                     {"stretch",stretch},
+                    {"size",size},
                     {"active",active},
                     {"tabs",tabs}
                 };

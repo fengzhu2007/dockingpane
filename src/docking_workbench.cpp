@@ -17,7 +17,6 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QStyle>
-#include <QTimer>
 #include <QDebug>
 
 namespace ady {
@@ -36,24 +35,18 @@ namespace ady {
         //DockingPaneClient* client = nullptr;
         QList<DockingPaneClient*> clients;
         DockingPaneFixedWindow* fixed_window = nullptr;
-        QTimer* timer = nullptr;
     };
 
 
     DockingWorkbench::DockingWorkbench(QWidget* parent,DockingPaneManager* manager)
         :QFrame(parent){
-        //setStyleSheet(".ady--DockingWorkbench{background:#eeeef2}");//theme
         setStyleSheet(DockingQSS::global());
         d = new DockingWorkbenchPrivate();
         d->manager = manager;
-        d->timer = new QTimer(this);
-        connect(d->timer,&QTimer::timeout,this,&DockingWorkbench::onTimeout);
         for(int i=0;i<4;i++){
             d->tabBars[i] = new DockingPaneTabBar(this);
             d->tabBars[i]->setPosition((DockingPaneManager::Position)i);
         }
-        //init client container
-        //qDebug()<<"DockingWorkbench"<<this;
     }
 
     void DockingWorkbench::initClient()
@@ -61,11 +54,8 @@ namespace ady {
         auto client = new DockingPaneClient(this,false);
         client->setObjectName("client_container");
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
-        //layout->setMargin(3);
         assert(layout!=nullptr);
         layout->addItem(client,DockingPaneManager::Center);
-        //qDebug()<<"insertItem";
-        //d->clients.append(client);
     }
 
 
@@ -87,7 +77,6 @@ namespace ady {
         }
         int flags = widget->guideFlags();
         d->guide->setSizeMode(flags);
-        //qDebug()<<"widget container:"<<widget;
         {
             QPoint pos = widget!=nullptr?widget->pos():this->pos();
             QPoint globalPos = this->mapToGlobal(pos);
@@ -1001,28 +990,13 @@ namespace ady {
         }
     }
 
-    void DockingWorkbench::onTimeout(){
-        emit onShow();
-        if(d->timer!=nullptr){
-            disconnect(d->timer,&QTimer::timeout,this,&DockingWorkbench::onTimeout);
-            delete d->timer;
-            d->timer = nullptr;
-        }
-    }
-
-    void DockingWorkbench::resizeEvent(QResizeEvent *event)
+    void DockingWorkbench::resizeEvent(QResizeEvent *e)
     {
-        qDebug()<<"resizeEvent";
-        QWidget::resizeEvent(event);
-        QSize size = event->size();
+        //qDebug()<<"resize"<<e->oldSize()<<e->size();
+        QWidget::resizeEvent(e);
+        QSize size = e->size();
         updateTabBars(size);
         resizeFixedWindow(size);
-
-        if(d->timer!=nullptr){
-            d->timer->stop();
-            d->timer->start(200);
-        }
-        //qDebug()<<"resizeEvent";
     }
 
     void DockingWorkbench::paintEvent(QPaintEvent *e)
@@ -1035,9 +1009,9 @@ namespace ady {
         style()->drawPrimitive(QStyle::PE_Frame, &opt, &p, this);
     }
 
-    void DockingWorkbench::mousePressEvent(QMouseEvent *event){
-        QWidget::mousePressEvent(event);
-        QPointF p = event->localPos();
+    void DockingWorkbench::mousePressEvent(QMouseEvent *e){
+        QWidget::mousePressEvent(e);
+        QPointF p = e->localPos();
         this->unActiveAll();
         if(d->fixed_window!=nullptr && d->fixed_window->isHidden()==false){
             QRect rc = d->fixed_window->geometry();
@@ -1049,7 +1023,6 @@ namespace ady {
         QObjectList lists = children();
         foreach(auto one,lists){
             QString name = one->metaObject()->className();
-            //qDebug()<<"name:"<<name;
             if(name=="ady::DockingPaneContainer" || name=="ady::DockingPaneClient"){
                 QRect rc = ((QWidget*)one)->geometry();
                 if(rc.contains(p.x(),p.y())){
@@ -1060,6 +1033,12 @@ namespace ady {
                 }
             }
         }
+    }
+
+    void DockingWorkbench::showEvent(QShowEvent* e){
+        QFrame::showEvent(e);
+        //qDebug()<<"showEvent";
+        //qDebug()<<"DockingWorkbench show:"<<geometry();
     }
 
 

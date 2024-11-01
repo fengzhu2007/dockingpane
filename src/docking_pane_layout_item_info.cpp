@@ -14,6 +14,8 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         m_parent = parent;
         m_handle = nullptr;
         m_stretch = None;
+        m_temp_stretch = 0.0f;
+        m_temp_size = 0;
         m_seq = DockingPaneLayoutItemInfo::gSeq++;
     }
 
@@ -33,6 +35,21 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         }else{
             return false;
         }
+    }
+
+    bool DockingPaneLayoutItemInfo::hasClient(){
+        bool ret = false;
+        if(m_children.size()>0){
+            for(auto one:m_children){
+                ret = one->hasClient();
+                if(ret){
+                    break;
+                }
+            }
+        }else if(m_item!=nullptr){
+            ret = this->isClient();
+        }
+        return ret;
     }
 
     QList<DockingPaneLayoutItemInfo*> DockingPaneLayoutItemInfo::clientChildren(){
@@ -233,14 +250,18 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         QSize totalSize;
         int count = m_children.size();
         if(count>0){
+            int w = 0;
+            int h = 0;
             for(auto one:m_children){
                 QSize size = one->calculateSize(sizeType,spacing);
                 if(m_children_ori==Horizontal){
-                    totalSize.setHeight(size.height());
+                    h = qMax(h,size.height());
+                    totalSize.setHeight(h);
                     totalSize.rwidth() += size.width();
                 }else{
+                    w = qMax(w,size.width());
                     totalSize.rheight() += size.height();
-                    totalSize.setWidth(size.width());
+                    totalSize.setWidth(w);
                 }
             }
             if(count>1){
@@ -254,18 +275,21 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         }else{
             if(m_item!=nullptr){
                 if(sizeType==MinimumSize){
-                    totalSize = m_item->minimumSize();
+                    //totalSize = m_item->minimumSize();
+                    totalSize = QSize(50,50);
                 }else{
                     totalSize = m_item->sizeHint();
                 }
             }
 
         }
+        //qDebug()<<this<<sizeType<<totalSize;
         return totalSize;
     }
 
     void DockingPaneLayoutItemInfo::setGeometry(const QRect &rect,int spacing)
     {
+        //qDebug()<<this<<rect;
         m_spacing = spacing;
         m_rect = rect;
 
@@ -279,37 +303,71 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 w = rect.width();
                 h = rect.height();
             }else{
-                float stretch = 0.0f;
-                int stretch_width = 0;
-                int stretch_count = 0;
+                /*
+                    重新计算步骤:
+                        1、先减去固定大小和自动伸缩（按照最小大小来计算）大小尺寸
+                        2、用上一步的余量来计算百分比项的展示大小
+                        3、如果上一步存在小于最小尺寸的项，则重新计算固定项的尺寸
+                */
+                int totalSize = m_children_ori==Horizontal?rect.width():rect.height();
+                int leftSize = totalSize;
+                int autoSize = 0;
+                int minSize = 50;
+                int manualSizeTotal = 0;
+
                 for(auto one:m_children){
-                    //qDebug()<<one<<rect.height()<<one->m_stretch;
-                    if(one->m_stretch > 0){
-                        if(one->m_stretch>1){
-                            stretch_width += one->m_stretch;
+                    one->m_temp_stretch = 0;
+                    one->m_temp_size = 0;
+                    int manual_size = one->manualSize();
+                    if(manual_size>0){
+                        leftSize -= manual_size;
+                        manualSizeTotal += manual_size;
+                    }else if(one->m_stretch>0){
+                        int size = one->m_stretch * totalSize;
+                        if(size<minSize){
+                            //need calc;
+                            one->m_temp_size = minSize;
                         }else{
-                            stretch += one->m_stretch;
+                            one->m_temp_size = size;
                         }
-                        stretch_count += 1;
+                        leftSize -= one->m_temp_size;
+                        autoSize += one->m_temp_size;
+                    }else{
+                        leftSize -= minSize;
+                        autoSize += minSize;
+                    }
+                }
+                if(leftSize<0){
+                    //re calc
+                    //float manualSizePercent = (totalSize - autoSize) * 1.0 / totalSize;
+                    int realManualSize = totalSize - autoSize;//实际手动布局剩余大小
+                    for(auto one:m_children){
+                        int manual_size = one->manualSize();
+                        if(manual_size>0){
+                             one->m_temp_size = manual_size * 1.0 / manualSizeTotal * realManualSize;
+                            if(one->m_temp_size<minSize){
+                                 one->m_temp_size = minSize;
+                            }
+                        }
+                    }
+                }
+                //计算平均分配 每一项的大小
+                leftSize = totalSize;
+                int unknowSizeCount = count;//未知大小的项的数量
+                for(auto one:m_children){
+                    if(one->m_temp_size>0){
+                        leftSize -= (one->m_temp_size);
+                        unknowSizeCount -= 1;
                     }
                 }
 
                 if(m_children_ori==Horizontal){
-                    int width = (int)((rect.width() - stretch_width) * (1-stretch));
-                    if(count - stretch_count<=0){
-                        w = 0;
-                    }else{
-                        w = (width - (count - 1) * spacing) / (count - stretch_count);
-                    }
+                    w = unknowSizeCount>0?leftSize / unknowSizeCount:0;
                     h = rect.height();
                 }else{
                     w = rect.width();
-                    int height = (int)((rect.height() - stretch_width) * (1-stretch));
-                    if(count - stretch_count<=0){
-                        h = 0;
-                    }else{
-                        h = (height - (count - 1) * spacing) / (count - stretch_count);
-                    }
+                    h = unknowSizeCount>0?leftSize / unknowSizeCount:0;
+
                 }
             }
 
@@ -317,23 +375,20 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             int offset = 0;
             int i = 0;
             for(auto one:m_children){
-                //int cc = one->m_children.size();
                 QRect child_rc (x,y,w,h);
-
-                if(one->m_stretch>1){
+                if(one->m_temp_size>0){
                     if(m_children_ori==Horizontal){
-                        child_rc.setWidth(one->m_stretch);
+                        child_rc.setWidth(one->m_temp_size);
                     }else{
-                        child_rc.setHeight(one->m_stretch);
+                        child_rc.setHeight(one->m_temp_size);
                     }
-                }else if(one->m_stretch>0){
+                }else if(one->m_manual_size>0){
                     if(m_children_ori==Horizontal){
-                        child_rc.setWidth(one->m_stretch * rect.width());
+                        child_rc.setWidth(one->m_manual_size);
                     }else{
-                        child_rc.setHeight(one->m_stretch * rect.height());
+                        child_rc.setHeight(one->m_manual_size);
                     }
                 }
-
                 if(i==count - 1){
                     if(m_children_ori==Horizontal){
                         child_rc.setX(x);
@@ -562,7 +617,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             }else{
                 rc.setX(stretch_size + m_spacing);
             }
-            if(size.width()>=rc.width()){
+            if(rc.width() < size.width()){
                 return false;
             }
             QRect parent_rc = m_parent->geometry(m_spacing);
@@ -574,13 +629,14 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 m_stretch = rc.width() * 1.0f / parent_rc.width();
                 this->setChildrenStretch(m_stretch);
             }
+            this->m_manual_size = rc.width();
         }else{
             if(leftorright==false){
                 rc.setHeight(stretch_size - rc.y());
             }else{
                 rc.setY(stretch_size + m_spacing);
             }
-            if(size.height()>=rc.height()){
+            if(rc.height() < size.height()){
                 return false;
             }
             QRect parent_rc = m_parent->geometry(m_spacing);
@@ -591,9 +647,76 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 m_stretch = rc.height() * 1.0f / parent_rc.height();
                 this->setChildrenStretch(m_stretch);
             }
+            this->m_manual_size = rc.height();
         }
         this->setGeometry(rc,m_spacing);
         return true;
+    }
+
+    bool DockingPaneLayoutItemInfo::resize(Orientation orient,bool leftorright,QPoint& pos){
+        QRect rc = geometry(m_spacing);
+        QSize size = calculateSize(MinimumSize,m_spacing);
+        bool ret = true;
+        if(orient==Horizontal){
+            int x = pos.x();
+            if(leftorright==false){
+                rc.setWidth(x - rc.x());
+            }else{
+                rc.setX(x + m_spacing);
+            }
+            if(rc.width() < size.width()){
+                int s = qAbs(size.width() - rc.width());
+                if(leftorright==false){
+                    //from right to left
+                    //qDebug()<<"from right to left";
+                    pos.rx() += s;
+                }else{
+                    //from left to right
+                    //qDebug()<<"from left to right";
+                    pos.rx() -= s;
+                }
+                rc.setWidth(size.width());//set min width
+                ret = false;
+                //qDebug()<<rc<<pos<<s;
+                return ret;
+            }//715,736 715,736
+            //QRect parent_rc = m_parent->geometry(m_spacing);
+            //qDebug()<<parent_rc<<m_parent->m_rect;
+            float a = m_stretch;
+            m_stretch = rc.width() * 1.0f / m_parent->m_rect.width();
+            qDebug()<<this<<a<<m_stretch;
+            this->setChildrenStretch(m_stretch);
+            this->m_manual_size = rc.width();
+        }else{
+            int y = pos.y();
+            if(leftorright==false){
+                rc.setHeight(y - rc.y());
+            }else{
+                rc.setY(y + m_spacing);
+            }
+            if(rc.height() < size.height()){
+                int s = qAbs(size.height() - rc.height());
+                if(leftorright==false){
+                    //from bottom to top
+                    //qDebug()<<"from bottom to top";
+                    pos.ry() += s;
+                }else{
+                    //from top to bottom
+                    //qDebug()<<"from top to bottom";
+                    pos.ry() -= s;
+                }
+                rc.setHeight(size.height());//set min height
+                ret = false;
+                return ret;
+            }
+            //QRect parent_rc = m_parent->geometry(m_spacing);
+            m_stretch = rc.height() * 1.0f / m_parent->m_rect.height();
+            this->setChildrenStretch(m_stretch);
+            this->m_manual_size = rc.height();
+        }
+
+        this->setGeometry(rc,m_spacing);
+        return ret;
     }
 
     void DockingPaneLayoutItemInfo::setParent(DockingPaneLayoutItemInfo* parent)
@@ -688,6 +811,18 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     void DockingPaneLayoutItemInfo::setStretch(float stretch){
         //qDebug()<<"setStretch"<<this<<stretch;
+        qDebug()<<"setStretch:"<<std::isnan(stretch);
+        if(std::isnan(stretch)){
+
+             int i = 0;
+
+        }
+        if(stretch>1){
+
+
+
+        }
+        //Q_ASSERT(stretch<=1.0f);//false is error
         this->m_stretch = stretch;
         this->setChildrenStretch(stretch);
     }
@@ -703,6 +838,27 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             size = rect.width();
         }
         return size;
+    }
+
+    void DockingPaneLayoutItemInfo::calculateStretch(){
+        /*int count = m_children.size();
+        if(count>0){
+            int total = 0;
+            for(auto one:m_children){
+                total += one->manualSize();
+            }
+            float s = 1.0f;
+            int i = 0;
+            for(auto one:m_children){
+                float stretch = one->manualSize() * 1.0 / total;
+                if(++i<count){
+                    one->setStretch(stretch);
+                    s -= stretch;
+                }else{
+                    one->setStretch(s);
+                }
+            }
+        }*/
     }
 
 
@@ -731,7 +887,8 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             }
         }else{
             if(m_item!=nullptr){
-                qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()<<"parent:"<<parent();
+                //qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()<<"parent:"<<parent();
+                qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()->m_manual_size;
             }else{
                 qDebug()<<this<<prefix<<"seq:"<<m_seq<<";Item NULL";
             }

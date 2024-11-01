@@ -60,21 +60,20 @@ namespace ady {
         //void updateGuidePosition();
 
     signals:
-        void onShow();
         void beforePaneClose(DockingPane* pane,bool isClient);
         void paneClosed(QString& id,QString&group,bool isClient);
         //void paneCloseRequested(DockingPane* pane,bool isClient);
         void paneCurrentChanged(int index,DockingPane* pane);
 
-    public slots:
-        void onTimeout();
+
 
 
 
     protected:
-        virtual void resizeEvent(QResizeEvent *event) override;
+        virtual void resizeEvent(QResizeEvent *e) override;
         virtual void paintEvent(QPaintEvent *e) override;
-        virtual void mousePressEvent(QMouseEvent *event)override;
+        virtual void mousePressEvent(QMouseEvent *e)override;
+        virtual void showEvent(QShowEvent* e) override;
 
     private:
         DockingWorkbenchPrivate* d;
