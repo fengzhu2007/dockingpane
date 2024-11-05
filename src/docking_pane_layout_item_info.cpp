@@ -16,6 +16,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         m_stretch = None;
         m_temp_stretch = 0.0f;
         m_temp_size = 0;
+        m_lock_state = false;
         m_seq = DockingPaneLayoutItemInfo::gSeq++;
     }
 
@@ -290,6 +291,9 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     void DockingPaneLayoutItemInfo::setGeometry(const QRect &rect,int spacing)
     {
         //qDebug()<<this<<rect;
+        if(m_lock_state==true){
+            return ;
+        }
         m_spacing = spacing;
         m_rect = rect;
 
@@ -336,6 +340,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                         leftSize -= minSize;
                         autoSize += minSize;
                     }
+
                 }
                 if(leftSize<0){
                     //re calc
@@ -358,6 +363,9 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                     if(one->m_temp_size>0){
                         leftSize -= (one->m_temp_size);
                         unknowSizeCount -= 1;
+                    }else if(one->m_manual_size>0){
+                        leftSize -= one->m_manual_size;
+                        unknowSizeCount -= 1;
                     }
                 }
 
@@ -367,8 +375,8 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 }else{
                     w = rect.width();
                     h = unknowSizeCount>0?leftSize / unknowSizeCount:0;
-
                 }
+                //qDebug()<<totalSize<<leftSize<<unknowSizeCount<<"wwww:"<<w<<"hhhh:"<<h;
             }
 
 
@@ -390,6 +398,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                     }
                 }
                 if(i==count - 1){
+
                     if(m_children_ori==Horizontal){
                         child_rc.setX(x);
                         child_rc.setWidth(rect.width() - offset);
@@ -398,7 +407,6 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                         child_rc.setHeight(rect.height() - offset);
                     }
                 }
-
                 one->setGeometry(child_rc,spacing);
                 QRect rc = one->geometry(spacing);
 
@@ -482,6 +490,12 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             }
         }
         return rc;
+    }
+
+    void DockingPaneLayoutItemInfo::setGeometryState(bool state){
+        //state=true lock
+        //state=false unlock
+
     }
 
     QRect DockingPaneLayoutItemInfo::clientGeometry(){
@@ -654,7 +668,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     }
 
     bool DockingPaneLayoutItemInfo::resize(Orientation orient,bool leftorright,QPoint& pos){
-        QRect rc = geometry(m_spacing);
+        QRect rc = m_rect;
         QSize size = calculateSize(MinimumSize,m_spacing);
         bool ret = true;
         if(orient==Horizontal){
@@ -662,31 +676,34 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             if(leftorright==false){
                 rc.setWidth(x - rc.x());
             }else{
-                rc.setX(x + m_spacing);
+                rc.setX(x + m_spacing);//change x and width
             }
             if(rc.width() < size.width()){
                 int s = qAbs(size.width() - rc.width());
                 if(leftorright==false){
                     //from right to left
-                    //qDebug()<<"from right to left";
                     pos.rx() += s;
+                    if(pos.x()<rc.right()){
+                        pos.setX(rc.right());
+                    }
+                    rc.setWidth(size.width());//set min width
                 }else{
                     //from left to right
-                    //qDebug()<<"from left to right";
-                    pos.rx() -= s;
+                    int x = rc.right() - size.width();
+                    pos.setX(x - m_spacing);
+                    rc.setX(x);
+
                 }
-                rc.setWidth(size.width());//set min width
                 ret = false;
-                //qDebug()<<rc<<pos<<s;
-                return ret;
-            }//715,736 715,736
-            //QRect parent_rc = m_parent->geometry(m_spacing);
-            //qDebug()<<parent_rc<<m_parent->m_rect;
-            float a = m_stretch;
-            m_stretch = rc.width() * 1.0f / m_parent->m_rect.width();
-            qDebug()<<this<<a<<m_stretch;
-            this->setChildrenStretch(m_stretch);
-            this->m_manual_size = rc.width();
+            }
+            if(hasClient()==false){
+                m_stretch = rc.width() * 1.0f / m_parent->m_rect.width();
+                this->m_manual_size = rc.width();
+            }else{
+                m_stretch = -10;
+                this->m_manual_size = 0;
+            }
+
         }else{
             int y = pos.y();
             if(leftorright==false){
@@ -698,25 +715,35 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 int s = qAbs(size.height() - rc.height());
                 if(leftorright==false){
                     //from bottom to top
-                    //qDebug()<<"from bottom to top";
                     pos.ry() += s;
+                    if(pos.y()<rc.bottom()){
+                        pos.setX(rc.bottom());
+                    }
+                    rc.setHeight(size.width());//set min width
                 }else{
                     //from top to bottom
-                    //qDebug()<<"from top to bottom";
-                    pos.ry() -= s;
+                    int y = rc.bottom() - size.height();
+                    pos.setY(y - m_spacing);
+                    rc.setY(y);
                 }
                 rc.setHeight(size.height());//set min height
                 ret = false;
-                return ret;
             }
-            //QRect parent_rc = m_parent->geometry(m_spacing);
-            m_stretch = rc.height() * 1.0f / m_parent->m_rect.height();
-            this->setChildrenStretch(m_stretch);
-            this->m_manual_size = rc.height();
+            if(hasClient()==false){
+                m_stretch = rc.height() * 1.0f / m_parent->m_rect.height();
+                this->m_manual_size = rc.height();
+            }else{
+                m_stretch = -10;
+                this->m_manual_size = 0;
+            }
         }
-
-        this->setGeometry(rc,m_spacing);
+        this->setChildrenStretch(m_stretch);
+        this->m_rect = rc;
         return ret;
+    }
+
+    void DockingPaneLayoutItemInfo::invalidate(){
+        this->setGeometry(this->m_rect,m_spacing);
     }
 
     void DockingPaneLayoutItemInfo::setParent(DockingPaneLayoutItemInfo* parent)
@@ -888,7 +915,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
         }else{
             if(m_item!=nullptr){
                 //qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()<<"parent:"<<parent();
-                qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()->m_manual_size;
+                qDebug()<<prefix<<this<<";ori:"<<m_children_ori<<m_item->widget()<<((DockingPaneContainer*)m_item->widget())->itemInfo()->m_manual_size<<m_stretch;
             }else{
                 qDebug()<<this<<prefix<<"seq:"<<m_seq<<";Item NULL";
             }

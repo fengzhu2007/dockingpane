@@ -47,13 +47,13 @@ namespace ady {
                         if(next->resize(DockingPaneLayoutItemInfo::Horizontal,true,pos)==false){
                             //return ;
                             //qDebug()<<"3"<<pos;
-                            return ;
+                            //return ;
                         }
                     }
                     m_itemInfo->resize(DockingPaneLayoutItemInfo::Horizontal,false,pos);
                 }else if(x<0){
                     if(m_itemInfo->resize(DockingPaneLayoutItemInfo::Horizontal,false,pos)==false){
-                        return ;
+                        //return ;
                     }
                     if(next!=nullptr){
                         next->resize(DockingPaneLayoutItemInfo::Horizontal,true,pos);
@@ -61,6 +61,9 @@ namespace ady {
                 }else{
                     return ;
                 }
+                //next->setGeometry()
+                next->invalidate();
+                m_itemInfo->invalidate();
                 move(pos);
             }else if(m_ori==Vertical){
                 int y = event->y();
@@ -69,13 +72,13 @@ namespace ady {
                 if(y>0){
                     if(next!=nullptr){
                         if(next->resize(DockingPaneLayoutItemInfo::Vertical,true,pos.y())==false){
-                            return ;
+                            //return ;
                         }
                     }
                     m_itemInfo->resize(DockingPaneLayoutItemInfo::Vertical,false,pos.y());
                 }else if(y<0){
                     if(m_itemInfo->resize(DockingPaneLayoutItemInfo::Vertical,false,pos.y())==false){
-                        return ;
+                       // return ;
                     }
                     if(next!=nullptr){
                         next->resize(DockingPaneLayoutItemInfo::Vertical,true,pos.y());
@@ -83,6 +86,7 @@ namespace ady {
                 }else{
                     return ;
                 }
+
                 move(pos);
             }
         }
@@ -103,12 +107,15 @@ namespace ady {
         QFrame::mousePressEvent(event);
         m_start_moving = true;
         m_offset = 0;
+        //lock parent info setGeometry
+        m_itemInfo->parent()->setGeometryState(m_start_moving);//lock
     }
 
     void DockingPaneHandle::mouseReleaseEvent(QMouseEvent *event)
     {
         QFrame::mouseReleaseEvent(event);
         m_start_moving = false;
+        m_itemInfo->parent()->setGeometryState(m_start_moving);//unlock
     }
 
 

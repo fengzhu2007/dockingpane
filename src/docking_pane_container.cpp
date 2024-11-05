@@ -138,9 +138,11 @@ namespace ady {
     void DockingPaneContainer::setPane(int index)
     {
         d->stacked->setCurrentIndex(index);
-        DockingPane* pane = static_cast<DockingPane*>(d->stacked->widget(index));
-        if(d->nclient!=nullptr && pane!=nullptr){
-            d->nclient->updateTitle(pane->windowTitle());
+        if(this->isClient()==false){
+            DockingPane* pane = static_cast<DockingPane*>(d->stacked->widget(index));
+            if(d->nclient!=nullptr && pane!=nullptr){
+                d->nclient->updateTitle(pane->windowTitle());
+            }
         }
         d->tabbar->setCurrentIndex(index);
     }

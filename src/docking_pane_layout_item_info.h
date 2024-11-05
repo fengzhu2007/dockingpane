@@ -50,6 +50,7 @@ namespace ady {
 
         void setGeometry(const QRect &rect,int spacing);
         QRect geometry(int spacing);
+        void setGeometryState(bool state);
         QRect clientGeometry();
 
         void initHandle(QWidget* parent);
@@ -64,6 +65,7 @@ namespace ady {
 
         bool resize(Orientation orient,bool leftorright,int stretch_size);
         bool resize(Orientation orient,bool leftorright,QPoint& pos);
+        void invalidate();
 
         void setParent(DockingPaneLayoutItemInfo* parent);
         inline DockingPaneLayoutItemInfo* parent(){return m_parent;}
@@ -124,6 +126,7 @@ namespace ady {
         int m_manual_size;
         int m_spacing;
         int m_seq;
+        bool m_lock_state;
         QRect m_rect;
 
 

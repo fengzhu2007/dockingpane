@@ -514,8 +514,11 @@ namespace ady {
                 //has children
                 auto children = this->toJsonOne(ci);
 
-                int stretch = hasClient?-10:ci->stretchSize();
-                int size = ci->manualSize();
+                int stretch = hasClient?-10:ci->stretch();
+                int size = 0;
+                if(!ci->hasClient()){
+                    size = ci->manualSize();
+                }
                 if(children.size()>1){
                     QJsonObject paneGroup = {
                         {"stretch",stretch},
@@ -529,8 +532,11 @@ namespace ady {
             }else{
                 QJsonArray tabs;
                 auto container = ci->container();
-                int stretch = hasClient?-10:ci->stretchSize();
-                int size = ci->manualSize();
+                int stretch = hasClient?-10:ci->stretch();
+                int size = 0;
+                if(!ci->hasClient()){
+                    size = ci->manualSize();
+                }
                 int active = container->current();
                 if(container->isClient()){
                     client += 1;

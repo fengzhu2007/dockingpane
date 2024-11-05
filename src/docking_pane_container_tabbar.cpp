@@ -213,8 +213,18 @@ namespace ady {
             p.fillRect(w, 0, width() - w, 1, color);
         }else{
             //client tabbar
+            QStylePainter p(this);
+            int count = this->count();
+            int w = 0;
+            for(int i=0;i<count;i++){
+                QRect rc = this->tabRect(i);
+                w += rc.width();
+            }
+            QColor color, textColor;
+            color = textColor = QColor("#EEEEF2");
+            p.setPen(textColor);
+            p.fillRect(w, height()-1, width() - w, 1, color);
         }
-
     }
 
 }

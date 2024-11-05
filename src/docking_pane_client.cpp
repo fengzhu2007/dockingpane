@@ -15,8 +15,8 @@ public:
     DockingPaneClient::DockingPaneClient(DockingWorkbench* parent,bool init_view)
         :DockingPaneContainer(parent,true,init_view)
     {
-    d = new DockingPaneClientPrivate;
-    d->init_view = init_view;
+        d = new DockingPaneClientPrivate;
+        d->init_view = init_view;
         if(init_view){
             DockingPaneContainerTabBar* tabBar = this->tabBar();
             tabBar->setTabsClosable(true);
