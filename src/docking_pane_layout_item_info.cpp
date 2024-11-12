@@ -838,7 +838,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
 
     void DockingPaneLayoutItemInfo::setStretch(float stretch){
         //qDebug()<<"setStretch"<<this<<stretch;
-        qDebug()<<"setStretch:"<<std::isnan(stretch);
+        //qDebug()<<"setStretch:"<<std::isnan(stretch);
         if(std::isnan(stretch)){
 
              int i = 0;
