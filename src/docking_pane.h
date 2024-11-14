@@ -11,6 +11,18 @@ namespace ady {
     class DOCKINGPANE_EXPORT DockingPane : public QWidget {
         Q_OBJECT
     public:
+        enum Action{
+            Save=0,
+            SaveAs,
+            Undo,
+            Redo,
+            Cut,
+            Copy,
+            Paste,
+            Delete,
+            SelectAll,
+            Print
+        };
         //DockingPane(DockingPaneContainer* parent=nullptr);
         DockingPane(QWidget* parent=nullptr);
         virtual ~DockingPane();
@@ -27,6 +39,7 @@ namespace ady {
         virtual void save(bool rename=false);
         virtual void contextMenu(const QPoint& pos);
         virtual void undo();
+        virtual void doAction(int a);
         virtual QJsonObject toJson();
         DockingPaneContainer* container();
         void activeToCurrent();

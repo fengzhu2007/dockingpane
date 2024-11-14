@@ -121,6 +121,10 @@ private:
 
     }
 
+    void DockingPane::doAction(int a){
+        Q_UNUSED(a);
+    }
+
     QJsonObject DockingPane::toJson(){
         return {
             {"id",this->id()},

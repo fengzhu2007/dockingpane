@@ -60,7 +60,7 @@ namespace ady {
         //void updateGuidePosition();
 
     signals:
-        void beforePaneClose(DockingPane* pane,bool isClient);
+        void beforePaneClose(DockingPane* pane,bool isClient,bool* ret);
         void paneClosed(QString& id,QString&group,bool isClient);
         //void paneCloseRequested(DockingPane* pane,bool isClient);
         void paneCurrentChanged(int index,DockingPane* pane);

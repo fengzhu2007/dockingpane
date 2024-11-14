@@ -317,8 +317,8 @@ namespace ady {
         int count = this->paneCount();
         if(count>1 || isClient){
             bool closeEnable = pane->closeEnable();//keep ori close enable
-            workbench->beforePaneClose(pane,this->isClient());
-            if(force==false && pane->closeEnable()==false){
+            //workbench->beforePaneClose(pane,this->isClient());
+            if(force==false && closeEnable==false){
                 //stop close pane
                 pane->setCloseEnable(closeEnable);
                 return false;

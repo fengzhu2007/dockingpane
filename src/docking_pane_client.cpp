@@ -21,8 +21,8 @@ public:
             DockingPaneContainerTabBar* tabBar = this->tabBar();
             tabBar->setTabsClosable(true);
             connect(tabBar,&QTabBar::tabCloseRequested,this,&DockingPaneClient::onTabClose);
+            this->stacked()->hide();
         }
-
     }
 
     DockingPaneClient::~DockingPaneClient(){
@@ -47,8 +47,8 @@ public:
             QString id = pane->id();
             QString group = pane->group();
             bool closeEnable = pane->closeEnable();
-            workbench->beforePaneClose(pane,isClient);
-            if(pane->closeEnable()==false){
+            //workbench->beforePaneClose(pane,isClient);
+            if(closeEnable==false){
                 //stop close pane
                 pane->setCloseEnable(closeEnable);//restore close enable
                 return ;

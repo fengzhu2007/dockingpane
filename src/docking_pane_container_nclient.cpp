@@ -159,8 +159,9 @@ namespace ady{
         QString group = pane->group();
         bool closeEnable = pane->closeEnable();//keep ori close enable
         //qDebug()<<"DockingPaneContainerNClient::onClose"<<pane;
-        workbench->beforePaneClose(pane,isClient);
-        if(pane->closeEnable()==false){
+        //bool ret = false;
+        //workbench->beforePaneClose(pane,isClient,&ret);
+        if(closeEnable==false){
             //stop close pane
             pane->setCloseEnable(closeEnable);
             return false;
