@@ -406,6 +406,18 @@ namespace ady {
         return pane;
     }
 
+    DockingPaneContainer* DockingPaneManager::createFixedPane(DockingPane* pane,Position position){
+        DockingPaneContainer* container = new DockingPaneContainer(d->workbench,position);
+        pane->setParent(container);
+        container->appendPane(pane);
+        d->workbench->siderFixed(container,position);
+        return container;
+    }
+
+    void DockingPaneManager::createFixedPane(DockingPaneContainer* container,Position position){
+        d->workbench->siderFixed(container,position);
+    }
+
     DockingPaneFloatWindow* DockingPaneManager::createFloatPane(const QString& id,const QString& group,const QString& title,QWidget* widget){
         int margin = 6;
         //qDebug()<<"widget:"<<widget->geometry();
@@ -429,6 +441,16 @@ namespace ady {
 
         QPoint pos = d->workbench->mapToGlobal(QPoint(50,50));
         window->setGeometry(QRect(pos.x(),pos.y(),width,height));
+        window->show();
+        return window;
+    }
+
+    DockingPaneFloatWindow* DockingPaneManager::createFloatPane(DockingPaneContainer* container,const QRect& rect){
+        int margin = 6;
+        DockingPaneFloatWindow* window = new DockingPaneFloatWindow(d->workbench,margin);
+        window->setCenterWidget(container);
+        window->updateResizer();
+        window->setGeometry(rect);
         window->show();
         return window;
     }
@@ -461,8 +483,8 @@ namespace ady {
             }
             const QRect rc = one->geometry();
             QJsonObject container = {
-                {"left",rc.left()},
-                {"top",rc.top()},
+                {"x",rc.x()},
+                {"y",rc.y()},
                 {"width",rc.width()},
                 {"height",rc.height()},
                 {"active",active},
@@ -561,6 +583,146 @@ namespace ady {
         }
         return list;
     }
+
+    void DockingPaneManager::restore(QJsonObject dockpanes,InitPaneFuncPtr func){
+        QJsonValue innerV = dockpanes.take("inner");
+        if(innerV.isObject()){
+            QJsonObject inner = innerV.toObject();
+            int orientation = inner.take("orientation").toInt(1);
+            QJsonArray list = inner.take("list").toArray();
+            if(list.size()>0){
+                auto root = this->layout()->rootItem();
+                this->restoreContainers(list,orientation,root,func);
+            }
+        }
+        QJsonArray fixeds = dockpanes.take("fixed").toArray();
+        for(auto one:fixeds){
+            auto json = one.toObject();
+            int position = json.find("position")->toInt(0);
+            if(position<0 || position>3){
+                position = 0;
+            }
+            auto tabs = json.find("tabs")->toArray();
+            DockingPaneContainer* container = nullptr;
+            for(auto tab:tabs){
+                auto tabJson = tab.toObject();
+                const QString group = tabJson.find("group")->toString();
+                QJsonObject data = tabJson.find("data")->toObject();
+                auto pane = func(this,group,data);
+                if(pane!=nullptr){
+                    if(container==nullptr){
+                        container = new DockingPaneContainer(d->workbench,static_cast<DockingPaneManager::Position>(position));
+                    }
+                    container->appendPane(pane);
+                }
+            }
+            if(container!=nullptr){
+                this->createFixedPane(container,static_cast<DockingPaneManager::Position>(position));
+            }
+        }
+        QJsonArray floats = dockpanes.take("float").toArray();
+        for(auto one:floats){
+            auto json = one.toObject();
+            int x = json.find("x")->toInt(0);
+            int y = json.find("y")->toInt(0);
+            int width = json.find("width")->toInt(260);
+            int height = json.find("height")->toInt(800);
+            auto tabs = json.find("tabs")->toArray();
+            DockingPaneContainer* container = nullptr;
+            for(auto tab:tabs){
+                auto tabJson = tab.toObject();
+                const QString group = tabJson.find("group")->toString();
+                QJsonObject data = tabJson.find("data")->toObject();
+                auto pane = func(this,group,data);
+                if(pane!=nullptr){
+                    if(container==nullptr){
+                        container = new DockingPaneContainer(d->workbench,DockingPaneManager::S_Left);
+                    }
+                    container->appendPane(pane);
+                }
+            }
+            if(container!=nullptr){
+                this->createFloatPane(container,{x,y,width,height});
+            }
+        }
+    }
+
+
+
+    void DockingPaneManager::restoreContainers(QJsonArray& list,int orientation,DockingPaneLayoutItemInfo* parent,InitPaneFuncPtr func){
+        for(auto one:list){
+            if(one.isObject()){
+                QJsonObject containerJson = one.toObject();
+                if(containerJson.find("tabs")!=containerJson.end()){
+                    int active = containerJson.find("active")->toInt(0);
+                    int client = containerJson.find("client")->toInt(0);
+                    int stretch = containerJson.find("stretch")->toDouble(0);
+                    int size = containerJson.find("size")->toInt(0);
+                    QJsonArray tabs = containerJson.take("tabs").toArray();
+                    DockingPaneContainer* container = nullptr;
+                    if(client>0){
+                        container = new DockingPaneClient(d->workbench,true);
+                    }else{
+                        container = new DockingPaneContainer(d->workbench);
+                    }
+                    DockingPaneLayoutItemInfo* info = nullptr;
+                    if(orientation==DockingPaneLayoutItemInfo::Vertical){
+                        info = parent->insertItem(d->workbench,new QWidgetItem(container),DockingPaneManager::Bottom);
+                    }else{
+                        info = parent->insertItem(d->workbench,new QWidgetItem(container),DockingPaneManager::Right);
+                    }
+                    int num = this->restoreTabs(tabs,info,func);
+                    if(num>0){
+                        info->setManualSize(size);
+                        container->setPane(num-1<active?0:active);
+                    }
+                }else if(containerJson.find("children")!=containerJson.end()){
+
+                    QJsonArray children = containerJson.take("children").toArray();
+                    if(children.size()>1){
+                        int stretch = containerJson.find("stretch")->toDouble(0);
+                        int size = containerJson.find("size")->toInt(0);
+                        auto info = new DockingPaneLayoutItemInfo(nullptr,DockingPaneManager::Left,parent);//create empty layout item
+                        info->initHandle(d->workbench);//init drag handle
+                        int ori = orientation==DockingPaneLayoutItemInfo::Horizontal?DockingPaneLayoutItemInfo::Vertical:DockingPaneLayoutItemInfo::Horizontal;
+                        this->restoreContainers(children,ori,info,func);
+                        parent->appendItem(info);
+                        info->setManualSize(size);
+                        info->calculateStretch();
+                    }
+                    //qDebug()<<"orientation"<<orientation;
+                    parent->setChildrenOrientation((DockingPaneLayoutItemInfo::Orientation)orientation);
+                }
+            }
+        }
+    }
+
+    int DockingPaneManager::restoreTabs(QJsonArray& list,DockingPaneLayoutItemInfo* info,InitPaneFuncPtr func){
+        int total = 0;
+        for(auto one:list){
+            if(one.isObject()){
+                auto tab = one.toObject();
+                auto container = info->container();
+                const QString group = tab.take("group").toString();
+                QJsonObject data = tab.take("data").toObject();
+                auto pane = func(this,group,data);
+                if(pane!=nullptr){
+                    container->appendPane(pane);
+                    if(total==0){
+                        //set object name
+#ifdef Q_DEBUG
+                        container->setObjectName(pane->id()+"_container");
+                        info->setObjectName(pane->id()+"_container_itemInfo");
+#endif
+                    }
+                    total += 1;
+                }
+            }
+        }
+        return total;
+    }
+
+
 
     void DockingPaneManager::dump()
     {

@@ -5,6 +5,8 @@
 #include "docking_guide.h"
 #include "docking_pane.h"
 #include "docking_workbench.h"
+#include "docking_pane_fixed_window.h"
+#include "docking_pane_tabbar.h"
 #include <QVBoxLayout>
 #include <QStyleOption>
 #include <QPainter>
@@ -23,6 +25,7 @@ namespace ady {
         DockingPaneManager::Position ori_position = DockingPaneManager::S_Left;
         QRect ori_rc;
         int fixed_position = 0;
+        DockingPaneContainer* relations[5] = {nullptr,nullptr,nullptr,nullptr,nullptr};
     };
 
     DockingPaneContainer::DockingPaneContainer(QWidget* parent,DockingPaneManager::Position position)
@@ -323,14 +326,33 @@ namespace ady {
                 pane->setCloseEnable(closeEnable);
                 return false;
             }
+
+            //remove fixed tab
+            if(this->state()==DockingPaneContainer::Fixed){
+
+                for(int k=0;k<4;k++){
+                    auto tabBar = workbench->tabBar(k);
+                    auto list = tabBar->containerList();
+                    for(auto one:list){
+                        if(one==this){
+                            tabBar->removeContainerChild(this,i);//fixed
+                            goto bk;
+                        }
+                    }
+                }
+            }
+            bk:
+
+
             pane = this->takeAt(i);
             QString id = pane->id();
             QString group = pane->group();
             pane->close();
             //pane->deleteLater();
-            delete pane;
 
+            delete pane;
             workbench->paneClosed(id,group,isClient);
+
             i -= 1;
             if(i<0){
                 i = 0;

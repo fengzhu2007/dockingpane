@@ -214,6 +214,9 @@ namespace ady{
         if(state==DockingPaneContainer::Inner){
             DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
             workbench->siderFixed(container,DockingPaneManager::S_Left);
+
+
+
         }else if(state==DockingPaneContainer::Fixed){
             //restore to inner
             DockingPaneFixedWindow *window = (DockingPaneFixedWindow*)container->parentWidget();

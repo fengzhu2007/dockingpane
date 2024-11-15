@@ -308,10 +308,10 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 h = rect.height();
             }else{
                 /*
-                    重新计算步骤:
-                        1、先减去固定大小和自动伸缩（按照最小大小来计算）大小尺寸
-                        2、用上一步的余量来计算百分比项的展示大小
-                        3、如果上一步存在小于最小尺寸的项，则重新计算固定项的尺寸
+                Recalculate steps:
+                1. First subtract the fixed size and the automatic expansion (calculated according to the minimum size) size
+                2. Use the margin in the previous step to calculate the display size of the percentage item
+                3. If there is an item smaller than the minimum size in the previous step, recalculate the size of the fixed item
                 */
                 int totalSize = m_children_ori==Horizontal?rect.width():rect.height();
                 int leftSize = totalSize;
@@ -345,7 +345,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 if(leftSize<0){
                     //re calc
                     //float manualSizePercent = (totalSize - autoSize) * 1.0 / totalSize;
-                    int realManualSize = totalSize - autoSize;//实际手动布局剩余大小
+                    int realManualSize = totalSize - autoSize;//Actual manual layout remaining size
                     for(auto one:m_children){
                         int manual_size = one->manualSize();
                         if(manual_size>0){
@@ -356,9 +356,9 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                         }
                     }
                 }
-                //计算平均分配 每一项的大小
+                //Calculate the size of each item evenly distributed
                 leftSize = totalSize;
-                int unknowSizeCount = count;//未知大小的项的数量
+                int unknowSizeCount = count;//Number of items of unknown size
                 for(auto one:m_children){
                     if(one->m_temp_size>0){
                         leftSize -= (one->m_temp_size);
@@ -909,6 +909,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
     {
         //qDebug()<<prefix<<":"<<this;
         if(m_children.size()>0){
+            qDebug()<<prefix<<this;
             foreach(DockingPaneLayoutItemInfo* child,m_children){
                 child->dump(prefix +"----");
             }

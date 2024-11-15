@@ -20,6 +20,7 @@ namespace ady {
         d = new DockingPaneFixedWindowPrivate;
         d->container = nullptr;
         d->resizer_size = margin;
+        d->position = DockingPaneManager::S_Left;
         initResizer();
     }
 
@@ -101,6 +102,7 @@ namespace ady {
 
     void DockingPaneFixedWindow::setFixedPosition(int position)
     {
+
         d->position = (DockingPaneManager::Position)position;
         if(d->position==DockingPaneManager::S_Left){
             d->region->setRegion(DockingPaneWindowResizer::Right);

@@ -110,14 +110,17 @@ namespace ady{
                         if(children<=1){
                             d->list.erase(iter);
                         }
-                        break;
+                        goto bk;
                     }
+                    i++;
                 }
-                break;
+                goto bk;
+            }else{
+                i += (*iter)->paneCount();
             }
-            i += (*iter)->paneCount();
             iter++;
         }
+        bk:
         if(d->children.size()==0){
             setVisible(false);
         }
