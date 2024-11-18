@@ -684,9 +684,6 @@ namespace ady {
     {
         DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
         if(itemInfo!=nullptr){
-
-
-
             DockingPaneLayoutItemInfo* l = itemInfo->level0();
             QRect rc = l->geometry(l->spacing());
             DockingPaneClient* client = this->client();
@@ -696,10 +693,10 @@ namespace ady {
                 //compare client rect and container rect
                 rc = container->geometry();
                 //top layout orientation
-                qDebug()<<l;
-                qDebug()<<l->parent()<<l->parent()->childrenOrientation();
+                //qDebug()<<l;
+                //qDebug()<<l->parent()<<l->parent()->childrenOrientation();
                 if(l->parent()->childrenOrientation()==DockingPaneLayoutItemInfo::Horizontal){
-                    qDebug()<<"Horizontal";
+                    //qDebug()<<"Horizontal";
                     if(rc.y() + rc.height() < rect.y()){
                         //top
                         position = DockingPaneManager::S_Top;
@@ -709,7 +706,7 @@ namespace ady {
                     }
 
                 }else{
-                    qDebug()<<"Vertial";
+                    //qDebug()<<"Vertial";
                     if(rc.x() + rc.width() < rect.x()){
                         //left
                         position = DockingPaneManager::S_Left;
@@ -741,7 +738,7 @@ namespace ady {
             itemInfo->remove();//remove self
             delete itemInfo;
         }
-        qDebug()<<"position"<<position;
+        //qDebug()<<"position"<<position;
         if(position<0 || position>3){
             position = DockingPaneManager::S_Left;
         }

@@ -936,6 +936,24 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
             //check parent children equal one and parent->parent() is not root item
             if(parent->m_children.size()==1 ){
                 parent->setChildrenOrientation(Unkown);
+
+                auto lastOne = parent->m_children.at(0);
+                int childCount = lastOne->childrenCount();
+                if(childCount>1){
+                    //reset all children parent
+                    parent->setChildrenOrientation(lastOne->childrenOrientation());
+                    //set all children
+                    for(int i=0;i<childCount;i++){
+                        auto child = lastOne->child(i);
+                        child->setParent(parent);
+                        parent->appendItem(child);
+                    }
+                    lastOne->m_children.clear();
+                    parent->m_children.removeOne(lastOne);
+                    //delete
+                    delete lastOne;
+                }
+
                 //will remove parent
                 if(parent->parent()!=nullptr){
                     DockingPaneLayoutItemInfo* neighbor = parent->m_children.at(0);
