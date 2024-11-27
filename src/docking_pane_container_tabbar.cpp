@@ -38,8 +38,10 @@ namespace ady {
         if(i>=0){
             auto container = static_cast<DockingPaneContainer*>(parentWidget());
             if(container!=nullptr){
+                container->setPane(i);
                 container->pane(i)->contextMenu(pos);
             }
+
         }
     }
 
