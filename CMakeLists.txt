@@ -12,7 +12,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
 
 
-
+include_directories(SYSTEM "./src")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DQ_DEBUG)
@@ -83,9 +83,13 @@ target_link_libraries(dockingpane PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_
 
 target_compile_definitions(dockingpane PRIVATE DOCKINGPANE_LIBRARY)
 
-
+if(WIN32)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}.dll        ${CMAKE_BINARY_DIR}/src/${PROJECT_NAME}.dll
     COMMENT "Copying file to binary directory"
 )
 
+else()
+
+
+endif()
