@@ -9,6 +9,7 @@
 #include <QEvent>
 #include <QApplication>
 #include <QStylePainter>
+#include <QStyleOptionTab>
 #include <QDebug>
 namespace ady {
     class DockingPaneContainerTabBarPrivate {
@@ -29,6 +30,9 @@ namespace ady {
         :QTabBar(parent){
         d = new DockingPaneContainerTabBarPrivate;
         setContextMenuPolicy(Qt::CustomContextMenu);
+#ifdef Q_OS_MAC
+        this->setDocumentMode(true);
+#endif
         connect(this, &QWidget::customContextMenuRequested, this, &DockingPaneContainerTabBar::showContextMenu);
 
     }
@@ -199,6 +203,7 @@ namespace ady {
     }
 
     void DockingPaneContainerTabBar::paintEvent(QPaintEvent* event){
+#ifdef Q_OS_WIN
         QTabBar::paintEvent(event);
         if(!this->tabsClosable()){
             //container tabbar
@@ -227,6 +232,40 @@ namespace ady {
             p.setPen(textColor);
             p.fillRect(w, height()-1, width() - w, 1, color);
         }
+#else
+        QTabBar::paintEvent(event);
+        QStylePainter p(this);
+
+        int offset = 0;
+        for(int i=0;i<count();i++){
+            auto rc = this->tabRect(i);
+            offset += rc.width();
+        }
+
+        QColor lColor{"#cccccc"};
+        QColor color{"#EEEEF2"};
+        if(this->tabsClosable()){
+            p.fillRect(offset, 0, width() - offset,height(), color);
+        }else{
+            p.fillRect(offset, 0, width() - offset, 1, lColor);
+            p.fillRect(offset, 1, width() - offset,height() - 1, color);
+        }
+
+
+        /*QStylePainter painter(this);
+        QStyleOptionTab opt;
+        int offset = 0;
+        for(int i=0;i<count();i++){
+            initStyleOption(&opt, i);
+            opt.rect.moveLeft(offset);
+            offset += opt.rect.width();
+            painter.drawControl(QStyle::CE_TabBarTab, opt);
+
+            qDebug()<<"i"<<i<<opt.rect<<opt.text;
+        }*/
+#endif
+
     }
+
 
 }

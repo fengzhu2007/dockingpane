@@ -40,8 +40,9 @@ namespace ady {
             if(effect!=nullptr){
                 effect->deleteLater();
             }
+            //qDebug()<<"parent"<<this->parentWidget();
             container->setGraphicsEffect(nullptr);
-            d->container->setParent(nullptr);
+            d->container->setParent(this->parentWidget());//set old container to the workbench
             d->container->hide();
 
         }

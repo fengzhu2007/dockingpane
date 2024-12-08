@@ -25,7 +25,11 @@ namespace ady{
         d->spacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
         d->layout->setMargin(0);
         //d->layout->setContentsMargins(5,5,5,5);
+#ifdef Q_OS_WIN
         d->layout->setSpacing(10);
+#else
+        d->layout->setSpacing(20);
+#endif
         d->layout->addItem(d->spacer);
         setVisible(false);
 
@@ -94,6 +98,7 @@ namespace ady{
         }
         if(d->children.size()==0){
             setVisible(false);
+            static_cast<DockingWorkbench*>(this->parentWidget())->updateLayout();//update workbench
         }
     }
 
@@ -123,6 +128,8 @@ namespace ady{
         bk:
         if(d->children.size()==0){
             setVisible(false);
+            //update workbench layout
+
         }
     }
 

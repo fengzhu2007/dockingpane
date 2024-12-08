@@ -64,6 +64,8 @@ namespace ady {
             color = textColor = QColor(0, 122, 204);
         } else {
             //#444444
+
+
             //textColor = Qt::white;
             textColor = QColor("#444444");
             color = QColor(0xcc, 0xce, 0xdb);
@@ -113,11 +115,17 @@ namespace ady {
     {
         d->hover = true;
         QPushButton::enterEvent(event);
+#ifdef Q_OS_MAC
+        update();
+#endif
     }
 
     void DockingPaneTabBarItem::leaveEvent(QEvent *event)
     {
         d->hover = false;
         QPushButton::leaveEvent(event);
+#ifdef Q_OS_MAC
+        update();
+#endif
     }
 }

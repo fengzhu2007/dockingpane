@@ -1,6 +1,7 @@
 #ifndef DOCKING_PANE_CONTAINER_TABBAR_H
 #define DOCKING_PANE_CONTAINER_TABBAR_H
 #include <QTabBar>
+#include <QRect>
 namespace ady {
     class DockingPaneContainerTabBarPrivate;
     class DockingPaneContainerTabBar : public QTabBar{
@@ -18,6 +19,7 @@ namespace ady {
         virtual void mouseMoveEvent(QMouseEvent *e) override;
         virtual void mouseReleaseEvent(QMouseEvent *e) override;
         virtual void paintEvent(QPaintEvent* event) override;
+
     private:
         DockingPaneContainerTabBarPrivate* d;
     };
