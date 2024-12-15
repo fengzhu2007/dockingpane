@@ -22,7 +22,6 @@ namespace ady {
         int position = -1;
         DockingPaneContainer* guide_container = nullptr;
         DockingPaneFloatWindow* current_window = nullptr;
-        //int index = -1;
 
     };
 
@@ -127,7 +126,6 @@ namespace ady {
         //d->moving = true;
         d->offsetX = e->x();
         d->offsetY = e->y();
-
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
         if(container!=nullptr && container->state()==DockingPaneContainer::Inner &&container->activeState()==false){
             DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
@@ -142,7 +140,7 @@ namespace ady {
         if(d->moving){
             DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
             if(d->fixed==true){
-                int index = tabAt(e->pos());
+                int index = tabAt({d->offsetX,d->offsetY});
                 this->onFloat(index,true);
             }else{
                 QWidget* window = d->current_window;
@@ -170,7 +168,6 @@ namespace ady {
                 QRect rc;
                 bool guide_visibility = false;
                 DockingPaneContainer* container = workbench->lookup(globalPos,rc,guide_visibility);
-
                 int position = -1;
                 if(guide_visibility){
                     workbench->showGuide(container,rc);
@@ -180,7 +177,6 @@ namespace ady {
                     position = workbench->activeSiderGuide(globalPos);
                 }
                 workbench->showSiderGuide();
-
                 if(position>=0){
                     workbench->showGuideCover(container,position,window->geometry());
                 }else{
