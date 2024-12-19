@@ -3,6 +3,7 @@
 #include "docking_pane_container.h"
 #include "docking_pane.h"
 #include <QDebug>
+#include <cmath>
 namespace ady {
 int DockingPaneLayoutItemInfo::gSeq = 0;
 
