@@ -5,11 +5,15 @@
 #include "docking_pane.h"
 #include <QStyleOption>
 #include <QPainter>
+#include <QDragEnterEvent>
+#include <QMimeData>
 #include <QDebug>
 namespace ady {
 class DockingPaneClientPrivate{
 public:
     bool init_view=false;
+    std::function<void(QDropEvent*)> func;
+
 };
 
     DockingPaneClient::DockingPaneClient(DockingWorkbench* parent,bool init_view)
@@ -17,11 +21,13 @@ public:
     {
         d = new DockingPaneClientPrivate;
         d->init_view = init_view;
+        d->func = nullptr;
         if(init_view){
             DockingPaneContainerTabBar* tabBar = this->tabBar();
             tabBar->setTabsClosable(true);
             connect(tabBar,&QTabBar::tabCloseRequested,this,&DockingPaneClient::onTabClose);
             this->stacked()->hide();
+
         }
     }
 
@@ -33,10 +39,24 @@ public:
         DockingPaneContainer::initView();
         if(d->init_view==false){
             DockingPaneContainerTabBar* tabBar = this->tabBar();
+            tabBar->setDropCallback(d->func);
             tabBar->setTabsClosable(true);
             connect(tabBar,&QTabBar::tabCloseRequested,this,&DockingPaneClient::onTabClose);
         }
         d->init_view = true;
+    }
+
+    void DockingPaneClient::setDropCallback(std::function<void(QDropEvent*)> func){
+        this->setAcceptDrops(func!=nullptr);
+        d->func = func;
+        auto tab = this->tabBar();
+        if(tab!=nullptr){
+            tab->setDropCallback(func);
+        }
+    }
+
+    std::function<void(QDropEvent*)> DockingPaneClient::dropCallback(){
+        return d->func;
     }
 
     void DockingPaneClient::onTabClose(int i){
@@ -95,6 +115,24 @@ public:
         opt.init(this);
         QPainter p(this);
         style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+    }
+
+    void DockingPaneClient::dragEnterEvent(QDragEnterEvent *event){
+        if (event->mimeData()->hasUrls()) {
+            event->acceptProposedAction();
+        } else {
+            event->ignore();
+        }
+    }
+
+    void DockingPaneClient::dragMoveEvent(QDragMoveEvent *event){
+         event->accept();
+    }
+
+    void DockingPaneClient::dropEvent(QDropEvent *event){
+        if(d->func!=nullptr){
+            d->func(event);
+        }
     }
 
 }

@@ -10,6 +10,8 @@
 #include <QApplication>
 #include <QStylePainter>
 #include <QStyleOptionTab>
+#include <QDragEnterEvent>
+#include <QMimeData>
 #include <QDebug>
 namespace ady {
     class DockingPaneContainerTabBarPrivate {
@@ -22,18 +24,28 @@ namespace ady {
         int position = -1;
         DockingPaneContainer* guide_container = nullptr;
         DockingPaneFloatWindow* current_window = nullptr;
-
+        std::function<void(QDropEvent*)> func;
     };
 
     DockingPaneContainerTabBar::DockingPaneContainerTabBar(QWidget* parent)
         :QTabBar(parent){
         d = new DockingPaneContainerTabBarPrivate;
+        d->func = nullptr;
         setContextMenuPolicy(Qt::CustomContextMenu);
 #ifdef Q_OS_MAC
         this->setDocumentMode(true);
 #endif
         connect(this, &QWidget::customContextMenuRequested, this, &DockingPaneContainerTabBar::showContextMenu);
 
+    }
+
+    void DockingPaneContainerTabBar::setDropCallback(std::function<void(QDropEvent*)> func){
+        this->setAcceptDrops(func!=nullptr);
+        d->func = func;
+    }
+
+    std::function<void(QDropEvent*)> DockingPaneContainerTabBar::dropCallback(){
+        return d->func;
     }
 
     void DockingPaneContainerTabBar::showContextMenu(const QPoint &pos){
@@ -261,6 +273,25 @@ namespace ady {
         }*/
 #endif
 
+    }
+
+
+    void DockingPaneContainerTabBar::dragEnterEvent(QDragEnterEvent *event){
+        if (event->mimeData()->hasUrls()) {
+            event->acceptProposedAction();
+        } else {
+            event->ignore();
+        }
+    }
+
+    void DockingPaneContainerTabBar::dragMoveEvent(QDragMoveEvent *event){
+        event->accept();
+    }
+
+    void DockingPaneContainerTabBar::dropEvent(QDropEvent *event){
+        if(d->func!=nullptr){
+            d->func(event);
+        }
     }
 
 

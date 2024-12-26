@@ -2,13 +2,16 @@
 #define DOCKING_PANE_CONTAINER_TABBAR_H
 #include <QTabBar>
 #include <QRect>
+class QDropEvent;
 namespace ady {
+typedef void (*DropFunc) (QDropEvent*);
     class DockingPaneContainerTabBarPrivate;
     class DockingPaneContainerTabBar : public QTabBar{
         Q_OBJECT
     public:
         DockingPaneContainerTabBar(QWidget* parent);
-
+        void setDropCallback(std::function<void(QDropEvent*)> func);
+        std::function<void(QDropEvent*)> dropCallback();
     public slots:
         void showContextMenu(const QPoint &pos);
         void onFloat(int i=-1,bool moving=false);
@@ -19,6 +22,9 @@ namespace ady {
         virtual void mouseMoveEvent(QMouseEvent *e) override;
         virtual void mouseReleaseEvent(QMouseEvent *e) override;
         virtual void paintEvent(QPaintEvent* event) override;
+        virtual void dragEnterEvent(QDragEnterEvent *event) override;
+        virtual void dragMoveEvent(QDragMoveEvent *event) override;
+        virtual void dropEvent(QDropEvent *event) override;
 
     private:
         DockingPaneContainerTabBarPrivate* d;
