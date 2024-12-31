@@ -69,6 +69,7 @@ namespace ady {
         QJsonArray toJsonOne(DockingPaneLayoutItemInfo* layouItem);
 
         void restore(QJsonObject dockpanes,InitPaneFuncPtr func);
+        bool close();
 
 
 

@@ -723,6 +723,33 @@ namespace ady {
     }
 
 
+    bool DockingPaneManager::close(){
+        //close client
+        auto clientCount = d->workbench->clientCount();
+        for(int i=0;i<clientCount;i++){
+            auto client = d->workbench->client(i);
+            auto paneCount = client->paneCount();
+            for(int j=0;j<paneCount;j++){
+                bool ret = client->closePane(0);
+                if(ret==false){
+                    return false;
+                }
+            }
+        }
+        //close container
+        auto list = d->workbench->containers();
+        for(auto container:list){
+            auto paneCount = container->paneCount();
+            for(int i=0;i<paneCount;i++){
+                bool ret = container->closePane(0);
+                if(ret==false){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     void DockingPaneManager::dump()
     {
