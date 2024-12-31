@@ -1,48 +1,66 @@
 #include "docking_qss.h"
+#include "docking_theme.h"
+#include <QDebug>
 namespace ady{
 
 
 QString DockingQSS::global()
 {
+    auto instance = DockingTheme::getInstance();
+    auto color = instance->color().name(QColor::HexRgb);//light #EEEEF2
+    auto primaryColor = instance->primaryColor().name(QColor::HexRgb);//light #007acc
+    auto secondaryClientTabColor = instance->secondaryClientTabColor().name(QColor::HexRgb);//light #1c97ea
+    auto secondaryTabColor = instance->secondaryTabColor().name(QColor::HexRgb);//light #c9DCF5
+    auto primaryTabColor = instance->primaryTabColor().name(QColor::HexRgb);//light #c9DCF5
+    auto borderColor = instance->borderColor().name(QColor::HexRgb);//light #ccc
+    auto primaryTextColor = instance->primaryTextColor().name(QColor::HexRgb);
+    auto secondaryTextColor = instance->secondaryTextColor().name(QColor::HexRgb);
+    auto primaryButtonColor = instance->primaryButtonColor().name(QColor::HexRgb);
+    auto secondaryButtonColor = instance->secondaryButtonColor().name(QColor::HexRgb);//light #e6e6e6
+    auto closeIcon = instance->icon(DockingTheme::TabClose,DockingTheme::Normal);
+    auto closeActiveIcon = instance->icon(DockingTheme::Close,DockingTheme::Active);
+    auto titleBackground = instance->icon(DockingTheme::TitleBackground,DockingTheme::Normal);
+    auto titleActiveBackground = instance->icon(DockingTheme::TitleBackground,DockingTheme::Active);
 
-    QString qss = ".ady--DockingWorkbench{background:#eeeef2}"
-                  ".ady--DockingGuideCover{background:#007acc;border:5px solid #aaa}"
-                  ".ady--DockingPaneContainer{background:#EEEEF2;border:1px solid #ccc;}"
+
+    QString qss = ".ady--DockingWorkbench{background:"+color+"}"
+                  ".ady--DockingGuideCover{background:"+primaryColor+";border:5px solid "+borderColor+"}"
+                  ".ady--DockingPaneContainer{background:"+color+";border:1px solid "+borderColor+";}"
                   ".ady--DockingPaneClient{background:white;}"
-                  ".ady--DockingPaneClient>QTabBar{background-color:#EEEEF2;border:0;}"
-                  ".ady--DockingPaneClient>QTabBar::tab{background-color:#EEEEF2;border-bottom:0;height:24px;padding:0 4px 0 6px;text-align:left}"
-                  ".ady--DockingPaneClient>QTabBar::tab:hover{background-color:#1c97ea;color:white;}"
-                  ".ady--DockingPaneClient>QTabBar::tab:selected{background-color:#007acc;color:white;}"
+                  ".ady--DockingPaneClient>QTabBar{background-color:"+color+";border:0;}"
+                  ".ady--DockingPaneClient>QTabBar::tab{background-color:"+color+";border-bottom:0;height:24px;padding:0 4px 0 6px;text-align:left}"
+                  ".ady--DockingPaneClient>QTabBar::tab:hover{background-color:"+secondaryClientTabColor+";color:"+primaryTextColor+";}"
+                  ".ady--DockingPaneClient>QTabBar::tab:selected{background-color:"+primaryColor+";color:"+primaryTextColor+";}"
 
 #ifdef Q_OS_WIN
 
-                  ".ady--DockingPaneClient>QTabBar::close-button{image:url(':/images/vs2019/dock_close_light_gray.png');}"
-                  ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url(':/images/vs2019/dock_close_white.png')}"
+                  ".ady--DockingPaneClient>QTabBar::close-button{image:url('"+closeIcon+"');}"
+                  ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url('"+closeActiveIcon+"')}"
 #else
                   ".ady--DockingPaneClient>QTabBar::tab{padding-right:23px}"
-                  ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url(':/images/vs2019/dock_close_white.png')}"
+                  ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url('"+titleActiveBackground+"')}"
 #endif
 
 
-                  ".ady--DockingPaneClient>QStackedWidget{border:1px solid #ccc;border-top:2px solid #1c97ea}"
-                  ".ady--DockingPaneContainer>QTabBar{background-color:#EEEEF2;padding:0;border:0;}"
-                  ".ady--DockingPaneContainer>QTabBar::tab{border:1px solid #EEEEF2;background-color:#EEEEF2;height:22px;color:#444444;border-top:1px solid #ccc;padding:0 8px;}"
-                  ".ady--DockingPaneContainer>QTabBar::tab:hover{background:#c9DCF5;border:1px solid #c9DCF5;border-top:1px solid #ccc}"
-                  ".ady--DockingPaneContainer>QTabBar::tab:selected{border:0;background-color:#F5F5F5;height:22px;color:#007acc;border-top:1px solid #F5F5F5;border-left:1px solid #ccc;border-right:1px solid #ccc;border-bottom:1px solid #EEEEF2}"
+                  ".ady--DockingPaneClient>QStackedWidget{border:1px solid "+borderColor+";border-top:2px solid "+secondaryClientTabColor+"}"
+                  ".ady--DockingPaneContainer>QTabBar{background-color:"+color+";padding:0;border:0;}"
+                  ".ady--DockingPaneContainer>QTabBar::tab{border:1px solid "+color+";background-color:"+color+";height:22px;color:"+secondaryTextColor+";border-top:1px solid"+borderColor+";padding:0 8px;}"
+                  ".ady--DockingPaneContainer>QTabBar::tab:hover{background:"+secondaryTabColor+";border:1px solid "+secondaryTabColor+";border-top:1px solid "+borderColor+"}"
+                  ".ady--DockingPaneContainer>QTabBar::tab:selected{border:0;background-color:"+primaryTabColor+";height:22px;color:"+primaryColor+";border-top:1px solid "+primaryTabColor+";border-left:1px solid "+borderColor+";border-right:1px solid "+borderColor+";border-bottom:1px solid "+color+"}"
                   ".ady--DockingPaneContainer>QTabBar::tab:first{border-left:0}"
-                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient{background:#eeeef2}"
+                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient{background:"+color+"}"
                   ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QPushButton{background-color: transparent; border: none;}"
-                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QPushButton:hover{background:#e6e6e6;}"
-                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QLabel#title{background:#eeeef2;color:#444444}"
-                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QLabel#label{background: url(:/images/vs2019/dock_head_gray.png);}"
+                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QPushButton:hover{background:"+secondaryButtonColor+";}"
+                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QLabel#title{background:"+color+";color:"+secondaryTextColor+"}"
+                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QLabel#label{background: url("+titleBackground+");}"
 
-                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient{background:#007acc}"
+                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient{background:"+primaryColor+"}"
                   ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QPushButton{background-color: transparent; border: none;}"
-                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QPushButton:hover{background:#52b0ef;}"
-                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QLabel#title{background:#007acc;color:white}"
-                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QLabel#label{background: url(:/images/vs2019/dock_head_white.png);}"
+                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QPushButton:hover{background:"+primaryButtonColor+";}"
+                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QLabel#title{background:"+primaryColor+";color:"+primaryTextColor+"}"
+                  ".ady--DockingPaneContainer[activeState=true] .ady--DockingPaneContainerNClient>QLabel#label{background: url("+titleActiveBackground+");}"
 
-                  ".ady--DockingPaneHandle{background:#eeeef2}";
+                  ".ady--DockingPaneHandle{background:"+color+"}";
 
     return qss;
 }

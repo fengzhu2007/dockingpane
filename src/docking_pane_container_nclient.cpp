@@ -9,6 +9,7 @@
 #include "docking_pane.h"
 //#include "qss.h"
 #include "ui_docking_pane_container_nclient.h"
+#include "docking_theme.h"
 #include <QStyleOption>
 #include <QPainter>
 #include <QDebug>
@@ -80,43 +81,55 @@ namespace ady{
 
     void DockingPaneContainerNClient::setButtonState(Button b,State s)
     {
+        auto instance = DockingTheme::getInstance();
         if(d->active){
             if(b==Pin){
                 if(s==Inner){
-                    ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_white.png")));
+                    //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_white.png")));
+                    ui->pin->setIcon(QIcon(instance->icon(DockingTheme::Pin,DockingTheme::Active)));
                 }else if(s==Float){
                     QWidget* window = parentWidget()->parentWidget();
                     if(window->isMaximized()){
-                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_restore_white.png")));
+                        //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_restore_white.png")));
+                        ui->pin->setIcon(QIcon(instance->icon(DockingTheme::Restore,DockingTheme::Active)));
                     }else{
-                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_max_white.png")));
+                        //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_max_white.png")));
+                        ui->pin->setIcon(QIcon(instance->icon(DockingTheme::Max,DockingTheme::Active)));
                     }
                 }else if(s==Fixed){
-                    ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_white.png")));
+                    //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_white.png")));
+                    ui->pin->setIcon(QIcon(instance->icon(DockingTheme::PinFixed,DockingTheme::Active)));
                 }
             }else if(b==Dropdown){
-                ui->menu->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_drow_white.png")));
+                //ui->menu->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_drow_white.png")));
+                ui->menu->setIcon(QIcon(instance->icon(DockingTheme::DropDown,DockingTheme::Active)));
             }else if(b==Close){
-                ui->close->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_close_white.png")));
+                //ui->close->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_close_white.png")));
+                ui->close->setIcon(QIcon(instance->icon(DockingTheme::Close,DockingTheme::Active)));
             }
         }else{
             if(b==Pin){
                 if(s==Inner){
-                    ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_gray.png")));
+                    ui->pin->setIcon(QIcon(instance->icon(DockingTheme::Pin,DockingTheme::Normal)));
                 }else if(s==Float){
                     QWidget* window = parentWidget()->parentWidget();
                     if(window->isMaximized()){
-                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_restore_gray.png")));
+                        //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_restore_gray.png")));
+                        ui->pin->setIcon(QIcon(instance->icon(DockingTheme::Restore,DockingTheme::Normal)));
                     }else{
-                        ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_max_gray.png")));
+                        //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_max_gray.png")));
+                        ui->pin->setIcon(QIcon(instance->icon(DockingTheme::Max,DockingTheme::Normal)));
                     }
                 }else if(s==Fixed){
-                    ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_gray.png")));
+                    //ui->pin->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_pin_fixed_gray.png")));
+                    ui->pin->setIcon(QIcon(instance->icon(DockingTheme::PinFixed,DockingTheme::Normal)));
                 }
             }else if(b==Dropdown){
-                ui->menu->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_drow_gray.png")));
+                //ui->menu->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_drow_gray.png")));
+                ui->menu->setIcon(QIcon(instance->icon(DockingTheme::DropDown,DockingTheme::Normal)));
             }else if(b==Close){
-                ui->close->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_close_gray.png")));
+                //ui->close->setIcon(QIcon(QString::fromUtf8(":/images/vs2019/dock_close_gray.png")));
+                ui->close->setIcon(QIcon(instance->icon(DockingTheme::Close,DockingTheme::Normal)));
             }
         }
 

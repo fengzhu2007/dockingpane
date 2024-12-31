@@ -7,6 +7,7 @@
 #include "docking_pane_client.h"
 #include "docking_pane_float_window.h"
 #include "docking_pane_tabbar.h"
+#include "docking_theme.h"
 #include <QLayoutItem>
 #include <QHBoxLayout>
 #include <QJsonDocument>
@@ -24,14 +25,12 @@ namespace ady {
 
     DockingPaneManager::DockingPaneManager(QWidget* parent)
         :QObject(parent){
+        DockingTheme::init(DockingTheme::Light);//init light theme
+
         d = new DockingPaneManagerPrivate;
         d->widget = new QWidget(parent);
-
-
         d->workbench = new DockingWorkbench(d->widget,this);
         d->layout = new DockingPaneLayout(d->workbench,0,6);
-
-        //d->workbench->initClient();
 
         QHBoxLayout* l = new QHBoxLayout(d->widget);
         l->setMargin(0);

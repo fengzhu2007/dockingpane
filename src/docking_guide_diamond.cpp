@@ -1,5 +1,5 @@
 #include "docking_guide_diamond.h"
-
+#include "docking_theme.h"
 #include <QDebug>
 
 namespace ady {
@@ -70,7 +70,9 @@ namespace ady {
     void DockingGuideDiamond::setActive(bool state)
     {
         d->active = state;
-        if(d->active){
+        auto instance = DockingTheme::getInstance();
+        this->setPixmap(QPixmap(instance->guide(d->position,d->active)));
+        /*if(d->active){
             if(d->position == DockingPaneManager::S_Left){
                 this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_border_sider_left_active.png")));
             }else if(d->position == DockingPaneManager::S_Top){
@@ -126,7 +128,7 @@ namespace ady {
             }else if(d->position == DockingPaneManager::C_Bottom){
                 this->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/dock_bottom.png")));
             }
-        }
+        }*/
     }
 
     bool DockingGuideDiamond::active()
