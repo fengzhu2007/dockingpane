@@ -78,5 +78,33 @@
         <file>images/vs2019/dock_border_sider_top.png</file>
         <file>images/vs2019/dock_border_sider_top_active.png</file>
         <file>images/vs2019/dock_close_light_gray.png</file>
+        <file>images/vs2019dark/dock_border_sider_top.png</file>
+        <file>images/vs2019dark/dock_border_sider_top_active.png</file>
+        <file>images/vs2019dark/dock_border_sider_bottom_active.png</file>
+        <file>images/vs2019dark/dock_border_sider_left.png</file>
+        <file>images/vs2019dark/dock_border_sider_left_active.png</file>
+        <file>images/vs2019dark/dock_border_sider_right.png</file>
+        <file>images/vs2019dark/dock_border_sider_right_active.png</file>
+        <file>images/vs2019dark/dock_bottom.png</file>
+        <file>images/vs2019dark/dock_bottom_active.png</file>
+        <file>images/vs2019dark/dock_center.png</file>
+        <file>images/vs2019dark/dock_center_active.png</file>
+        <file>images/vs2019dark/dock_left.png</file>
+        <file>images/vs2019dark/dock_left_active.png</file>
+        <file>images/vs2019dark/dock_right.png</file>
+        <file>images/vs2019dark/dock_right_active.png</file>
+        <file>images/vs2019dark/dock_top.png</file>
+        <file>images/vs2019dark/dock_top_active.png</file>
+        <file>images/vs2019dark/docking.png</file>
+        <file>images/vs2019dark/docking_all.png</file>
+        <file>images/vs2019dark/dock_sider_bottom.png</file>
+        <file>images/vs2019dark/dock_sider_bottom_active.png</file>
+        <file>images/vs2019dark/dock_sider_left.png</file>
+        <file>images/vs2019dark/dock_sider_left_active.png</file>
+        <file>images/vs2019dark/dock_sider_right.png</file>
+        <file>images/vs2019dark/dock_sider_right_active.png</file>
+        <file>images/vs2019dark/dock_sider_top.png</file>
+        <file>images/vs2019dark/dock_sider_top_active.png</file>
+        <file>images/vs2019dark/dock_border_sider_bottom.png</file>
     </qresource>
 </RCC>

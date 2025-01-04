@@ -5,6 +5,7 @@
 #include "docking_pane_layout_item_info.h"
 //#include "docking_pane_handle.h"
 #include "docking_pane.h"
+#include "docking_theme.h"
 #include <QMouseEvent>
 #include <QEvent>
 #include <QApplication>
@@ -25,6 +26,8 @@ namespace ady {
         DockingPaneContainer* guide_container = nullptr;
         DockingPaneFloatWindow* current_window = nullptr;
         std::function<void(QDropEvent*)> func;
+        QColor borderColor;
+        QColor clientBorderColor;
     };
 
     DockingPaneContainerTabBar::DockingPaneContainerTabBar(QWidget* parent)
@@ -36,6 +39,9 @@ namespace ady {
         this->setDocumentMode(true);
 #endif
         connect(this, &QWidget::customContextMenuRequested, this, &DockingPaneContainerTabBar::showContextMenu);
+        auto theme = DockingTheme::getInstance();
+        d->borderColor = theme->borderColor();
+        d->clientBorderColor = theme->color();
 
     }
 
@@ -223,7 +229,7 @@ namespace ady {
                 w += rc.width();
             }
             QColor color, textColor;
-            color = textColor = QColor("#cccccc");
+            color = textColor = d->borderColor;
             p.setPen(textColor);
             p.fillRect(w, 0, width() - w, 1, color);
         }else{
@@ -236,7 +242,7 @@ namespace ady {
                 w += rc.width();
             }
             QColor color, textColor;
-            color = textColor = QColor("#EEEEF2");
+            color = textColor = d->clientBorderColor;
             p.setPen(textColor);
             p.fillRect(w, height()-1, width() - w, 1, color);
         }

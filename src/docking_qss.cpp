@@ -13,6 +13,7 @@ QString DockingQSS::global()
     auto secondaryTabColor = instance->secondaryTabColor().name(QColor::HexRgb);//light #c9DCF5
     auto primaryTabColor = instance->primaryTabColor().name(QColor::HexRgb);//light #c9DCF5
     auto borderColor = instance->borderColor().name(QColor::HexRgb);//light #ccc
+    auto clientTabColor = instance->clientTabColor().name(QColor::HexRgb);
     auto primaryTextColor = instance->primaryTextColor().name(QColor::HexRgb);
     auto secondaryTextColor = instance->secondaryTextColor().name(QColor::HexRgb);
     auto primaryButtonColor = instance->primaryButtonColor().name(QColor::HexRgb);
@@ -28,7 +29,7 @@ QString DockingQSS::global()
                   ".ady--DockingPaneContainer{background:"+color+";border:1px solid "+borderColor+";}"
                   ".ady--DockingPaneClient{background:white;}"
                   ".ady--DockingPaneClient>QTabBar{background-color:"+color+";border:0;}"
-                  ".ady--DockingPaneClient>QTabBar::tab{background-color:"+color+";border-bottom:0;height:24px;padding:0 4px 0 6px;text-align:left}"
+                  ".ady--DockingPaneClient>QTabBar::tab{background-color:"+color+";border-bottom:0;height:24px;padding:0 4px 0 6px;text-align:left;color:"+clientTabColor+"}"
                   ".ady--DockingPaneClient>QTabBar::tab:hover{background-color:"+secondaryClientTabColor+";color:"+primaryTextColor+";}"
                   ".ady--DockingPaneClient>QTabBar::tab:selected{background-color:"+primaryColor+";color:"+primaryTextColor+";}"
 

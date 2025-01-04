@@ -1,5 +1,6 @@
 #include "docking_theme.h"
 #include "docking_light_theme.h"
+#include "docking_dark_theme.h"
 namespace ady{
 DockingTheme* DockingTheme::instance=nullptr;
 
@@ -13,7 +14,7 @@ DockingTheme::~DockingTheme(){
 
 DockingTheme* DockingTheme::init(Style style){
     if(style==Dark){
-        return DockingTheme::init<DockingLightTheme>();
+        return DockingTheme::init<DockingDarkTheme>();
     }else{
         return DockingTheme::init<DockingLightTheme>();
     }

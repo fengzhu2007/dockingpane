@@ -57,6 +57,7 @@ namespace ady{
         virtual QString guide(int position,bool state)=0;
 
         virtual QString icon(int type,int state)=0;
+        virtual QString background(int type) = 0;
 
         template<class T>
         static DockingTheme* init(){

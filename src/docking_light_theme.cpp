@@ -20,7 +20,7 @@ public:
     QColor primaryButtonColor;
     QString guides[26];
     QString icons[16];
-
+    QString backgrounds[2];
 
 
     DockingLightThemePrivate():
@@ -60,7 +60,8 @@ public:
 
               ":/images/vs2019/dock_drow_white.png",":/images/vs2019/dock_pin_white.png",":/images/vs2019/dock_pin_fixed_white.png",
               ":/images/vs2019/dock_restore_white.png",":/images/vs2019/dock_max_white.png",":/images/vs2019/dock_close_white.png",
-              ":/images/vs2019/dock_head_white.png",":/images/vs2019/dock_close_light_gray.png"}
+              ":/images/vs2019/dock_head_white.png",":/images/vs2019/dock_close_light_gray.png"},
+        backgrounds{":/images/vs2019/docking.png",":/images/vs2019/docking_all.png"}
     {
 
 
@@ -173,6 +174,16 @@ QString DockingLightTheme::icon(int type,int state){
         type += 8;
     }
     return d->icons[type];
+}
+
+QString DockingLightTheme::background(int type){
+    if(type==0){
+        //default
+        return d->backgrounds[0];
+    }else{
+        //all
+        return d->backgrounds[1];
+    }
 }
 
 }

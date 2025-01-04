@@ -1,14 +1,14 @@
-#ifndef DOCKING_LIGHT_THEME_H
-#define DOCKING_LIGHT_THEME_H
+#ifndef DOCKING_DARK_THEME_H
+#define DOCKING_DARK_THEME_H
 
 #include "docking_theme.h"
 
 namespace ady{
-class DockingLightThemePrivate;
-class DockingLightTheme : public DockingTheme
+class DockingDarkThemePrivate;
+class DockingDarkTheme : public DockingTheme
 {
 public:
-    virtual ~DockingLightTheme() override;
+    virtual ~DockingDarkTheme() override;
     virtual QString name()override;
     virtual QColor color()override;//default color
     virtual QColor primaryColor()override;
@@ -41,13 +41,14 @@ public:
     virtual QString background(int type) override;
 
 private:
-    DockingLightTheme();
+    DockingDarkTheme();
 
 private:
-    DockingLightThemePrivate* d;
+    DockingDarkThemePrivate* d;
 
     friend class DockingTheme;
-
 };
+
 }
-#endif // DOCKING_LIGHT_THEME_H
+
+#endif // DOCKING_DARK_THEME_H

@@ -25,7 +25,7 @@ namespace ady {
 
     DockingPaneManager::DockingPaneManager(QWidget* parent)
         :QObject(parent){
-        DockingTheme::init(DockingTheme::Light);//init light theme
+        DockingTheme::init(DockingTheme::Dark);//init light theme
 
         d = new DockingPaneManagerPrivate;
         d->widget = new QWidget(parent);

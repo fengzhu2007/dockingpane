@@ -2,6 +2,7 @@
 #include "ui_docking_guide.h"
 //#include "docking_pane_container.h"
 #include "docking_workbench.h"
+#include "docking_theme.h"
 
 #include <QPixmap>
 #include <QBitmap>
@@ -13,6 +14,8 @@ namespace ady {
     class DockingGuidePrivate{
     public:
         int size_mode;
+        QPixmap background;
+        QPixmap background_all;
     };
 
 
@@ -34,6 +37,10 @@ namespace ady {
         ui->client_right->setPosition(DockingPaneManager::C_Right);
         ui->client_top->setPosition(DockingPaneManager::C_Top);
         ui->client_bottom->setPosition(DockingPaneManager::C_Bottom);
+        auto theme = DockingTheme::getInstance();
+
+        d->background = QPixmap(theme->background(0));
+        d->background_all = QPixmap(theme->background(1));
 
         /*QPixmap pixmap(":/images/vs2019/docking_all.png");
         QPalette palette;
@@ -100,7 +107,7 @@ namespace ady {
         d->size_mode = mode;
         //qDebug()<<"mode:"<<mode;
         if((d->size_mode&DockingGuide::Normal)>0){
-            ui->label->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/docking.png")));
+            ui->label->setPixmap(d->background);
             this->setGeometry(QRect(0,0,112,112));
             ui->label->setGeometry(QRect(0,0,112,112));
 
@@ -110,7 +117,7 @@ namespace ady {
             ui->top->setGeometry(QRect(40,4,32,32));
             ui->bottom->setGeometry(QRect(40,76,32,32));
         }else if((d->size_mode &DockingGuide::Large)>0 ){
-            ui->label->setPixmap(QPixmap(QString::fromUtf8(":/images/vs2019/docking_all.png")));
+            ui->label->setPixmap(d->background_all);
             this->setGeometry(QRect(0,0,184,184));
             ui->label->setGeometry(QRect(0,0,184,184));
             //set buttons
