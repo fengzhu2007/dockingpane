@@ -1,6 +1,7 @@
 #ifndef DOCKING_PANE_MANAGER_H
 #define DOCKING_PANE_MANAGER_H
 #include "global.h"
+#include "docking_theme.h"
 #include <QObject>
 #include <QWidget>
 #include <QJsonObject>
@@ -38,7 +39,7 @@ namespace ady {
             C_Right,
             C_Bottom
         };
-        DockingPaneManager(QWidget* parent);
+        DockingPaneManager(QWidget* parent,DockingTheme::Style theme=DockingTheme::Light);
         ~DockingPaneManager();
         void initClient();
         DockingWorkbench* workbench();

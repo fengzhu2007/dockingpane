@@ -73,6 +73,7 @@ add_library(dockingpane SHARED
     src/docking_theme.cpp
     src/docking_light_theme.h src/docking_light_theme.cpp
     src/docking_dark_theme.h src/docking_dark_theme.cpp
+
     #src/docking_pane_client_region.h
     #src/docking_pane_client_region.cpp
     #src/docking_region.h

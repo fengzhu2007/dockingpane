@@ -20,6 +20,7 @@ namespace ady{
             Close,
             TitleBackground,
             TabClose,
+            ClientTabClose,
 
         };
         enum IconState{

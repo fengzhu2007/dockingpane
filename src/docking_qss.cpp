@@ -18,24 +18,24 @@ QString DockingQSS::global()
     auto secondaryTextColor = instance->secondaryTextColor().name(QColor::HexRgb);
     auto primaryButtonColor = instance->primaryButtonColor().name(QColor::HexRgb);
     auto secondaryButtonColor = instance->secondaryButtonColor().name(QColor::HexRgb);//light #e6e6e6
-    auto closeIcon = instance->icon(DockingTheme::TabClose,DockingTheme::Normal);
-    auto closeActiveIcon = instance->icon(DockingTheme::Close,DockingTheme::Active);
+    auto closeIcon = instance->icon(DockingTheme::ClientTabClose,DockingTheme::Normal);
+    auto closeActiveIcon = instance->icon(DockingTheme::ClientTabClose,DockingTheme::Active);
     auto titleBackground = instance->icon(DockingTheme::TitleBackground,DockingTheme::Normal);
     auto titleActiveBackground = instance->icon(DockingTheme::TitleBackground,DockingTheme::Active);
 
-
+    //qDebug()<<"closeIcon"<<closeActiveIcon;
     QString qss = ".ady--DockingWorkbench{background:"+color+"}"
                   ".ady--DockingGuideCover{background:"+primaryColor+";border:5px solid "+borderColor+"}"
                   ".ady--DockingPaneContainer{background:"+color+";border:1px solid "+borderColor+";}"
-                  ".ady--DockingPaneClient{background:white;}"
+                  ".ady--DockingPaneClient{background:"+color+";}"
                   ".ady--DockingPaneClient>QTabBar{background-color:"+color+";border:0;}"
-                  ".ady--DockingPaneClient>QTabBar::tab{background-color:"+color+";border-bottom:0;height:24px;padding:0 4px 0 6px;text-align:left;color:"+clientTabColor+"}"
+                  ".ady--DockingPaneClient>QTabBar::tab{background-color:"+color+";border-bottom:0;height:24px;padding:0 16px 0 6px;text-align:left;color:"+clientTabColor+"}"
                   ".ady--DockingPaneClient>QTabBar::tab:hover{background-color:"+secondaryClientTabColor+";color:"+primaryTextColor+";}"
                   ".ady--DockingPaneClient>QTabBar::tab:selected{background-color:"+primaryColor+";color:"+primaryTextColor+";}"
 
 #ifdef Q_OS_WIN
 
-                  ".ady--DockingPaneClient>QTabBar::close-button{image:url('"+closeIcon+"');}"
+                  ".ady--DockingPaneClient>QTabBar::close-button{image:url('"+closeIcon+"');margin-left:2px;}"
                   ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url('"+closeActiveIcon+"')}"
 #else
                   ".ady--DockingPaneClient>QTabBar::tab{padding-right:23px}"
@@ -50,7 +50,7 @@ QString DockingQSS::global()
                   ".ady--DockingPaneContainer>QTabBar::tab:selected{border:0;background-color:"+primaryTabColor+";height:22px;color:"+primaryColor+";border-top:1px solid "+primaryTabColor+";border-left:1px solid "+borderColor+";border-right:1px solid "+borderColor+";border-bottom:1px solid "+color+"}"
                   ".ady--DockingPaneContainer>QTabBar::tab:first{border-left:0}"
                   ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient{background:"+color+"}"
-                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QPushButton{background-color: transparent; border: none;}"
+                  ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QPushButton{background-color: transparent; border: none;padding:0;margin:0;min-width:17px;}"
                   ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QPushButton:hover{background:"+secondaryButtonColor+";}"
                   ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QLabel#title{background:"+color+";color:"+secondaryTextColor+"}"
                   ".ady--DockingPaneContainer .ady--DockingPaneContainerNClient>QLabel#label{background: url("+titleBackground+");}"

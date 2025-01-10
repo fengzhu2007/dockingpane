@@ -19,7 +19,7 @@ public:
     QColor secondaryButtonColor;
     QColor primaryButtonColor;
     QString guides[26];
-    QString icons[16];
+    QString icons[18];
     QString backgrounds[2];
 
 
@@ -59,12 +59,12 @@ public:
 
         icons{":/images/vs2019/dock_drow_white.png",":/images/vs2019/dock_pin_white.png",":/images/vs2019/dock_pin_fixed_white.png",
               ":/images/vs2019/dock_restore_white.png",":/images/vs2019/dock_max_white.png",":/images/vs2019/dock_close_white.png",
-              ":/images/vs2019/dock_head_white.png",":/images/vs2019/dock_close_light_gray.png",
+              ":/images/vs2019/dock_head_white.png",":/images/vs2019/dock_close_light_gray.png",":/images/vs2019dark/Close_16x.svg",
 
 
               ":/images/vs2019/dock_drow_white.png",":/images/vs2019/dock_pin_white.png",":/images/vs2019/dock_pin_fixed_white.png",
               ":/images/vs2019/dock_restore_white.png",":/images/vs2019/dock_max_white.png",":/images/vs2019/dock_close_white.png",
-              ":/images/vs2019/dock_head_white.png",":/images/vs2019/dock_close_light_gray.png"},
+              ":/images/vs2019/dock_head_white.png",":/images/vs2019/dock_close_light_gray.png",":/images/vs2019/CloseActive_16x.svg"},
         backgrounds{":/images/vs2019dark/docking.png",":/images/vs2019dark/docking_all.png"}
     {
 
@@ -177,7 +177,7 @@ QString DockingDarkTheme::guide(int position,bool state){
 
 QString DockingDarkTheme::icon(int type,int state){
     if(state==DockingTheme::Active){
-        type += 8;
+        type += 9;
     }
     return d->icons[type];
 }

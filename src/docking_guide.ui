@@ -35,7 +35,7 @@
     <pixmap resource="res.qrc">:/images/vs2019/docking_all.png</pixmap>
    </property>
   </widget>
-  <widget class="QWidget" name="widget" native="true">
+  <widget class="QWidget" name="guide" native="true">
    <property name="geometry">
     <rect>
      <x>-1</x>

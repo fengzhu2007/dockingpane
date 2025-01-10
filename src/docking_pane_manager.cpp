@@ -7,7 +7,6 @@
 #include "docking_pane_client.h"
 #include "docking_pane_float_window.h"
 #include "docking_pane_tabbar.h"
-#include "docking_theme.h"
 #include <QLayoutItem>
 #include <QHBoxLayout>
 #include <QJsonDocument>
@@ -23,9 +22,10 @@ namespace ady {
     };
 
 
-    DockingPaneManager::DockingPaneManager(QWidget* parent)
+    DockingPaneManager::DockingPaneManager(QWidget* parent,DockingTheme::Style theme)
         :QObject(parent){
-        DockingTheme::init(DockingTheme::Dark);//init light theme
+        qDebug()<<"theme"<<theme;
+        DockingTheme::init(theme);//init light theme
 
         d = new DockingPaneManagerPrivate;
         d->widget = new QWidget(parent);

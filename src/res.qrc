@@ -106,5 +106,11 @@
         <file>images/vs2019dark/dock_sider_top.png</file>
         <file>images/vs2019dark/dock_sider_top_active.png</file>
         <file>images/vs2019dark/dock_border_sider_bottom.png</file>
+        <file>images/vs2019/Pushpin_8x.svg</file>
+        <file>images/vs2019/PushpinUnpin_8x.svg</file>
+        <file>images/vs2019/Close_16x.svg</file>
+        <file>images/vs2019/CloseActive_16x.svg</file>
+        <file>images/vs2019/CloseHover_16x.svg</file>
+        <file>images/vs2019dark/Close_16x.svg</file>
     </qresource>
 </RCC>

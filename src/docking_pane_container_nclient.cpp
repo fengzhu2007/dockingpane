@@ -49,7 +49,7 @@ namespace ady{
 
     void DockingPaneContainerNClient::onMenuRequested()
     {
-        QMenu* menu = new QMenu;
+        QMenu* menu = new QMenu(this);
 
         QAction* fAction = menu->addAction(tr("Float"),this,SLOT(onFloat()));
         QAction* dAction = menu->addAction(tr("Docking"),this,SLOT(onDock()));
