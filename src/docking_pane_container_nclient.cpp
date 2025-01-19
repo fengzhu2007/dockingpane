@@ -198,7 +198,8 @@ namespace ady{
         }else if(state==DockingPaneContainer::Fixed){
             DockingPaneFixedWindow* window = (DockingPaneFixedWindow*)container->parentWidget();
             int position = window->fixedPosition();
-            DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();
+            //DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();
+            auto workbench = container->workbench();
             DockingPaneTabBar* tabBar = workbench->tabBar(position);
             if(tabBar!=nullptr){
                 tabBar->removeContainerChild(container,container->current());//fixed
