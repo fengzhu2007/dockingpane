@@ -44,6 +44,7 @@ private:
         :QWidget(parent){
         d = new DockingPanePrivate;
         setCloseEnable(true);
+        setAttribute(Qt::WA_DeleteOnClose);
     }
 
     DockingPane::~DockingPane()

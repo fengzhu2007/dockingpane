@@ -355,16 +355,18 @@ namespace ady{
                 tabBar->removeContainer(container);
                 //container->setParent(nullptr);
                 if(paneCount>1){
-                    DockingPane* pane;
-                    if(i>=0){
+                    DockingPane* pane = nullptr;
+                    if(i<0){
                         int current = container->current();
-                        container->pane(current);
+                        pane = container->pane(current);
                     }else{
                         pane = container->pane(i);
                     }
+
                     DockingPaneContainer* restore_container = new DockingPaneContainer(nullptr);
                     restore_container->setState(DockingPaneContainer::Fixed);
                     restore_container->setOriPosition((DockingPaneManager::Position)position);
+                    restore_container->setParent(container->parentWidget());
                     int j = 0;
                     for(int i=0;i<paneCount;i++){
                         DockingPane* p = container->pane(j);

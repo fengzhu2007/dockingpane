@@ -87,7 +87,6 @@ namespace ady{
                 //remove tabs
                 int children = container->paneCount();
                 for(int j=0;j<children;j++){
-                    qDebug()<<"removeTab:"<<i;
                     removeTab(i);
                 }
                 d->list.erase(iter);
@@ -233,10 +232,12 @@ namespace ady{
         for(int i=0;i<children;i++){
             DockingPane* pane = container->pane(i);
             QString title = pane->windowTitle();
+            qDebug()<<"tab index"<<tabIndex+i;
             addTab(tabIndex+i,title);
         }
         setVisible(true);
         show();
+        static_cast<DockingWorkbench*>(this->parentWidget())->updateLayout();//update workbench
     }
 
     int DockingPaneTabBar::count(){

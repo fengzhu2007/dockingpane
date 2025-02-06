@@ -262,7 +262,8 @@ namespace ady {
         if(d->stacked->count()==0){
             d->stacked->hide();
         }
-        return (DockingPane*)widget;
+        return dynamic_cast<DockingPane*>(widget);
+        //return (DockingPane*)widget;
     }
 
     DockingPane* DockingPaneContainer::takeCurrent(){
@@ -343,16 +344,14 @@ namespace ady {
             }
             bk:
 
-
             pane = this->takeAt(i);
             QString id = pane->id();
             QString group = pane->group();
             pane->close();
             //pane->deleteLater();
 
-            delete pane;
+            //delete pane;
             workbench->paneClosed(id,group,isClient);
-
             i -= 1;
             if(i<0){
                 i = 0;
@@ -503,7 +502,6 @@ namespace ady {
         }else if(d->state==Float){
             return (DockingWorkbench*)parentWidget()->parentWidget();
         }else if(d->state==Fixed){
-            //qDebug()<<"workbench:"<<parentWidget();
             auto parent = parentWidget();
             const QString className = parent->metaObject()->className();
             if(className==QString::fromUtf8("ady::DockingWorkbench")){
@@ -513,6 +511,7 @@ namespace ady {
             }else{
                 qDebug()<<"DockingPaneContainer::workbench:"<<className;
             }
+
             return nullptr;
         }else{
             return nullptr;
@@ -523,6 +522,9 @@ namespace ady {
     {
         //qDebug()<<"onCurrentChanged:"<<i;
         if(i>=0 && i<d->stacked->count()){
+            if(this->isClient()){
+                d->tabbar->setCurrentIndex(i);
+            }
             d->stacked->setCurrentIndex(i);
             DockingPane* pane = (DockingPane*)d->stacked->widget(i);
             if(pane!=nullptr){

@@ -76,7 +76,7 @@ public:
             pane = this->takeAt(i);
             pane->close();
             //pane->deleteLater();
-            delete pane;
+            //delete pane;
 
             workbench->paneClosed(id,group,isClient);
             //remove client container;
