@@ -720,14 +720,14 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                     if(pos.y()<rc.bottom()){
                         pos.setX(rc.bottom());
                     }
-                    rc.setHeight(size.width());//set min width
+                    rc.setHeight(size.height());//set min width
                 }else{
                     //from top to bottom
                     int y = rc.bottom() - size.height();
                     pos.setY(y - m_spacing);
                     rc.setY(y);
                 }
-                rc.setHeight(size.height());//set min height
+                //rc.setHeight(size.height());//set min height
                 ret = false;
             }
             if(hasClient()==false){

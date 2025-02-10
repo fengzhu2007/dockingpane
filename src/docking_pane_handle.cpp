@@ -71,22 +71,23 @@ namespace ady {
                 pos.ry() += y;
                 if(y>0){
                     if(next!=nullptr){
-                        if(next->resize(DockingPaneLayoutItemInfo::Vertical,true,pos.y())==false){
+                        if(next->resize(DockingPaneLayoutItemInfo::Vertical,true,pos)==false){
                             //return ;
                         }
                     }
-                    m_itemInfo->resize(DockingPaneLayoutItemInfo::Vertical,false,pos.y());
+                    m_itemInfo->resize(DockingPaneLayoutItemInfo::Vertical,false,pos);
                 }else if(y<0){
-                    if(m_itemInfo->resize(DockingPaneLayoutItemInfo::Vertical,false,pos.y())==false){
+                    if(m_itemInfo->resize(DockingPaneLayoutItemInfo::Vertical,false,pos)==false){
                        // return ;
                     }
                     if(next!=nullptr){
-                        next->resize(DockingPaneLayoutItemInfo::Vertical,true,pos.y());
+                        next->resize(DockingPaneLayoutItemInfo::Vertical,true,pos);
                     }
                 }else{
                     return ;
                 }
-
+                next->invalidate();
+                m_itemInfo->invalidate();
                 move(pos);
             }
         }
