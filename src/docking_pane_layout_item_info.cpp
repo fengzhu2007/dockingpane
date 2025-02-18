@@ -315,7 +315,8 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                 3. If there is an item smaller than the minimum size in the previous step, recalculate the size of the fixed item
                 */
                 int totalSize = m_children_ori==Horizontal?rect.width():rect.height();
-                int leftSize = totalSize;
+                totalSize = totalSize - (count - 1) * m_spacing;
+                int leftSize = totalSize ;
                 int autoSize = 0;
                 int minSize = 50;
                 int manualSizeTotal = 0;
@@ -341,7 +342,6 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                         leftSize -= minSize;
                         autoSize += minSize;
                     }
-
                 }
                 if(leftSize<0){
                     //re calc
@@ -377,7 +377,6 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                     w = rect.width();
                     h = unknowSizeCount>0?leftSize / unknowSizeCount:0;
                 }
-                //qDebug()<<totalSize<<leftSize<<unknowSizeCount<<"wwww:"<<w<<"hhhh:"<<h;
             }
 
 
@@ -399,6 +398,7 @@ int DockingPaneLayoutItemInfo::gSeq = 0;
                     }
                 }
                 if(i==count - 1){
+                    //last one
 
                     if(m_children_ori==Horizontal){
                         child_rc.setX(x);

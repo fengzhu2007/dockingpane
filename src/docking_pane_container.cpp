@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QStyleOption>
 #include <QPainter>
+#include <QResizeEvent>
 #include <QDebug>
 
 namespace ady {
@@ -599,6 +600,12 @@ namespace ady {
          QPainter p(this);
          style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
      }
+
+     /*void DockingPaneContainer::resizeEvent(QResizeEvent* e){
+         QWidget::resizeEvent(e);
+         if(this->isClient()==false)
+            qDebug()<<"resize"<<this<<e->size();
+     }*/
 
 
 }

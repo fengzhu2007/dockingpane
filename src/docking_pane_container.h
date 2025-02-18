@@ -84,6 +84,7 @@ namespace ady{
         virtual void focusInEvent(QFocusEvent *event) override;
         //virtual void focusOutEvent(QFocusEvent *event) override;
         virtual void paintEvent(QPaintEvent *e) override;
+        //virtual void resizeEvent(QResizeEvent* e) override;
 
 
     protected:
