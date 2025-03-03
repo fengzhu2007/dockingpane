@@ -36,10 +36,10 @@ namespace ady {
         void setCloseEnable(bool enable);
         virtual bool closeEnable();
         virtual void activation();
-        virtual void save(bool rename=false);
+        virtual bool save(bool rename=false);
         virtual void contextMenu(const QPoint& pos);
         virtual void undo();
-        virtual void doAction(int a);
+        virtual bool doAction(int a);
         virtual QJsonObject toJson();
         DockingPaneContainer* container();
         void activeToCurrent();

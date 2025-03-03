@@ -183,6 +183,7 @@ namespace ady {
                 //d->nclient->setButtonState(DockingPaneContainerNClient::Max,DockingPaneContainerNClient::Gone);
             }
         }
+        d->tabbar->setState(state);
     }
 
     DockingPaneContainer::State DockingPaneContainer::state()

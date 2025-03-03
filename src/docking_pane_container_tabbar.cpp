@@ -20,6 +20,7 @@ namespace ady {
         bool moving = false;
         bool fixed = true;
         bool del_parent = false;
+        bool mouse_pressed = false;
         int offsetX = 0;
         int offsetY = 0;
         int position = -1;
@@ -52,6 +53,12 @@ namespace ady {
 
     std::function<void(QDropEvent*)> DockingPaneContainerTabBar::dropCallback(){
         return d->func;
+    }
+
+    void DockingPaneContainerTabBar::setState(int state){
+        if(state!=DockingPaneContainer::Float){
+            d->current_window = nullptr;
+        }
     }
 
     void DockingPaneContainerTabBar::showContextMenu(const QPoint &pos){
@@ -113,6 +120,9 @@ namespace ady {
     }
 
     void DockingPaneContainerTabBar::onFloatRelease(){
+        if(d->moving==false){
+            return ;
+        }
         d->moving = false;
         d->fixed = true;
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
@@ -120,12 +130,15 @@ namespace ady {
             setAutoHide(true);
         }
         if(d->current_window!=nullptr){
-            DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
-            workbench->hideGuide();
-            workbench->hideSiderGuide();
-            workbench->endLookup();
-            if(d->position>=0){
-                workbench->lockContainer(d->current_window,d->guide_container,d->position);
+
+            if(DockingPaneFloatWindow::windowExists(d->current_window)){
+                DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
+                workbench->hideGuide();
+                workbench->hideSiderGuide();
+                workbench->endLookup();
+                if(d->position>=0){
+                    workbench->lockContainer(d->current_window,d->guide_container,d->position);
+                }
             }
         }
         d->current_window = nullptr;
@@ -142,6 +155,7 @@ namespace ady {
     {
         QTabBar::mousePressEvent(e);
         //d->moving = true;
+
         d->offsetX = e->x();
         d->offsetY = e->y();
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
@@ -159,6 +173,10 @@ namespace ady {
             DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
             if(d->fixed==true){
                 int index = tabAt({d->offsetX,d->offsetY});
+                if(index<0){
+                    d->moving = false;
+                    return ;
+                }
                 this->onFloat(index,true);
             }else{
                 QWidget* window = d->current_window;
@@ -204,7 +222,7 @@ namespace ady {
                 d->guide_container = container;
             }
         }else{
-            if(abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3){
+            if(d->offsetX>0 && d->offsetY>0 && (abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3)){
                 d->moving = true;
             }
         }

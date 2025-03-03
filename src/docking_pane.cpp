@@ -110,8 +110,9 @@ private:
 
     }
 
-    void DockingPane::save(bool rename){
+    bool DockingPane::save(bool rename){
         Q_UNUSED(rename);
+        return false;
     }
 
     void DockingPane::contextMenu(const QPoint& pos){
@@ -122,8 +123,9 @@ private:
 
     }
 
-    void DockingPane::doAction(int a){
+    bool DockingPane::doAction(int a){
         Q_UNUSED(a);
+        return false;
     }
 
     QJsonObject DockingPane::toJson(){

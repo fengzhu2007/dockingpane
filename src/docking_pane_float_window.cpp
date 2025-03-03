@@ -129,5 +129,9 @@ QList<DockingPaneFloatWindow*> DockingPaneFloatWindow::list;
         return DockingPaneFloatWindow::list;
     }
 
+    bool DockingPaneFloatWindow::windowExists(DockingPaneFloatWindow* window){
+        return list.contains(window);
+    }
+
 
 }

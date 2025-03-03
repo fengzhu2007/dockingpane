@@ -12,6 +12,7 @@ typedef void (*DropFunc) (QDropEvent*);
         DockingPaneContainerTabBar(QWidget* parent);
         void setDropCallback(std::function<void(QDropEvent*)> func);
         std::function<void(QDropEvent*)> dropCallback();
+        void setState(int state);
     public slots:
         void showContextMenu(const QPoint &pos);
         void onFloat(int i=-1,bool moving=false);
