@@ -37,6 +37,8 @@ QString DockingQSS::global()
 
                   ".ady--DockingPaneClient>QTabBar::close-button{image:url('"+closeIcon+"');margin-left:2px;}"
                   ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url('"+closeActiveIcon+"')}"
+                  ".ady--DockingPaneClient>QTabBar QToolButton{background:"+color+";border:0;}"
+                    ".ady--DockingPaneClient>QTabBar QToolButton:hover{background:"+secondaryButtonColor+";border:0;}"
 #else
                   ".ady--DockingPaneClient>QTabBar::tab{padding-right:23px}"
                   ".ady--DockingPaneClient>QTabBar::close-button:hover{image:url('"+titleActiveBackground+"')}"
