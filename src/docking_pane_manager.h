@@ -45,6 +45,7 @@ namespace ady {
         DockingWorkbench* workbench();
         QWidget* widget();
         DockingPaneLayoutItemInfo* createPane(DockingPane* pane,Position position,bool active=false);
+        DockingPaneLayoutItemInfo* insertPane(int index,DockingPane* pane,Position position,bool active=false);
         DockingPaneLayoutItemInfo* createPane(DockingPane* pane,DockingPaneContainer* target,Position position);
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,Position position);
         DockingPane* createPane(QString id,QString group,QString title,QWidget* widget,DockingPaneContainer* target,Position position);

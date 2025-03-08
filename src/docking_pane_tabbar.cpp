@@ -80,6 +80,7 @@ namespace ady{
 
     void DockingPaneTabBar::removeContainer(DockingPaneContainer* container)
     {
+        qDebug()<<"tab container list size"<<d->list.size();
         QList<DockingPaneContainer*>::iterator iter = d->list.begin();
         int i = 0;
         while(iter!=d->list.end()){

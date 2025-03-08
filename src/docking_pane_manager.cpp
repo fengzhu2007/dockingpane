@@ -59,12 +59,20 @@ namespace ady {
 
     DockingPaneLayoutItemInfo* DockingPaneManager::createPane(DockingPane* pane,Position position,bool active)
     {
+        return this->insertPane(-1,pane,position,active);
+    }
+
+    DockingPaneLayoutItemInfo* DockingPaneManager::insertPane(int index,DockingPane* pane,Position position,bool active){
         if(position==Center){
             DockingPaneClient* client = d->workbench->client();
             if(client!=nullptr){
                 pane->setParent(client);
                 client->initView();
-                client->appendPane(pane,active);
+                if(index<0 || index>=client->paneCount()){
+                    client->appendPane(pane,active);
+                }else{
+                    client->insertPane(index,pane,active);
+                }
                 return client->itemInfo();
             }
         }
@@ -152,33 +160,16 @@ namespace ady {
                 return this->createPane(pane,static_cast<Position>(position - 4),active);
             }
         }
-
-        /*if(orientation==DockingPaneLayoutItemInfo::Horizontal && (position==Position::Left || position==Position::S_Left)){
-            relation = root->first();
-            if(relation->isClient()==false){
-                container = relation->container();
-            }
-        }else if(orientation==DockingPaneLayoutItemInfo::Horizontal && (position==Position::Right || position==Position::S_Right)){
-            relation = root->last();
-            if(relation->isClient()==false){
-                container = relation->container();
-            }
-        }else if(orientation==DockingPaneLayoutItemInfo::Vertical && (position==Position::Top || position==Position::S_Top)){
-            relation = root->first();
-            if(relation->isClient()==false){
-                container = relation->container();
-            }
-        }else if(orientation==DockingPaneLayoutItemInfo::Vertical && (position==Position::Bottom || position==Position::S_Bottom)){
-            relation = root->last();
-            if(relation->isClient()==false){
-                container = relation->container();
-            }
-        }*/
         if(container==nullptr){
             container = new DockingPaneContainer(d->workbench);
             pane->setParent(container);
             container->setObjectName(pane->id()+"_containter");
-            container->appendPane(pane,active);
+            //container->appendPane(pane,active);
+            if(index<0 || index>=container->paneCount()){
+                container->appendPane(pane,active);
+            }else{
+                container->insertPane(index,pane,active);
+            }
             if(clientRelation!=nullptr){
                 return d->layout->addItem(container,clientRelation,position);
             }else{
@@ -187,11 +178,14 @@ namespace ady {
 
         }else{
             pane->setParent(container);
-            container->appendPane(pane,active);
-            //qDebug()<<"append pane :"<<active;
+            //container->appendPane(pane,active);
+            if(index<0 || index>=container->paneCount()){
+                container->appendPane(pane,active);
+            }else{
+                container->insertPane(index,pane,active);
+            }
             return relation;
         }
-
     }
 
     DockingPaneLayoutItemInfo* DockingPaneManager::createPane(DockingPane* pane,DockingPaneContainer* target,Position position)
@@ -498,7 +492,6 @@ namespace ady {
         for(int i=0;i<4;i++){
             auto bar = d->workbench->tabBar(i);
             auto list = bar->containerList();
-
             for(auto one:list){
                 int paneCount = one->paneCount();
                 QJsonArray tabs;
@@ -594,6 +587,7 @@ namespace ady {
                 this->restoreContainers(list,orientation,root,func);
             }
         }
+
         QJsonArray fixeds = dockpanes.take("fixed").toArray();
         for(auto one:fixeds){
             auto json = one.toObject();
@@ -611,6 +605,7 @@ namespace ady {
                 if(pane!=nullptr){
                     if(container==nullptr){
                         container = new DockingPaneContainer(d->workbench,static_cast<DockingPaneManager::Position>(position));
+                        container->setObjectName(pane->id()+"_container");
                     }
                     container->appendPane(pane);
                 }
@@ -636,6 +631,7 @@ namespace ady {
                 if(pane!=nullptr){
                     if(container==nullptr){
                         container = new DockingPaneContainer(d->workbench,DockingPaneManager::S_Left);
+                        container->setObjectName(pane->id()+"_container");
                     }
                     container->appendPane(pane);
                 }
@@ -739,6 +735,7 @@ namespace ady {
         auto list = d->workbench->containers();
         for(auto container:list){
             auto paneCount = container->paneCount();
+            qDebug()<<"container"<<container<<paneCount;
             for(int i=0;i<paneCount;i++){
                 bool ret = container->closePane(0);
                 if(ret==false){

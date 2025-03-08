@@ -98,6 +98,7 @@ namespace ady {
 
     DockingPaneContainer::~DockingPaneContainer()
     {
+        qDebug()<<"~DockingPaneContainer"<<this;
         delete d;
     }
 
@@ -126,7 +127,9 @@ namespace ady {
     {
         pane->setParent(d->stacked);
         d->stacked->insertWidget(index,(QWidget*)pane);
-        if(d->nclient!=nullptr){
+        const QString title = pane->windowTitle();
+        d->tabbar->insertTab(index,title);
+        if(d->nclient!=nullptr  && d->tabbar->count()==1){
             d->nclient->updateTitle(pane->windowTitle());
         }
         if(active){
@@ -329,10 +332,8 @@ namespace ady {
                 pane->setCloseEnable(closeEnable);
                 return false;
             }
-
             //remove fixed tab
             if(this->state()==DockingPaneContainer::Fixed){
-
                 for(int k=0;k<4;k++){
                     auto tabBar = workbench->tabBar(k);
                     auto list = tabBar->containerList();
@@ -350,7 +351,6 @@ namespace ady {
             QString id = pane->id();
             QString group = pane->group();
             pane->close();
-            //pane->deleteLater();
 
             //delete pane;
             workbench->paneClosed(id,group,isClient);

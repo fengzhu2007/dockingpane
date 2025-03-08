@@ -693,8 +693,6 @@ namespace ady {
                 //compare client rect and container rect
                 rc = container->geometry();
                 //top layout orientation
-                //qDebug()<<l;
-                //qDebug()<<l->parent()<<l->parent()->childrenOrientation();
                 if(l->parent()->childrenOrientation()==DockingPaneLayoutItemInfo::Horizontal){
                     //qDebug()<<"Horizontal";
                     if(rc.y() + rc.height() < rect.y()){
@@ -704,9 +702,7 @@ namespace ady {
                         //bottom
                         position = DockingPaneManager::S_Bottom;
                     }
-
                 }else{
-                    //qDebug()<<"Vertial";
                     if(rc.x() + rc.width() < rect.x()){
                         //left
                         position = DockingPaneManager::S_Left;
@@ -738,11 +734,9 @@ namespace ady {
             itemInfo->remove();//remove self
             delete itemInfo;
         }
-        //qDebug()<<"position"<<position;
         if(position<0 || position>3){
             position = DockingPaneManager::S_Left;
         }
-        //container->setParent(nullptr);
         container->setFixedPosition(position);
         container->hide();
         DockingPaneTabBar* tabBar = d->tabBars[position];
@@ -752,11 +746,8 @@ namespace ady {
         }else if(position==DockingPaneManager::S_Left || position==DockingPaneManager::S_Right){
             tabBar->setGeometry(0,0,30,r.height());
         }
-
         tabBar->addContainer(container);
-        //qDebug()<<"size:"<<size();
         updateTabBars(size());
-
         this->layout()->update();
     }
 

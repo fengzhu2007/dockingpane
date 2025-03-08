@@ -192,24 +192,39 @@ namespace ady{
             container->close();
             container->deleteLater();
         }else if(state==DockingPaneContainer::Float){
-            container->parentWidget()->close();
+            //container->parentWidget()->close();
             DockingPaneFloatWindow* window = (DockingPaneFloatWindow*)container->parentWidget();
             window->close();
+            delete window;
         }else if(state==DockingPaneContainer::Fixed){
-            DockingPaneFixedWindow* window = (DockingPaneFixedWindow*)container->parentWidget();
-            int position = window->fixedPosition();
-            //DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();
+            //qDebug()<<"close fix window"<<container->parentWidget();
+            auto parent = container->parentWidget();
+            const QString className = parent->metaObject()->className();
+
+            int position = container->fixedPosition();
             auto workbench = container->workbench();
+            //qDebug()<<"position"<<position;
             DockingPaneTabBar* tabBar = workbench->tabBar(position);
             if(tabBar!=nullptr){
                 tabBar->removeContainerChild(container,container->current());//fixed
+            }
+            auto pane = container->takeAt(container->current());
+            if(pane){
+                pane->close();
+                delete pane;
             }
             if(container->paneCount()==0){
                 container->setParent(nullptr);
                 container->close();
                 container->deleteLater();
+                //qDebug()<<"destory"<<container;
             }
-            window->hide();
+            if(className==QString::fromUtf8("ady::DockingPaneFixedWindow")){
+                auto window = static_cast<DockingPaneFixedWindow*>(parent);
+                window->setCenterWidget(nullptr);
+                window->hide();
+            }
+            //window->hide();
         }
         //emit closed pane
         workbench->paneClosed(id,group,isClient);
@@ -343,12 +358,12 @@ namespace ady{
                 //fixed create float window;
                 DockingPaneFixedWindow* fixed_window = (DockingPaneFixedWindow*)container->parentWidget();
                 //remove sider tabbar items
+                qDebug()<<"index"<<i;
                 int position = fixed_window->fixedPosition();
                 //qDebug()<<"position"<<position;
                 DockingWorkbench* workbench = (DockingWorkbench*)fixed_window->parentWidget();
                 DockingPaneTabBar* tabBar = workbench->tabBar(position);
                 //tabBar->removeContainerChild(container,container->current());
-                //qDebug()<<"container:"<<container;
                 QRect rc = container->geometry();
                 QPoint pos = mapToGlobal(container->pos());
                 int index = tabBar->search(container);
@@ -362,7 +377,6 @@ namespace ady{
                     }else{
                         pane = container->pane(i);
                     }
-
                     DockingPaneContainer* restore_container = new DockingPaneContainer(nullptr);
                     restore_container->setState(DockingPaneContainer::Fixed);
                     restore_container->setOriPosition((DockingPaneManager::Position)position);
