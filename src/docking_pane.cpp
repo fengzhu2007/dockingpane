@@ -149,6 +149,9 @@ private:
             //if(container->mo)
             auto state = container->state();
             if(state==DockingPaneContainer::Fixed){
+                //container->setPane(container->indexOf(this));
+                container->onCurrentChanged(container->indexOf(this));
+                container->visibleTabBar(false);
                 container->workbench()->showFixedWindow(container,container->fixedPosition());
             }else if(state==DockingPaneContainer::Float){
                 auto window = container->parentWidget();

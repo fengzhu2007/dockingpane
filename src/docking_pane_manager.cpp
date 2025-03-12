@@ -735,7 +735,7 @@ namespace ady {
         auto list = d->workbench->containers();
         for(auto container:list){
             auto paneCount = container->paneCount();
-            qDebug()<<"container"<<container<<paneCount;
+            //qDebug()<<"container"<<container<<paneCount;
             for(int i=0;i<paneCount;i++){
                 bool ret = container->closePane(0);
                 if(ret==false){

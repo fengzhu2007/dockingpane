@@ -98,7 +98,7 @@ namespace ady {
 
     DockingPaneContainer::~DockingPaneContainer()
     {
-        qDebug()<<"~DockingPaneContainer"<<this;
+        //qDebug()<<"~DockingPaneContainer"<<this;
         delete d;
     }
 
