@@ -179,6 +179,11 @@ namespace ady {
                 }
                 this->onFloat(index,true);
             }else{
+
+                if(!DockingPaneFloatWindow::windowExists(d->current_window)){
+                    //fixme
+                    return ;
+                }
                 QWidget* window = d->current_window;
                 QPoint cursorPos = e->pos();
                 if(!container->isClient()){
