@@ -25,7 +25,7 @@ QString DockingQSS::global()
 
     //qDebug()<<"closeIcon"<<closeActiveIcon;
     QString qss = ".ady--DockingWorkbench{background:"+color+"}"
-                  ".ady--DockingGuideCover{background:"+primaryColor+";border:5px solid "+borderColor+"}"
+                  //".ady--DockingGuideCover{background:"+primaryColor+";border:5px solid "+borderColor+"}"
                   ".ady--DockingPaneContainer{background:"+color+";border:1px solid "+borderColor+";}"
                   ".ady--DockingPaneClient{background:"+color+";}"
                   ".ady--DockingPaneClient>QTabBar{background-color:"+color+";border:0;}"

@@ -24,6 +24,7 @@ namespace ady {
         int offsetX = 0;
         int offsetY = 0;
         int position = -1;
+        int tab = -1;
         DockingPaneContainer* guide_container = nullptr;
         DockingPaneFloatWindow* current_window = nullptr;
         std::function<void(QDropEvent*)> func;
@@ -43,7 +44,6 @@ namespace ady {
         auto theme = DockingTheme::getInstance();
         d->borderColor = theme->borderColor();
         d->clientBorderColor = theme->color();
-
     }
 
     void DockingPaneContainerTabBar::setDropCallback(std::function<void(QDropEvent*)> func){
@@ -69,7 +69,6 @@ namespace ady {
                 container->setPane(i);
                 container->pane(i)->contextMenu(pos);
             }
-
         }
     }
 
@@ -113,7 +112,6 @@ namespace ady {
                         }
                     }
                 }
-
                 d->fixed=false;
             }
         }
@@ -130,14 +128,13 @@ namespace ady {
             setAutoHide(true);
         }
         if(d->current_window!=nullptr){
-
             if(DockingPaneFloatWindow::windowExists(d->current_window)){
                 DockingWorkbench* workbench = (DockingWorkbench*)container->parentWidget();
                 workbench->hideGuide();
                 workbench->hideSiderGuide();
                 workbench->endLookup();
                 if(d->position>=0){
-                    workbench->lockContainer(d->current_window,d->guide_container,d->position);
+                    workbench->lockContainer(d->current_window,d->guide_container,d->position,d->tab);
                 }
             }
         }
@@ -149,13 +146,10 @@ namespace ady {
         }
     }
 
-
-
     void DockingPaneContainerTabBar::mousePressEvent(QMouseEvent *e)
     {
         QTabBar::mousePressEvent(e);
         //d->moving = true;
-
         d->offsetX = e->x();
         d->offsetY = e->y();
         DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
@@ -168,7 +162,7 @@ namespace ady {
 
     void DockingPaneContainerTabBar::mouseMoveEvent(QMouseEvent *e)
     {
-        QTabBar::mouseMoveEvent(e);
+
         if(d->moving){
             DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
             if(d->fixed==true){
@@ -179,7 +173,6 @@ namespace ady {
                 }
                 this->onFloat(index,true);
             }else{
-
                 if(!DockingPaneFloatWindow::windowExists(d->current_window)){
                     //fixme
                     return ;
@@ -208,7 +201,9 @@ namespace ady {
                 workbench->startLookup();
                 QRect rc;
                 bool guide_visibility = false;
-                DockingPaneContainer* container = workbench->lookup(globalPos,rc,guide_visibility);
+                int tab = -1;
+                DockingPaneContainer* container = workbench->lookup(globalPos,rc,guide_visibility,&tab);
+                //qDebug()<<"globalPos"<<globalPos<<tab;
                 int position = -1;
                 if(guide_visibility){
                     workbench->showGuide(container,rc);
@@ -221,16 +216,27 @@ namespace ady {
                 if(position>=0){
                     workbench->showGuideCover(container,position,window->geometry());
                 }else{
-                    workbench->hideGuideCover();
+                    if(tab>-1){
+                        //insert tab
+                        workbench->showGuideCover(container,DockingPaneManager::Center,window->geometry(),tab);
+                        position = DockingPaneManager::Center;
+                    }else{
+                        workbench->hideGuideCover();
+                    }
                 }
+                d->tab = tab;
                 d->position = position;
                 d->guide_container = container;
+                e->setAccepted(false);
+                //qDebug()<<"1111111111111111"<<globalPos;
+                //return ;
             }
         }else{
             if(d->offsetX>0 && d->offsetY>0 && (abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3)){
                 d->moving = true;
             }
         }
+        QTabBar::mouseMoveEvent(e);
     }
 
     void DockingPaneContainerTabBar::mouseReleaseEvent(QMouseEvent *e)
@@ -243,6 +249,7 @@ namespace ady {
 #ifdef Q_OS_WIN
         QTabBar::paintEvent(event);
         if(!this->tabsClosable()){
+            QTabBar::paintEvent(event);
             //container tabbar
             QStylePainter p(this);
             int count = this->count();
@@ -268,6 +275,7 @@ namespace ady {
             color = textColor = d->clientBorderColor;
             p.setPen(textColor);
             p.fillRect(w, height()-1, width() - w, 1, color);
+
         }
 #else
         QTabBar::paintEvent(event);

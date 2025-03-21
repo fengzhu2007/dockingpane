@@ -28,12 +28,12 @@ namespace ady {
         int activeSiderGuide(const QPoint& pos);
         void startLookup();
         void endLookup();
-        DockingPaneContainer* lookup(const QPoint& pos,QRect& rect,bool &guide_visibility);
+        DockingPaneContainer* lookup(const QPoint& pos,QRect& rect,bool &guide_visibility,int* tab);
 
-        void showGuideCover(DockingPaneContainer* container,int position,const QRect& rect);
+        void showGuideCover(DockingPaneContainer* container,int position,const QRect& rect,int tab=-1);
         void hideGuideCover();
 
-        void lockContainer(DockingPaneFloatWindow* window,DockingPaneContainer* container,int position);
+        void lockContainer(DockingPaneFloatWindow* window,DockingPaneContainer* container,int position,int tab=-1);
         void restoreWidget(DockingPaneContainer* widget,int position);
         void restorePane(DockingPane* pane,int position);
 

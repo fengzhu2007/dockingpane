@@ -25,6 +25,7 @@ namespace ady{
         int offsetX = 0;
         int offsetY = 0;
         int position = -1;
+        int tab = -1;
         DockingPaneContainer* guide_container = nullptr;
         bool active = false;
 
@@ -503,7 +504,7 @@ namespace ady{
 
     void DockingPaneContainerNClient::mouseMoveEvent(QMouseEvent *e)
     {
-        QWidget::mouseMoveEvent(e);
+
         if(d->moving){
             DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
             if(container!=nullptr){
@@ -527,14 +528,25 @@ namespace ady{
                     }
                     window->move(pos);
 
+
                     DockingWorkbench* workbench = (DockingWorkbench*)window->parentWidget();
 
                     QPoint globalPos = mapToGlobal(cursorPos);
+                    //qDebug()<<"window pos"<<pos<<globalPos;
 
                     workbench->startLookup();
                     QRect rc;
                     bool guide_visibility = false;
-                    DockingPaneContainer* container = workbench->lookup(globalPos,rc,guide_visibility);
+                    int tab = -1;
+                    //globalPos mouse pos
+                    DockingPaneContainer* container = workbench->lookup(globalPos,rc,guide_visibility,&tab);
+                    if(tab>-1){
+                        //set opacity 0.5
+                        window->setWindowOpacity(0.8);
+                    }else{
+                        //set opacity 1
+                        window->setWindowOpacity(1);
+                    }
 
                     int position = -1;
                     if(guide_visibility){
@@ -545,15 +557,21 @@ namespace ady{
                         position = workbench->activeSiderGuide(globalPos);
                     }
                     workbench->showSiderGuide();
-
+                    //qDebug()<<"tab"<<tab<<guide_visibility<<position;
                     if(position>=0){
                         workbench->showGuideCover(container,position,window->geometry());
                     }else{
-                         workbench->hideGuideCover();
+                        if(tab>-1){
+                            //insert tab
+                            workbench->showGuideCover(container,DockingPaneManager::Center,window->geometry(),tab);
+                            position = DockingPaneManager::Center;
+                        }else{
+                            workbench->hideGuideCover();
+                        }
                     }
                     d->position = position;
                     d->guide_container = container;
-
+                    d->tab = tab;
                 }
             }
         }else{
@@ -564,8 +582,8 @@ namespace ady{
                     container->visibleTabBar(true);
                 }
             }
-
         }
+        QWidget::mouseMoveEvent(e);
     }
 
     void DockingPaneContainerNClient::mousePressEvent(QMouseEvent *e)
@@ -594,10 +612,13 @@ namespace ady{
             workbench->hideGuide();
             workbench->hideSiderGuide();
             workbench->endLookup();
-
+            //qDebug()<<"widget:"<<parent<<";guid:"<<d->guide_container<<";position:"<<d->position<<d->tab;
             if(d->position>=0){
-                //qDebug()<<"widget:"<<parent<<";guid:"<<d->guide_container<<";position:"<<d->position;
-                workbench->lockContainer((DockingPaneFloatWindow*)parent->parentWidget(),d->guide_container,d->position);
+                //qDebug()<<"widget:"<<parent<<";guid:"<<d->guide_container<<";position:"<<d->position<<d->tab;
+                workbench->lockContainer((DockingPaneFloatWindow*)parent->parentWidget(),d->guide_container,d->position,d->tab);
+            }else{
+                //set opacity 1
+                parent->parentWidget()->setWindowOpacity(1);
             }
         }
     }

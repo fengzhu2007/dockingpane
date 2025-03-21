@@ -6,6 +6,7 @@
 #include "docking_guide_cover.h"
 #include "docking_pane_layout_item_info.h"
 #include "docking_pane_layout.h"
+#include "docking_pane_container_tabbar.h"
 #include "docking_pane_float_window.h"
 #include "docking_pane_fixed_window.h"
 #include "docking_pane_tabbar.h"
@@ -207,8 +208,9 @@ namespace ady {
         d->children.clear();
     }
 
-    DockingPaneContainer* DockingWorkbench::lookup(const QPoint& pos,QRect& rect,bool &guide_visibility)
+    DockingPaneContainer* DockingWorkbench::lookup(const QPoint& pos,QRect& rect,bool &guide_visibility,int* tab)
     {
+        *tab = -1;
         QRect rc = geometry();
         QPoint workbenchPos = mapToGlobal(this->pos());
         int offsetX = workbenchPos.x();
@@ -226,6 +228,19 @@ namespace ady {
                 rect = rc;
                 guide_visibility = true;
                 //qDebug()<<"find ok:"<<one;
+                //find container tab index
+                auto tabbar = one->tabBar();
+                QPoint mP{p.x() - rc.left(),p.y() - rc.top()};
+                if(tabbar->geometry().contains(mP)){
+                    mP.ry() -= tabbar->geometry().top();
+                    auto index = tabbar->tabAt(mP);
+                    //qDebug()<<"mouse moving in tabbar;"<<p<<mP<<index<<tabbar->geometry();
+                    if(index==-1){
+                        *tab = tabbar->count();
+                    }else{
+                        *tab = index;
+                    }
+                }
                 return one;
             }
         }
@@ -236,12 +251,11 @@ namespace ady {
         return nullptr;
     }
 
-    void DockingWorkbench::showGuideCover(DockingPaneContainer* container,int position,const QRect& rect)
+    void DockingWorkbench::showGuideCover(DockingPaneContainer* container,int position,const QRect& rect,int tab)
     {
         if(d->cover==nullptr){
             d->cover = new DockingGuideCover(this);
         }
-
 
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
         DockingPaneLayoutItemInfo* rootItem = layout->rootItem();
@@ -255,6 +269,7 @@ namespace ady {
                 position = 0;
             }
         }*/
+        d->cover->setShape(DockingGuideCover::Full,0,0);
 
         if(position==DockingPaneManager::S_Left){
             QRect rc = geometry();
@@ -437,6 +452,21 @@ namespace ady {
                 coverRect.setY(containerPos.y());
                 coverRect.setWidth(rc.width() );
                 coverRect.setHeight(rc.height());
+                if(tab>-1){
+                    int sider = container->isClient()?DockingGuideCover::Top:DockingGuideCover::Bottom;
+                    auto tabbar = container->tabBar();
+                    int total = tabbar->count();
+                    int x = 0;
+                    if(total>0 && tab==total){
+                        //insert last
+                        auto rc = tabbar->tabRect(tab - 1);
+                        x = rc.left() + rc.width();
+                    }else if(total>0 && tab<total){
+                        auto rc = tabbar->tabRect(tab);
+                        x = rc.left();
+                    }
+                    d->cover->setShape(sider,x,container->tabBar()->size().height());
+                }
             }else{
                 d->cover->hide();
                 return;
@@ -447,7 +477,7 @@ namespace ady {
         d->cover->show();
     }
 
-    void DockingWorkbench::lockContainer(DockingPaneFloatWindow* window,DockingPaneContainer* container,int position)
+    void DockingWorkbench::lockContainer(DockingPaneFloatWindow* window,DockingPaneContainer* container,int position,int tab)
     {
         DockingPaneLayout* layout = (DockingPaneLayout*)this->layout();
 
@@ -574,14 +604,21 @@ namespace ady {
 
         }else{
             //center
-            //container->initView();
             window->hide();
             int size = widget->paneCount();
             for(int i=0;i<size;i++){
                 DockingPane* pane = widget->pane(0);
-                container->appendPane(pane);
-                if(i==0){
-                   container->setPane(container->paneCount()-1);
+                if(tab==-1){
+                    container->appendPane(pane);
+                    if(i==0){
+                        container->setPane(container->paneCount()-1);
+                    }
+                }else{
+                    container->insertPane(tab,pane);
+                    if(i==0){
+                        container->setPane(tab);
+                    }
+                    tab += 1;
                 }
             }
             widget->close();
