@@ -358,7 +358,7 @@ namespace ady {
             if(i<0){
                 i = 0;
             }
-            this->onCurrentChanged(i);
+            //this->onCurrentChanged(i);
             return true;
         }else{
             return d->nclient->closeCurrent();
