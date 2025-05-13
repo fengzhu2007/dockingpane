@@ -11,6 +11,8 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QResizeEvent>
+#include <QApplication>
+#include <QTimer>
 #include <QDebug>
 
 namespace ady {
@@ -114,9 +116,25 @@ namespace ady {
         }
         int i = d->tabbar->count() - 1;
         if(active){
+            //d->tabbar->setCurrentIndex(i);
+
             this->setPane(i);
+            auto rect = d->tabbar->tabRect(i);
+            {
+                QMouseEvent moveEvent(QEvent::MouseMove, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QCoreApplication::sendEvent(d->tabbar, &moveEvent);
+            }
+            /*{
+                QMouseEvent pressEvent(QEvent::MouseButtonPress, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QCoreApplication::sendEvent(d->tabbar, &pressEvent);
+
+            }
+            {
+                QMouseEvent pressEvent(QEvent::MouseButtonRelease, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QCoreApplication::sendEvent(d->tabbar, &pressEvent);
+            }*/
         }
-         const QString tooltip = pane->description();
+        const QString tooltip = pane->description();
         if(!tooltip.isEmpty()){
             d->tabbar->setTabToolTip(i,tooltip);
         }
@@ -134,6 +152,11 @@ namespace ady {
         }
         if(active){
             this->setPane(index);
+            auto rect = d->tabbar->tabRect(index);
+            {
+                QMouseEvent moveEvent(QEvent::MouseMove, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QCoreApplication::sendEvent(d->tabbar, &moveEvent);
+            }
         }
         QString tooltip = pane->description();
         if(!tooltip.isEmpty()){
@@ -511,7 +534,7 @@ namespace ady {
             }else if(className==QString::fromUtf8("ady::DockingPaneFixedWindow")){
                 return static_cast<DockingWorkbench*>(parent->parentWidget());
             }else{
-                qDebug()<<"DockingPaneContainer::workbench:"<<className;
+                //qDebug()<<"DockingPaneContainer::workbench:"<<className;
             }
 
             return nullptr;
@@ -519,6 +542,8 @@ namespace ady {
             return nullptr;
         }
     }
+
+
 
     void DockingPaneContainer::onCurrentChanged(int i)
     {

@@ -68,6 +68,9 @@ namespace ady {
             if(container!=nullptr){
                 container->setPane(i);
                 container->pane(i)->contextMenu(pos);
+
+                //QMouseEvent leaveEvent(QEvent::Leave, QPoint(0,0), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+                //QCoreApplication::sendEvent(this, &leaveEvent);
             }
         }
     }
@@ -237,6 +240,10 @@ namespace ady {
             }
         }
         QTabBar::mouseMoveEvent(e);
+        if (tabAt(e->pos()) == -1) {
+            setAttribute(Qt::WA_UnderMouse, false);
+            update();
+        }
     }
 
     void DockingPaneContainerTabBar::mouseReleaseEvent(QMouseEvent *e)

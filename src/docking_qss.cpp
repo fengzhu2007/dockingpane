@@ -30,8 +30,10 @@ QString DockingQSS::global()
                   ".ady--DockingPaneClient{background:"+color+";}"
                   ".ady--DockingPaneClient>QTabBar{background-color:"+color+";border:0;}"
                   ".ady--DockingPaneClient>QTabBar::tab{background-color:"+color+";border-bottom:0;height:24px;padding:0 16px 0 6px;text-align:left;color:"+clientTabColor+"}"
-                  ".ady--DockingPaneClient>QTabBar::tab:hover{background-color:"+secondaryClientTabColor+";color:"+primaryTextColor+";}"
+                    ".ady--DockingPaneClient>QTabBar::tab:hover{background-color:"+secondaryClientTabColor+";color:"+primaryTextColor+";}"
                   ".ady--DockingPaneClient>QTabBar::tab:selected{background-color:"+primaryColor+";color:"+primaryTextColor+";}"
+
+
 
 #ifdef Q_OS_WIN
 
