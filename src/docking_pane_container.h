@@ -70,6 +70,8 @@ namespace ady{
 
         DockingWorkbench* workbench();
 
+        void updateTabBar(int i);
+
 
 
 

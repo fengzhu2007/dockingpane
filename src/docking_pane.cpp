@@ -159,6 +159,7 @@ private:
                 container->activeWidget(true);
             }else{
                 container->setPane(this);
+
             }
         }
     }

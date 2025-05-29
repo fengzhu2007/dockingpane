@@ -116,23 +116,7 @@ namespace ady {
         }
         int i = d->tabbar->count() - 1;
         if(active){
-            //d->tabbar->setCurrentIndex(i);
-
             this->setPane(i);
-            auto rect = d->tabbar->tabRect(i);
-            {
-                QMouseEvent moveEvent(QEvent::MouseMove, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-                QCoreApplication::sendEvent(d->tabbar, &moveEvent);
-            }
-            /*{
-                QMouseEvent pressEvent(QEvent::MouseButtonPress, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-                QCoreApplication::sendEvent(d->tabbar, &pressEvent);
-
-            }
-            {
-                QMouseEvent pressEvent(QEvent::MouseButtonRelease, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-                QCoreApplication::sendEvent(d->tabbar, &pressEvent);
-            }*/
         }
         const QString tooltip = pane->description();
         if(!tooltip.isEmpty()){
@@ -152,11 +136,6 @@ namespace ady {
         }
         if(active){
             this->setPane(index);
-            auto rect = d->tabbar->tabRect(index);
-            {
-                QMouseEvent moveEvent(QEvent::MouseMove, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-                QCoreApplication::sendEvent(d->tabbar, &moveEvent);
-            }
         }
         QString tooltip = pane->description();
         if(!tooltip.isEmpty()){
@@ -175,6 +154,9 @@ namespace ady {
             }
         }
         d->tabbar->setCurrentIndex(index);
+        if(this->isClient()){
+            this->updateTabBar(index);
+        }
     }
 
     void DockingPaneContainer::setPane(DockingPane* pane){
@@ -545,9 +527,17 @@ namespace ady {
 
 
 
+    void DockingPaneContainer::updateTabBar(int i){
+        QTimer::singleShot(1,[this,i](){
+            auto rect = d->tabbar->tabRect(i);
+            QMouseEvent moveEvent(QEvent::MouseMove, QPoint(rect.x() + 1,rect.y() + 1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+            QCoreApplication::sendEvent(d->tabbar, &moveEvent);
+        });
+    }
+
+
     void DockingPaneContainer::onCurrentChanged(int i)
     {
-        //qDebug()<<"onCurrentChanged:"<<i;
         if(i>=0 && i<d->stacked->count()){
             if(this->isClient()){
                 d->tabbar->setCurrentIndex(i);

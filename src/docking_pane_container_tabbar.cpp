@@ -151,6 +151,7 @@ namespace ady {
 
     void DockingPaneContainerTabBar::mousePressEvent(QMouseEvent *e)
     {
+        d->mouse_pressed = true;
         QTabBar::mousePressEvent(e);
         //d->moving = true;
         d->offsetX = e->x();
@@ -165,8 +166,8 @@ namespace ady {
 
     void DockingPaneContainerTabBar::mouseMoveEvent(QMouseEvent *e)
     {
-
         if(d->moving){
+            d->mouse_pressed = false;
             DockingPaneContainer* container = (DockingPaneContainer*)parentWidget();
             if(d->fixed==true){
                 int index = tabAt({d->offsetX,d->offsetY});
@@ -231,23 +232,18 @@ namespace ady {
                 d->position = position;
                 d->guide_container = container;
                 e->setAccepted(false);
-                //qDebug()<<"1111111111111111"<<globalPos;
-                //return ;
             }
         }else{
-            if(d->offsetX>0 && d->offsetY>0 && (abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3)){
+            if(d->mouse_pressed && d->offsetX>0 && d->offsetY>0 && (abs(d->offsetX - e->x())>3 || abs(d->offsetY-e->y())>3)){
                 d->moving = true;
             }
         }
         QTabBar::mouseMoveEvent(e);
-        if (tabAt(e->pos()) == -1) {
-            setAttribute(Qt::WA_UnderMouse, false);
-            update();
-        }
     }
 
     void DockingPaneContainerTabBar::mouseReleaseEvent(QMouseEvent *e)
     {
+        d->mouse_pressed = false;
         QTabBar::mouseReleaseEvent(e);
         this->onFloatRelease();
     }
