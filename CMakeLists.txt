@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
-
+include_directories(${Qt5Widgets_PRIVATE_INCLUDE_DIRS})
 
 include_directories(SYSTEM "./src")
 

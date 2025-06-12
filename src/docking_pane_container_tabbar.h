@@ -1,5 +1,6 @@
 #ifndef DOCKING_PANE_CONTAINER_TABBAR_H
 #define DOCKING_PANE_CONTAINER_TABBAR_H
+#include "global.h"
 #include <QTabBar>
 #include <QRect>
 #include <QMouseEvent>
@@ -8,13 +9,17 @@ class QDropEvent;
 namespace ady {
 typedef void (*DropFunc) (QDropEvent*);
     class DockingPaneContainerTabBarPrivate;
-    class DockingPaneContainerTabBar : public QTabBar{
+    class DOCKINGPANE_EXPORT DockingPaneContainerTabBar : public QTabBar{
         Q_OBJECT
     public:
         DockingPaneContainerTabBar(QWidget* parent);
         void setDropCallback(std::function<void(QDropEvent*)> func);
         std::function<void(QDropEvent*)> dropCallback();
         void setState(int state);
+        int scrollOffset() const ;
+        //void setScrollOffset(int offset);
+        void ensureVisible(int index);
+        int lastVisibleTab();
 
 
     public slots:

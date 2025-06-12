@@ -13,6 +13,7 @@
 #include <QStyleOptionTab>
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include <private/qtabbar_p.h>
 #include <QDebug>
 namespace ady {
     class DockingPaneContainerTabBarPrivate {
@@ -44,6 +45,8 @@ namespace ady {
         auto theme = DockingTheme::getInstance();
         d->borderColor = theme->borderColor();
         d->clientBorderColor = theme->color();
+
+
     }
 
     void DockingPaneContainerTabBar::setDropCallback(std::function<void(QDropEvent*)> func){
@@ -60,6 +63,41 @@ namespace ady {
             d->current_window = nullptr;
         }
     }
+
+    int DockingPaneContainerTabBar::scrollOffset() const {
+        if (count() == 0) return 0;
+        return tabRect(0).x();
+    }
+
+    void DockingPaneContainerTabBar::ensureVisible(int index){
+        QTabBarPrivate *d = static_cast<QTabBarPrivate *>(QTabBar::d_ptr.data());
+        d->makeVisible(index);
+
+        auto current = this->currentIndex();
+        if(current>=0){
+            auto rc = this->tabRect(current);
+            if(rc.x()<0){
+                d->makeVisible(current);
+            }
+        }
+    }
+
+    int DockingPaneContainerTabBar::lastVisibleTab(){
+        QTabBarPrivate *d = static_cast<QTabBarPrivate *>(QTabBar::d_ptr.data());
+        auto rect = this->geometry();
+        int index = 0;
+        for(auto i=0;i<this->count();i++){
+            auto rc = this->tabRect(i);
+            if(rc.x() + rc.width() <= rect.width()){
+                index = i;
+            }else{
+                break;
+            }
+        }
+        return index;
+    }
+
+
 
     void DockingPaneContainerTabBar::showContextMenu(const QPoint &pos){
         int i = this->tabAt(pos);
