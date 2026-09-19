@@ -326,6 +326,7 @@ namespace ady {
         if(pane==nullptr){
             return false;
         }
+        qDebug()<<"close pane1:"<<pane;
         auto workbench = this->workbench();
         bool isClient = this->isClient();
         int count = this->paneCount();
@@ -334,6 +335,7 @@ namespace ady {
             //workbench->beforePaneClose(pane,this->isClient());
             if(force==false && closeEnable==false){
                 //stop close pane
+
                 pane->setCloseEnable(closeEnable);
                 return false;
             }
@@ -356,6 +358,7 @@ namespace ady {
             QString id = pane->id();
             QString group = pane->group();
             pane->close();
+            qDebug()<<"close pane 2:"<<pane;
 
             //delete pane;
             workbench->paneClosed(id,group,isClient);

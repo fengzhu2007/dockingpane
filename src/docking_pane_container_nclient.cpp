@@ -183,9 +183,14 @@ namespace ady{
         int paneCount = container->paneCount();
         if(state==DockingPaneContainer::Inner){
             if(paneCount>1){
+                qDebug()<<"close current pane3"<<container->currentPane();
                 container->closeCurrent();
                 return true;
+            }else if(paneCount==1){
+
+                container->currentPane()->close();
             }
+
             DockingPaneLayoutItemInfo* itemInfo = container->itemInfo();
             itemInfo->remove();
             delete itemInfo;
