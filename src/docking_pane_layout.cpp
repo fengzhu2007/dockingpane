@@ -6,7 +6,7 @@
 namespace ady {
     DockingPaneLayout::DockingPaneLayout(QWidget *parent, int margin, int spacing)
         :QLayout(parent){
-        setMargin(margin);
+        setContentsMargins(margin, margin, margin, margin);
         setSpacing(spacing);
         m_rootItem = new DockingPaneLayoutItemInfo(nullptr,DockingPaneManager::Top);
         m_rootItem->setObjectName("rootIteminfo");

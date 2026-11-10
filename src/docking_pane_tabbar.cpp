@@ -23,7 +23,7 @@ namespace ady{
         d = new DockingPaneTabBarPrivate;
         d->layout = new QBoxLayout(QBoxLayout::LeftToRight,this);
         d->spacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-        d->layout->setMargin(0);
+        d->layout->setContentsMargins(0, 0, 0, 0);
         //d->layout->setContentsMargins(5,5,5,5);
 #ifdef Q_OS_WIN
         d->layout->setSpacing(10);

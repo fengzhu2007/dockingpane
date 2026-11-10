@@ -33,7 +33,7 @@ namespace ady {
         d->layout = new DockingPaneLayout(d->workbench,0,6);
 
         QHBoxLayout* l = new QHBoxLayout(d->widget);
-        l->setMargin(0);
+        l->setContentsMargins(0, 0, 0, 0);
         l->setSpacing(0);
         l->addWidget(d->workbench);
         d->widget->setLayout(l);

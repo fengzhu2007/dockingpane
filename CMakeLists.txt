@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(dockingpane)
 
@@ -10,9 +10,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
-include_directories(${Qt5Widgets_PRIVATE_INCLUDE_DIRS})
 
-include_directories(SYSTEM "./src")
+# Qt5/Qt6 私有头文件（源码中引用了 private/qtabbar_p.h）
+set(DOCKINGPANE_QT_PRIVATE_INCLUDE_DIRS ${Qt${QT_VERSION_MAJOR}Widgets_PRIVATE_INCLUDE_DIRS})
+if(NOT DOCKINGPANE_QT_PRIVATE_INCLUDE_DIRS)
+    message(WARNING "Qt${QT_VERSION_MAJOR}Widgets_PRIVATE_INCLUDE_DIRS is empty, dockingpane requires Qt private headers")
+endif()
+include_directories(${DOCKINGPANE_QT_PRIVATE_INCLUDE_DIRS})
+
+include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DQ_DEBUG)
@@ -23,7 +29,11 @@ set(RESOURCES
     src/res.qrc
 )
 
-qt5_add_resources(RESOURCE_ADDED ${RESOURCES})
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_add_resources(RESOURCE_ADDED ${RESOURCES})
+else()
+    qt5_add_resources(RESOURCE_ADDED ${RESOURCES})
+endif()
 
 
 add_library(dockingpane SHARED

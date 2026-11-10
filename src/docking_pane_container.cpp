@@ -39,7 +39,7 @@ namespace ady {
         d->client=false;
         d->ori_position = position;
         QVBoxLayout* layout = new QVBoxLayout(this);
-        layout->setMargin(1);
+        layout->setContentsMargins(1, 1, 1, 1);
         layout->setSpacing(0);
 
         d->nclient = new DockingPaneContainerNClient(this);
@@ -84,7 +84,7 @@ namespace ady {
     void DockingPaneContainer::initView(){
         if(d->stacked==nullptr){
             QVBoxLayout* layout = new QVBoxLayout(this);
-            layout->setMargin(0);
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             d->tabbar = new DockingPaneContainerTabBar(this);
             d->stacked = new QStackedWidget(this);
@@ -615,7 +615,7 @@ namespace ady {
          //QFrame::paintEvent(e);
          Q_UNUSED(e);
          QStyleOption opt;
-         opt.init(this);
+         opt.initFrom(this);
          QPainter p(this);
          style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
      }

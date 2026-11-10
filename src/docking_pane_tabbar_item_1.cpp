@@ -21,7 +21,7 @@ namespace ady {
         d->label->setGeometry(0,0,rect.height(),rect.width());
         qDebug()<<"rect2:"<<d->label->geometry()<<this->geometry();
         QHBoxLayout* layout = new QHBoxLayout(this);
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
 
         layout->addWidget(d->label);
         setStyleSheet("background:red");

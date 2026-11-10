@@ -34,7 +34,11 @@ namespace ady {
     {
         QSize size;
         QFontMetrics fm(this->font());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        size.setWidth(fm.horizontalAdvance(this->text()));
+#else
         size.setWidth(fm.width(this->text()));
+#endif
         size.setHeight(30);//theme
         if (d->orientation == Qt::Vertical) {
             size.transpose();
@@ -66,7 +70,7 @@ namespace ady {
         QColor color, textColor;
 
         p.setRenderHint(QPainter::Antialiasing, true);
-        p.setRenderHint(QPainter::HighQualityAntialiasing, true);
+        p.setRenderHint(QPainter::TextAntialiasing, true);
 
         if (d->hover) {
             color = d->primaryColor;
@@ -125,7 +129,11 @@ namespace ady {
         }
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    void DockingPaneTabBarItem::enterEvent(QEnterEvent *event)
+#else
     void DockingPaneTabBarItem::enterEvent(QEvent *event)
+#endif
     {
         d->hover = true;
         QPushButton::enterEvent(event);

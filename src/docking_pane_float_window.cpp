@@ -39,7 +39,7 @@ QList<DockingPaneFloatWindow*> DockingPaneFloatWindow::list;
         QVBoxLayout* layout = (QVBoxLayout*)this->layout();
         if(layout==nullptr){
             layout = new QVBoxLayout(this);
-            layout->setMargin(6);
+            layout->setContentsMargins(6, 6, 6, 6);
             layout->setSpacing(0);
         }
         layout->addWidget((QWidget*)container);
@@ -101,12 +101,12 @@ QList<DockingPaneFloatWindow*> DockingPaneFloatWindow::list;
     }
 
     void DockingPaneFloatWindow::showMaximized(){
-        this->layout()->setMargin(0);
+        this->layout()->setContentsMargins(0, 0, 0, 0);
         QWidget::showMaximized();
     }
 
     void DockingPaneFloatWindow::showNormal(){
-        this->layout()->setMargin(6);
+        this->layout()->setContentsMargins(6, 6, 6, 6);
         QWidget::showNormal();
     }
 
